@@ -101,7 +101,7 @@ metadata:
   namespace: test-app
 spec:
   hosts:
-  - test-app.fqdn
+  - acme.apps.h2o-4-1060.h2o.vmware.com
   gateways:
   - test-app-gateway
   http:
