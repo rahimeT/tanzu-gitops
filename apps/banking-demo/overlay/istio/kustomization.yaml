@@ -6,4 +6,4 @@ metadata:
 
 resources:
 - 07-web-ui-v2.yaml
-- vs-fw-dr.yaml
+- vs-gw-dr.yaml
