@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: banking-demo
+  namespace: test-app
+
+resources:
+- 07-web-ui-v2.yaml
+- vs-fw-dr.yaml
