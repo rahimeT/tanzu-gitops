@@ -12,4 +12,4 @@ resources:
 - 04-quote-service.yaml
 - 05-user-service.yaml
 - 06-portfolio-service.yaml
-- 07-web-ui.yaml
+- 07-web-ui-v1.yaml

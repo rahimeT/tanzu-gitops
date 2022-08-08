@@ -1,0 +1,59 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: banking-demo-gateway
+  namespace: test-app
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - '*'
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: virtualservice-ingress-banking-demo
+  namespace: test-app
+spec:
+  hosts:
+  - banking-demo.apps.h2o-4-1060.h2o.vmware.com
+  gateways:
+  - banking-demo-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: web-ui
+        port:
+          number: 80
+        subset: v1
+      weight: 100
+    - destination:
+        host: web-ui
+        port:
+          number: 80
+        subset: v2
+      weight: 0
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: web-ui
+  namespace: test-app
+spec:
+  host: web-ui
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
