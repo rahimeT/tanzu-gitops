@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-nodejs-app-deployment-v1
+  namespace: test-app
+spec:
+  selector:
+    matchLabels:
+      app: test-nodejs-app
+      version: v1
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: nodejs-data
+      labels:
+        app: test-nodejs-app
+        version: v1
+    spec:
+      serviceAccountName: test-app-sa
+      containers:
+      - name: test-app
+        image: harbor.dorn.gorke.ml/nodejs/sample-app:v0.2.8
+        env:
+        - name: var1
+          value: Gorkem
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: MY_POD_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        - name: SECRET_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: gorkem-secret
+              key: username
+        - name: SECRET_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: gorkem-secret
+              key: password
+        volumeMounts:
+        - mountPath: /appdir
+          name: nodejs-data
+        ports:
+        - containerPort: 3000
+      volumes:
+      - name: nodejs-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-nodejs-app
+  namespace: test-app
+  labels:
+    app: test-nodejs-app
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: test-nodejs-app
+  type: LoadBalancer
