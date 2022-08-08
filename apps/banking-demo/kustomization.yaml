@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: banking-demo
+
+resources:
+- 00-wf.yaml
+- 01-config-server.yaml
+- 02-discovery-server.yaml
+- 03-account-service.yaml
+- 04-quote-service.yaml
+- 05-user-service.yaml
+- 06-portfolio-service.yaml
+- 07-web-ui.yaml
