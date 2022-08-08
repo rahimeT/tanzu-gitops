@@ -32,16 +32,12 @@ spec:
     route:
     - destination:
         host: web-ui
-        port:
-          number: 80
         subset: v1
-      weight: 0
+      weight: 100
     - destination:
         host: web-ui
-        port:
-          number: 80
         subset: v2
-      weight: 100
+      weight: 0
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
