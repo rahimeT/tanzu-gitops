@@ -49,4 +49,4 @@ spec:
     targetPort: 8080
   selector:
     app: web-ui
-  type: LoadBalancer
+  type: ClusterIP
