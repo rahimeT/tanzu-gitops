@@ -76,7 +76,7 @@ spec:
     targetPort: 3000
   selector:
     app: test-nodejs-app
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
