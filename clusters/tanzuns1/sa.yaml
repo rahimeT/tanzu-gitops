@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 data:
-  test: asd
+  test: YXNkCg==
 metadata:
   name: example-secret
   namespace: tanzuns1
