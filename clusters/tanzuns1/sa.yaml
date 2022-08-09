@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: Secret
-data:
-  test: YXNkCg==
-metadata:
-  name: example-secret
-  namespace: tanzuns1
-type: kubernetes.io/dockerconfigjson
