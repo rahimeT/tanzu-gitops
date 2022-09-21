@@ -69,3 +69,14 @@ export CONTOUR="CHANGEMEBASE64"
 sed -i -e "s~$CONTOUR~$CONTOUR_OVERLAY~g" ./03-contour/contour.yaml
 
 #kubectl apply -f 03-contour/contour.yaml
+
+#################################### prometheus ######################################################
+
+sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./04-prometheus/overlay/overlay.yaml
+sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./04-prometheus/prometheus.yaml
+export PROMETHEUS_OVERLAY=$(cat ./03-contour/overlay/overlay-vsphere.yaml|base64)
+
+export PROMETHEUS="CHANGEMEBASE64"
+sed -i -e "s~$PROMETHEUS~$PROMETHEUS_OVERLAY~g" ./04-prometheus/prometheus.yaml
+
+#kubectl apply -f 04-prometheus/prometheus.yaml
