@@ -60,7 +60,7 @@ yq -i '.data.caCerts = strenv(CA_1)' 02-kapp-controller/kapp-controller-config.y
 #################################### contour ######################################################
 
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./03-contour/overlay/overlay-vsphere.yaml
-
+sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./03-contour/contour.yaml
 export CONTOUR_OVERLAY=$(cat ./03-contour/overlay/overlay-vsphere.yaml|base64)
 
 echo $CONTOUR_OVERLAY
