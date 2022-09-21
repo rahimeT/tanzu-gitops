@@ -66,6 +66,6 @@ export CONTOUR_OVERLAY=$(cat ./03-contour/overlay/overlay-vsphere.yaml|base64)
 echo $CONTOUR_OVERLAY
 
 export CONTOUR="CHANGEMEBASE64"
-sed -i -e "s~$CONTOUR~$CONTOUR_OVERLAY~g" ./03-contour/01-namespace-role.yaml
+sed -i -e "s~$CONTOUR~$CONTOUR_OVERLAY~g" ./03-contour/contour.yaml
 
-#kubectl apply -f 03-contour/01-namespace-role.yaml
+#kubectl apply -f 03-contour/contour.yaml
