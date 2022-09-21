@@ -137,9 +137,21 @@ docker push $PROMETHEUS_9_INTERNAL
 
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./04-prometheus/overlay/overlay.yaml
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./04-prometheus/prometheus.yaml
-export PROMETHEUS_OVERLAY=$(cat ./03-contour/overlay/overlay-vsphere.yaml|base64)
+export PROMETHEUS_OVERLAY=$(cat ./04-prometheus/overlay/overlay.yaml|base64)
 
 export PROMETHEUS="CHANGEMEBASE64"
 sed -i -e "s~$PROMETHEUS~$PROMETHEUS_OVERLAY~g" ./04-prometheus/prometheus.yaml
 
 #kubectl apply -f 04-prometheus/prometheus.yaml
+
+
+#################################### grafana######################################################
+
+sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./05-grafana/overlay/overlay.yaml
+sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./05-grafana/grafana.yaml
+export GRAFANA_OVERLAY=$(cat ./05-grafana/overlay/overlay.yaml|base64)
+
+export GRAFANA="CHANGEMEBASE64"
+sed -i -e "s~$GRAFANA~$GRAFANA_OVERLAY~g" ./05-grafana/grafana.yaml
+
+#kubectl apply -f 05-grafana/grafana.yaml
