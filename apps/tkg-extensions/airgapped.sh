@@ -86,6 +86,55 @@ sed -i -e "s~$CONTOUR~$CONTOUR_OVERLAY~g" ./03-contour/contour.yaml
 
 #################################### prometheus ######################################################
 
+export PROMETHEUS_1="${HARBOR_EXTERNAL}/tkg/prometheus/alertmanager:v0.20.0_vmware.1"
+export PROMETHEUS_2="${HARBOR_EXTERNAL}/tkg/prometheus/configmap-reload:v0.3.0_vmware.1"
+export PROMETHEUS_3="${HARBOR_EXTERNAL}/tkg/prometheus/cadvisor:v0.36.0_vmware.1"
+export PROMETHEUS_4="${HARBOR_EXTERNAL}/tkg/prometheus/kube-state-metrics:v1.9.5_vmware.2"
+export PROMETHEUS_5="${HARBOR_EXTERNAL}/tkg/prometheus/prometheus_node_exporter:v0.18.1_vmware.1"
+export PROMETHEUS_6="${HARBOR_EXTERNAL}/tkg/prometheus/pushgateway:v1.2.0_vmware.2"
+export PROMETHEUS_7="${HARBOR_EXTERNAL}/tkg/prometheus/cadvisor:v0.36.0_vmware.1"
+export PROMETHEUS_8="${HARBOR_EXTERNAL}/tkg/prometheus/configmap-reload:v0.3.0_vmware.1"
+export PROMETHEUS_9="${HARBOR_EXTERNAL}/tkg/prometheus/prometheus:v2.18.1_vmware.1"
+
+export PROMETHEUS_1_INTERNAL="${HARBOR_INTERNAL}/tkg/prometheus/alertmanager:v0.20.0_vmware.1"
+export PROMETHEUS_2_INTERNAL="${HARBOR_INTERNAL}/tkg/prometheus/configmap-reload:v0.3.0_vmware.1"
+export PROMETHEUS_3_INTERNAL="${HARBOR_INTERNAL}/tkg/prometheus/cadvisor:v0.36.0_vmware.1"
+export PROMETHEUS_4_INTERNAL="${HARBOR_INTERNAL}/tkg/prometheus/kube-state-metrics:v1.9.5_vmware.2"
+export PROMETHEUS_5_INTERNAL="${HARBOR_INTERNAL}/tkg/prometheus/prometheus_node_exporter:v0.18.1_vmware.1"
+export PROMETHEUS_6_INTERNAL="${HARBOR_INTERNAL}/tkg/prometheus/pushgateway:v1.2.0_vmware.2"
+export PROMETHEUS_7_INTERNAL="${HARBOR_INTERNAL}/tkg/prometheus/cadvisor:v0.36.0_vmware.1"
+export PROMETHEUS_8_INTERNAL="${HARBOR_INTERNAL}/tkg/prometheus/configmap-reload:v0.3.0_vmware.1"
+export PROMETHEUS_9_INTERNAL="${HARBOR_INTERNAL}/tkg/prometheus/prometheus:v2.18.1_vmware.1"
+
+docker pull $PROMETHEUS_1
+docker tag $PROMETHEUS_1 $PROMETHEUS_1_INTERNAL
+docker push $PROMETHEUS_1_INTERNAL
+docker pull $PROMETHEUS_2
+docker tag $PROMETHEUS_2 $PROMETHEUS_2_INTERNAL
+docker push $PROMETHEUS_2_INTERNAL
+docker pull $PROMETHEUS_3
+docker tag $PROMETHEUS_3 $PROMETHEUS_3_INTERNAL
+docker push $PROMETHEUS_3_INTERNAL
+docker pull $PROMETHEUS_4
+docker tag $PROMETHEUS_4 $PROMETHEUS_4_INTERNAL
+docker push $PROMETHEUS_4_INTERNAL
+docker pull $PROMETHEUS_5
+docker tag $PROMETHEUS_5 $PROMETHEUS_5_INTERNAL
+docker push $PROMETHEUS_5_INTERNAL
+docker pull $PROMETHEUS_6
+docker tag $PROMETHEUS_6 $PROMETHEUS_6_INTERNAL
+docker push $PROMETHEUS_6_INTERNAL
+docker pull $PROMETHEUS_7
+docker tag $PROMETHEUS_7 $PROMETHEUS_7_INTERNAL
+docker push $PROMETHEUS_7_INTERNAL
+docker pull $PROMETHEUS_8
+docker tag $PROMETHEUS_8 $PROMETHEUS_8_INTERNAL
+docker push $PROMETHEUS_8_INTERNAL
+docker pull $PROMETHEUS_9
+docker tag $PROMETHEUS_9 $PROMETHEUS_9_INTERNAL
+docker push $PROMETHEUS_9_INTERNAL
+
+
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./04-prometheus/overlay/overlay.yaml
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./04-prometheus/prometheus.yaml
 export PROMETHEUS_OVERLAY=$(cat ./03-contour/overlay/overlay-vsphere.yaml|base64)
