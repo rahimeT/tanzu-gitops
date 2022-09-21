@@ -1,10 +1,5 @@
 ---
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: tkg-system
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
   # Name must be `kapp-controller-config` for kapp controller to pick it up
