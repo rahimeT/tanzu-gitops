@@ -8,6 +8,14 @@ tfM=
 -----END CERTIFICATE-----"
 
 
+#################################### tkg-extensions-templates ######################################################
+export TKG_EXTENSION_1="projects.registry.vmware.com/tkg/tkg-extensions-templates:v1.3.1_vmware.1"
+export TKG_EXTENSION_INTERNAL="${HARBOR_INTERNAL}/tkg/tkg-extensions-templates:v1.3.1_vmware.1"
+
+docker pull $TKG_EXTENSION_1
+docker tag $TKG_EXTENSION_1 $TKG_EXTENSION_INTERNAL
+docker push $TKG_EXTENSION_INTERNAL
+
 #################################### cert-manager ######################################################
 export CM_1="projects.registry.vmware.com/tkg/cert-manager/cert-manager-cainjector:v0.16.1_vmware.1"
 export CM_2="projects.registry.vmware.com/tkg/cert-manager/cert-manager-controller:v0.16.1_vmware.1"
