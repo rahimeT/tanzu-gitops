@@ -59,6 +59,20 @@ yq -i '.data.caCerts = strenv(CA_1)' 02-kapp-controller/kapp-controller-config.y
 
 #################################### contour ######################################################
 
+export CONTOUR_1="${HARBOR_EXTERNAL}/tkg/contour:v1.12.0_vmware.1"
+export CONTOUR_2="${HARBOR_EXTERNAL}/tkg/envoy:v1.17.0_vmware.1"
+
+export CONTOUR_1_INTERNAL="${HARBOR_INTERNAL}/tkg/contour:v1.12.0_vmware.1"
+export CONTOUR_2_INTERNAL="${HARBOR_INTERNAL}/tkg/envoy:v1.17.0_vmware.1"
+
+docker pull $CONTOUR_1
+docker tag $CONTOUR_1 $CONTOUR_1_INTERNAL
+docker push $CONTOUR_1_INTERNAL
+
+docker pull $CONTOUR_2
+docker tag $CONTOUR_2 $CONTOUR_2_INTERNAL
+docker push $CONTOUR_2_INTERNAL
+
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./03-contour/overlay/overlay-vsphere.yaml
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./03-contour/contour.yaml
 export CONTOUR_OVERLAY=$(cat ./03-contour/overlay/overlay-vsphere.yaml|base64)
