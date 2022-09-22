@@ -172,6 +172,29 @@ sed -i -e "s~$GRAFANA~$GRAFANA_OVERLAY~g" ./05-grafana/grafana.yaml
 #kubectl apply -f 05-grafana/grafana.yaml
 
 #################################### EFK ######################################################
+export EFK_1="docker.io/bitnami/bitnami-shell:10-debian-10-r138"
+export EFK_2="docker.io/bitnami/elasticsearch:7.2.1"
+export EFK_3="projects.registry.vmware.com/tkg/fluent-bit:v1.6.9_vmware.1"
+export EFK_4="docker.io/bitnami/kibana:7.2.1"
+
+export EFK_1_INTERNAL="${HARBOR_INTERNAL}/tkg/bitnami-shell:10-debian-10-r138"
+export EFK_2_INTERNAL="${HARBOR_INTERNAL}/tkg/elasticsearch:7.2.1"
+export EFK_3_INTERNAL="${HARBOR_INTERNAL}/tkg/fluent-bit:v1.6.9_vmware.1"
+export EFK_4_INTERNAL="${HARBOR_INTERNAL}/tkg/kibana:7.2.1"
+
+docker pull $EFK_1
+docker tag $EFK_1 $EFK_1_INTERNAL
+docker push $EFK_1_INTERNAL
+docker pull $EFK_2
+docker tag $EFK_2 $EFK_2_INTERNAL
+docker push $EFK_2_INTERNAL
+docker pull $EFK_3
+docker tag $EFK_3 $EFK_3_INTERNAL
+docker push $EFK_3_INTERNAL
+docker pull $EFK_4
+docker tag $EFK_4 $EFK_4_INTERNAL
+docker push $EFK_4_INTERNAL
+
 export TKG_INSTANCE="TKG_INSTANCE_NAME"
 export CLUSTER="CLUSTER_NAME"
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./06-efk/overlay/overlay.yaml
