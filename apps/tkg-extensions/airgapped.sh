@@ -2,6 +2,8 @@
 
 export HARBOR_EXTERNAL="projects.registry.vmware.com"
 export HARBOR_INTERNAL="harbor.dorn.gorke.ml"
+export TKG_INSTANCE_NAME="tkgs-instance-name"
+export CLUSTER_NAME="tkgs-cluster-11"
 export CA_1="-----BEGIN CERTIFICATE-----
 MIIC/jCCAeagAwIBAgIBADANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDEwprdWJl
 ..
@@ -168,3 +170,17 @@ export GRAFANA="CHANGEMEBASE64"
 sed -i -e "s~$GRAFANA~$GRAFANA_OVERLAY~g" ./05-grafana/grafana.yaml
 
 #kubectl apply -f 05-grafana/grafana.yaml
+
+#################################### EFK ######################################################
+export TKG_INSTANCE="TKG_INSTANCE_NAME"
+export CLUSTER="CLUSTER_NAME"
+sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./06-efk/overlay/overlay.yaml
+
+sed -i -e "s~$TKG_INSTANCE~$TKG_INSTANCE_NAME~g" ./06-efk/overlay/overlay.yaml
+sed -i -e "s~$CLUSTER~$CLUSTER_NAME~g" ./06-efk/overlay/overlay.yaml
+export FLUENT_OVERLAY=$(cat ./06-efk/overlay/overlay.yaml|base64)
+
+export FLUENT="CHANGEMEBASE64"
+sed -i -e "s~$FLUENT~$FLUENT_OVERLAY~g" ./06-efk/efk.yaml
+
+kubectl apply -f 06-efk/efk.yaml
