@@ -22,7 +22,7 @@ tlsCertificate:
 enableContourHttpProxy: true
 
 # [Required] The initial password of Harbor admin.
-harborAdminPassword: "VMware1!"
+harborAdminPassword: "Harbor12345"
 
 # [Required] The secret key used for encryption. Must be a string of 16 chars.
 secretKey: 44z5mmTRiDAd3r7o
