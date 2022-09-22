@@ -221,6 +221,69 @@ kubectl apply -f 06-efk/efk.yaml
 
 #################################### Harbor ######################################################
 
+export HARBOR_2="${HARBOR_EXTERNAL}/tkg/harbor/clair-adapter-photon:v2.1.3_vmware.1"
+export HARBOR_1="${HARBOR_EXTERNAL}/tkg/harbor/clair-photon:v2.1.3_vmware.1"
+export HARBOR_3="${HARBOR_EXTERNAL}/tkg/harbor/harbor-core:v2.1.3_vmware.1"
+export HARBOR_4="${HARBOR_EXTERNAL}/tkg/harbor/harbor-db:v2.1.3_vmware.1"
+export HARBOR_5="${HARBOR_EXTERNAL}/tkg/harbor/harbor-jobservice:v2.1.3_vmware.1"
+export HARBOR_6="${HARBOR_EXTERNAL}/tkg/harbor/notary-server-photon:v2.1.3_vmware.1"
+export HARBOR_7="${HARBOR_EXTERNAL}/tkg/harbor/notary-signer-photon:v2.1.3_vmware.1"
+export HARBOR_8="${HARBOR_EXTERNAL}/tkg/harbor/harbor-portal:v2.1.3_vmware.1"
+export HARBOR_9="${HARBOR_EXTERNAL}/tkg/harbor/redis-photon:v2.1.3_vmware.1"
+export HARBOR_10="${HARBOR_EXTERNAL}/tkg/harbor/registry-photon:v2.1.3_vmware.1"
+export HARBOR_11="${HARBOR_EXTERNAL}/tkg/harbor/harbor-registryctl:v2.1.3_vmware.1"
+export HARBOR_12="${HARBOR_EXTERNAL}/tkg/harbor/trivy-adapter-photon:v2.1.3_vmware.1"
+
+export HARBOR_1_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/clair-photon:v2.1.3_vmware.1"
+export HARBOR_2_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/clair-adapter-photon:v2.1.3_vmware.1"
+export HARBOR_3_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/harbor-core:v2.1.3_vmware.1"
+export HARBOR_4_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/harbor-db:v2.1.3_vmware.1"
+export HARBOR_5_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/harbor-jobservice:v2.1.3_vmware.1"
+export HARBOR_6_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/notary-server-photon:v2.1.3_vmware.1"
+export HARBOR_7_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/notary-signer-photon:v2.1.3_vmware.1"
+export HARBOR_8_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/harbor-portal:v2.1.3_vmware.1"
+export HARBOR_9_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/redis-photon:v2.1.3_vmware.1"
+export HARBOR_10_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/registry-photon:v2.1.3_vmware.1"
+export HARBOR_11_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/harbor-registryctl:v2.1.3_vmware.1"
+export HARBOR_12_INTERNAL="${HARBOR_INTERNAL}/tkg/harbor/trivy-adapter-photon:v2.1.3_vmware.1"
+
+docker pull $HARBOR_1
+docker tag $HARBOR_1 $HARBOR_1_INTERNAL
+docker push $HARBOR_1_INTERNAL
+docker pull $HARBOR_2
+docker tag $HARBOR_2 $HARBOR_2_INTERNAL
+docker push $HARBOR_2_INTERNAL
+docker pull $HARBOR_3
+docker tag $HARBOR_3 $HARBOR_3_INTERNAL
+docker push $HARBOR_3_INTERNAL
+docker pull $HARBOR_4
+docker tag $HARBOR_4 $HARBOR_4_INTERNAL
+docker push $HARBOR_4_INTERNAL
+docker pull $HARBOR_5
+docker tag $HARBOR_5 $HARBOR_5_INTERNAL
+docker push $HARBOR_5_INTERNAL
+docker pull $HARBOR_6
+docker tag $HARBOR_6 $HARBOR_6_INTERNAL
+docker push $HARBOR_6_INTERNAL
+docker pull $HARBOR_7
+docker tag $HARBOR_7 $HARBOR_7_INTERNAL
+docker push $HARBOR_7_INTERNAL
+docker pull $HARBOR_8
+docker tag $HARBOR_8 $HARBOR_8_INTERNAL
+docker push $HARBOR_8_INTERNAL
+docker pull $HARBOR_9
+docker tag $HARBOR_9 $HARBOR_9_INTERNAL
+docker push $HARBOR_9_INTERNAL
+docker pull $HARBOR_10
+docker tag $HARBOR_10 $HARBOR_10_INTERNAL
+docker push $HARBOR_10_INTERNAL
+docker pull $HARBOR_11
+docker tag $HARBOR_11 $HARBOR_11_INTERNAL
+docker push $HARBOR_11_INTERNAL
+docker pull $HARBOR_12
+docker tag $HARBOR_12 $HARBOR_12_INTERNAL
+docker push $HARBOR_12_INTERNAL
+
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./07-harbor/overlay/overlay.yaml
 yq -i '.tlsCertificate."tls.crt" = strenv(CA_INTERNAL)' 07-harbor/overlay/overlay.yaml
 yq -i '.tlsCertificate."tls.key" = strenv(CA_INTERNAL)' 07-harbor/overlay/overlay.yaml
