@@ -4,7 +4,18 @@ export HARBOR_EXTERNAL="projects.registry.vmware.com"
 export HARBOR_INTERNAL="harbor.dorn.gorke.ml"
 export TKG_INSTANCE_NAME="tkgs-instance-name"
 export CLUSTER_NAME="tkgs-cluster-11"
-export CA_1="-----BEGIN CERTIFICATE-----
+export HARBOR_FQDN="harbor.corp.com"
+export CA_INTERNAL="-----BEGIN CERTIFICATE-----
+MIIC/jCCAeagAwIBAgIBADANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDEwprdWJl
+..
+tfM=
+-----END CERTIFICATE-----"
+export HARBOR_TLS_CRT="-----BEGIN CERTIFICATE-----
+MIIC/jCCAeagAwIBAgIBADANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDEwprdWJl
+..
+tfM=
+-----END CERTIFICATE-----"
+export HARBOR_TLS_KEY="-----BEGIN CERTIFICATE-----
 MIIC/jCCAeagAwIBAgIBADANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDEwprdWJl
 ..
 tfM=
@@ -54,7 +65,7 @@ docker push $KAP_1_INTERNAL
 
 sed -i -e "s~$KAP_1~$KAP_1_INTERNAL~g" ./02-kapp-controller/kapp-controller.yaml
 
-yq -i '.data.caCerts = strenv(CA_1)' 02-kapp-controller/kapp-controller-config.yaml
+yq -i '.data.caCerts = strenv(CA_INTERNAL)' 02-kapp-controller/kapp-controller-config.yaml
 
 #kubectl apply -f ./02-kapp-controller/
 
@@ -207,3 +218,19 @@ export FLUENT="CHANGEMEBASE64"
 sed -i -e "s~$FLUENT~$FLUENT_OVERLAY~g" ./06-efk/efk.yaml
 
 kubectl apply -f 06-efk/efk.yaml
+
+#################################### Harbor ######################################################
+
+sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./07-harbor/overlay/overlay.yaml
+yq -i '.tlsCertificate."tls.crt" = strenv(CA_INTERNAL)' 07-harbor/overlay/overlay.yaml
+yq -i '.tlsCertificate."tls.key" = strenv(CA_INTERNAL)' 07-harbor/overlay/overlay.yaml
+yq -i '.tlsCertificate."ca.crt" = strenv(CA_INTERNAL)' 07-harbor/overlay/overlay.yaml
+yq -i '.hostname = strenv(HARBOR_FQDN)' 07-harbor/overlay/overlay.yaml
+
+export HARBOR_OVERLAY=$(cat ./07-harbor/overlay/overlay.yaml|base64)
+
+export HARBOR="CHANGEMEBASE64"
+sed -i -e "s~$HARBOR~$HARBOR_OVERLAY~g" ./07-harbor/harbor.yaml
+
+kubectl apply -f 07-harbor/harbor.yaml
+
