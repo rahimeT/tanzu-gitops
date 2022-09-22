@@ -6,7 +6,8 @@ monitoring:
     image:
       repository: "projects.registry.vmware.com/tkg/grafana"
     secret:
-      admin_password: "cGFzc3dvcmQ="
+      type: "Opaque"
+      admin_password: "Vk13YXJlMSE="
   grafana_init_container:
     image:
       repository: "projects.registry.vmware.com/tkg/grafana"
