@@ -147,6 +147,19 @@ sed -i -e "s~$PROMETHEUS~$PROMETHEUS_OVERLAY~g" ./04-prometheus/prometheus.yaml
 
 #################################### grafana######################################################
 
+export GRAFANA_1="${HARBOR_EXTERNAL}/tkg/grafana/grafana:v7.3.5_vmware.2"
+export GRAFANA_2="${HARBOR_EXTERNAL}/tkg/grafana/k8s-sidecar:v0.1.144_vmware.2"
+
+export GRAFANA_1_INTERNAL="${HARBOR_INTERNAL}/tkg/grafana/grafana:v7.3.5_vmware.2"
+export GRAFANA_2_INTERNAL="${HARBOR_INTERNAL}/tkg/grafana/k8s-sidecar:v0.1.144_vmware.2"
+
+docker pull $GRAFANA_1
+docker tag $GRAFANA_1 $GRAFANA_1_INTERNAL
+docker push $GRAFANA_1_INTERNAL
+docker pull $GRAFANA_2
+docker tag $GRAFANA_2 $GRAFANA_2_INTERNAL
+docker push $GRAFANA_2_INTERNAL
+
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./05-grafana/overlay/overlay.yaml
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./05-grafana/grafana.yaml
 export GRAFANA_OVERLAY=$(cat ./05-grafana/overlay/overlay.yaml|base64)
