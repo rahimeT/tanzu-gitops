@@ -285,8 +285,8 @@ docker tag $HARBOR_12 $HARBOR_12_INTERNAL
 docker push $HARBOR_12_INTERNAL
 
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./07-harbor/overlay/overlay.yaml
-yq -i '.tlsCertificate."tls.crt" = strenv(CA_INTERNAL)' 07-harbor/overlay/overlay.yaml
-yq -i '.tlsCertificate."tls.key" = strenv(CA_INTERNAL)' 07-harbor/overlay/overlay.yaml
+yq -i '.tlsCertificate."tls.crt" = strenv(HARBOR_TLS_CRT)' 07-harbor/overlay/overlay.yaml
+yq -i '.tlsCertificate."tls.key" = strenv(HARBOR_TLS_KEY)' 07-harbor/overlay/overlay.yaml
 yq -i '.tlsCertificate."ca.crt" = strenv(CA_INTERNAL)' 07-harbor/overlay/overlay.yaml
 yq -i '.hostname = strenv(HARBOR_FQDN)' 07-harbor/overlay/overlay.yaml
 
