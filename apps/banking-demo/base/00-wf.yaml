@@ -36,7 +36,7 @@ spec:
         - name: JAVA_HEAP_USAGE
           value: 1650m
         - name: WAVEFRONT_TOKEN
-          value: change-me
+          value: 5fb21cf1-b4da-4430-81c1-f9f2fb6dc7f0
         - name: WAVEFRONT_URL
           value: https://longboard.wavefront.com/api
         image: harbor.dorn.gorke.ml/banking-demo/wf-proxy:latest
