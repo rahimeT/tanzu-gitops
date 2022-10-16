@@ -53,7 +53,7 @@ sed -i -e "s~$CM_1~$CM_1_INTERNAL~g" ./01-cert-manager/03-cert-manager.yaml
 sed -i -e "s~$CM_2~$CM_2_INTERNAL~g" ./01-cert-manager/03-cert-manager.yaml
 sed -i -e "s~$CM_3~$CM_3_INTERNAL~g" ./01-cert-manager/03-cert-manager.yaml
 
-#kubectl apply -f ./01-cert-manager/
+kubectl apply -f ./01-cert-manager/
 
 #################################### kapp-controller ######################################################
 export KAP_1="${HARBOR_EXTERNAL}/tkg/kapp-controller:v0.18.0_vmware.1"
@@ -67,7 +67,7 @@ sed -i -e "s~$KAP_1~$KAP_1_INTERNAL~g" ./02-kapp-controller/kapp-controller.yaml
 
 yq -i '.data.caCerts = strenv(CA_INTERNAL)' 02-kapp-controller/kapp-controller-config.yaml
 
-#kubectl apply -f ./02-kapp-controller/
+kubectl apply -f ./02-kapp-controller/
 
 
 #################################### contour ######################################################
@@ -95,7 +95,7 @@ echo $CONTOUR_OVERLAY
 export CONTOUR="CHANGEMEBASE64"
 sed -i -e "s~$CONTOUR~$CONTOUR_OVERLAY~g" ./03-contour/contour.yaml
 
-#kubectl apply -f 03-contour/contour.yaml
+kubectl apply -f 03-contour/contour.yaml
 
 #################################### prometheus ######################################################
 
@@ -155,7 +155,7 @@ export PROMETHEUS_OVERLAY=$(cat ./04-prometheus/overlay/overlay.yaml|base64 -w0)
 export PROMETHEUS="CHANGEMEBASE64"
 sed -i -e "s~$PROMETHEUS~$PROMETHEUS_OVERLAY~g" ./04-prometheus/prometheus.yaml
 
-#kubectl apply -f 04-prometheus/prometheus.yaml
+kubectl apply -f 04-prometheus/prometheus.yaml
 
 
 #################################### grafana######################################################
@@ -180,7 +180,7 @@ export GRAFANA_OVERLAY=$(cat ./05-grafana/overlay/overlay.yaml|base64 -w0)
 export GRAFANA="CHANGEMEBASE64"
 sed -i -e "s~$GRAFANA~$GRAFANA_OVERLAY~g" ./05-grafana/grafana.yaml
 
-#kubectl apply -f 05-grafana/grafana.yaml
+kubectl apply -f 05-grafana/grafana.yaml
 
 #################################### EFK ######################################################
 export EFK_1="docker.io/bitnami/bitnami-shell:10-debian-10-r138"
