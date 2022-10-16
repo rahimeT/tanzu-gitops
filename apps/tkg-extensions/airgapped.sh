@@ -187,6 +187,7 @@ export EFK_1="docker.io/bitnami/bitnami-shell:10-debian-10-r138"
 export EFK_2="docker.io/bitnami/elasticsearch:7.2.1"
 export EFK_3="projects.registry.vmware.com/tkg/fluent-bit:v1.6.9_vmware.1"
 export EFK_4="docker.io/bitnami/kibana:7.2.1"
+export EKF_D="docker.io/bitnami"
 
 export EFK_1_INTERNAL="${HARBOR_INTERNAL}/tkg/bitnami-shell:10-debian-10-r138"
 export EFK_2_INTERNAL="${HARBOR_INTERNAL}/tkg/elasticsearch:7.2.1"
@@ -209,6 +210,7 @@ docker push $EFK_4_INTERNAL
 export TKG_INSTANCE="TKG_INSTANCE_NAME"
 export CLUSTER="CLUSTER_NAME"
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./06-efk/overlay/overlay.yaml
+sed -i -e "s~$EKF_D~$HARBOR_INTERNAL/tkg~g" ./06-efk/efk.yaml
 
 sed -i -e "s~$TKG_INSTANCE~$TKG_INSTANCE_NAME~g" ./06-efk/overlay/overlay.yaml
 sed -i -e "s~$CLUSTER~$CLUSTER_NAME~g" ./06-efk/overlay/overlay.yaml
