@@ -150,7 +150,7 @@ docker push $PROMETHEUS_9_INTERNAL
 
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./04-prometheus/overlay/overlay.yaml
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./04-prometheus/prometheus.yaml
-export PROMETHEUS_OVERLAY=$(cat ./04-prometheus/overlay/overlay.yaml|base64)
+export PROMETHEUS_OVERLAY=$(cat ./04-prometheus/overlay/overlay.yaml|base64 -w0)
 
 export PROMETHEUS="CHANGEMEBASE64"
 sed -i -e "s~$PROMETHEUS~$PROMETHEUS_OVERLAY~g" ./04-prometheus/prometheus.yaml
@@ -175,7 +175,7 @@ docker push $GRAFANA_2_INTERNAL
 
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./05-grafana/overlay/overlay.yaml
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./05-grafana/grafana.yaml
-export GRAFANA_OVERLAY=$(cat ./05-grafana/overlay/overlay.yaml|base64)
+export GRAFANA_OVERLAY=$(cat ./05-grafana/overlay/overlay.yaml|base64 -w0)
 
 export GRAFANA="CHANGEMEBASE64"
 sed -i -e "s~$GRAFANA~$GRAFANA_OVERLAY~g" ./05-grafana/grafana.yaml
@@ -212,7 +212,7 @@ sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./06-efk/overlay/overlay.yaml
 
 sed -i -e "s~$TKG_INSTANCE~$TKG_INSTANCE_NAME~g" ./06-efk/overlay/overlay.yaml
 sed -i -e "s~$CLUSTER~$CLUSTER_NAME~g" ./06-efk/overlay/overlay.yaml
-export FLUENT_OVERLAY=$(cat ./06-efk/overlay/overlay.yaml|base64)
+export FLUENT_OVERLAY=$(cat ./06-efk/overlay/overlay.yaml|base64 -w0)
 
 export FLUENT="CHANGEMEBASE64"
 sed -i -e "s~$FLUENT~$FLUENT_OVERLAY~g" ./06-efk/efk.yaml
@@ -290,7 +290,7 @@ yq -i '.tlsCertificate."tls.key" = strenv(HARBOR_TLS_KEY)' 07-harbor/overlay/ove
 yq -i '.tlsCertificate."ca.crt" = strenv(CA_INTERNAL)' 07-harbor/overlay/overlay.yaml
 yq -i '.hostname = strenv(HARBOR_FQDN)' 07-harbor/overlay/overlay.yaml
 
-export HARBOR_OVERLAY=$(cat ./07-harbor/overlay/overlay.yaml|base64)
+export HARBOR_OVERLAY=$(cat ./07-harbor/overlay/overlay.yaml|base64 -w0)
 
 export HARBOR="CHANGEMEBASE64"
 sed -i -e "s~$HARBOR~$HARBOR_OVERLAY~g" ./07-harbor/harbor.yaml
