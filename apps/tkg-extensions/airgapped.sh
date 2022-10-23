@@ -88,6 +88,7 @@ docker push $CONTOUR_2_INTERNAL
 
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./03-contour/overlay/overlay-vsphere.yaml
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./03-contour/contour.yaml
+sed -i -e "s~$TKG_EXTENSION_1~$TKG_EXTENSION_INTERNAL~g" ./03-contour/contour.yaml
 export CONTOUR_OVERLAY=$(cat ./03-contour/overlay/overlay-vsphere.yaml|base64 -w0)
 
 echo $CONTOUR_OVERLAY
@@ -150,6 +151,7 @@ docker push $PROMETHEUS_9_INTERNAL
 
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./04-prometheus/overlay/overlay.yaml
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./04-prometheus/prometheus.yaml
+sed -i -e "s~$TKG_EXTENSION_1~$TKG_EXTENSION_INTERNAL~g" ./04-prometheus/prometheus.yaml
 export PROMETHEUS_OVERLAY=$(cat ./04-prometheus/overlay/overlay.yaml|base64 -w0)
 
 export PROMETHEUS="CHANGEMEBASE64"
@@ -175,6 +177,7 @@ docker push $GRAFANA_2_INTERNAL
 
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./05-grafana/overlay/overlay.yaml
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./05-grafana/grafana.yaml
+sed -i -e "s~$TKG_EXTENSION_1~$TKG_EXTENSION_INTERNAL~g" ./05-grafana/grafana.yaml
 export GRAFANA_OVERLAY=$(cat ./05-grafana/overlay/overlay.yaml|base64 -w0)
 
 export GRAFANA="CHANGEMEBASE64"
@@ -214,6 +217,7 @@ sed -i -e "s~$EKF_D~$HARBOR_INTERNAL/tkg~g" ./06-efk/efk.yaml
 
 sed -i -e "s~$TKG_INSTANCE~$TKG_INSTANCE_NAME~g" ./06-efk/overlay/overlay.yaml
 sed -i -e "s~$CLUSTER~$CLUSTER_NAME~g" ./06-efk/overlay/overlay.yaml
+sed -i -e "s~$TKG_EXTENSION_1~$TKG_EXTENSION_INTERNAL~g" ./06-efk/efk.yaml
 export FLUENT_OVERLAY=$(cat ./06-efk/overlay/overlay.yaml|base64 -w0)
 
 export FLUENT="CHANGEMEBASE64"
@@ -287,6 +291,7 @@ docker tag $HARBOR_12 $HARBOR_12_INTERNAL
 docker push $HARBOR_12_INTERNAL
 
 sed -i -e "s~$HARBOR_EXTERNAL~$HARBOR_INTERNAL~g" ./07-harbor/overlay/overlay.yaml
+sed -i -e "s~$TKG_EXTENSION_1~$TKG_EXTENSION_INTERNAL~g" ./07-harbor/harbor.yaml
 yq -i '.tlsCertificate."tls.crt" = strenv(HARBOR_TLS_CRT)' 07-harbor/overlay/overlay.yaml
 yq -i '.tlsCertificate."tls.key" = strenv(HARBOR_TLS_KEY)' 07-harbor/overlay/overlay.yaml
 yq -i '.tlsCertificate."ca.crt" = strenv(CA_INTERNAL)' 07-harbor/overlay/overlay.yaml
