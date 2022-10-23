@@ -5,8 +5,8 @@ logging:
   image:
     repository: projects.registry.vmware.com/tkg
 tkg:
-  instance_name: "shared-cluster"
-  cluster_name: "shared-cluster"
+  instance_name: "dev-cluster"
+  cluster_name: "dev-cluster"
 fluent_bit:
   output_plugin: "elasticsearch"
   elasticsearch:
