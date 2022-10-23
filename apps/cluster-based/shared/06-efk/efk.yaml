@@ -93,7 +93,7 @@ metadata:
 spec:
   selector:
     app: elasticsearch
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     - port: 9200
       name: rest
@@ -108,6 +108,7 @@ metadata:
   labels:
     app: kibana
 spec:
+  type: LoadBalancer
   ports:
   - port: 5601
   selector:
