@@ -1,0 +1,16 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+monitoring:
+  grafana:
+    image:
+      repository: "projects.registry.vmware.com/tkg/grafana"
+    secret:
+      type: "Opaque"
+      admin_password: "Vk13YXJlMSE="
+  grafana_init_container:
+    image:
+      repository: "projects.registry.vmware.com/tkg/grafana"
+  grafana_sc_dashboard:
+    image:
+      repository: "projects.registry.vmware.com/tkg/grafana"

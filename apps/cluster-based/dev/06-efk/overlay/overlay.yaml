@@ -1,0 +1,14 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+logging:
+  image:
+    repository: projects.registry.vmware.com/tkg
+tkg:
+  instance_name: "shared-cluster"
+  cluster_name: "shared-cluster"
+fluent_bit:
+  output_plugin: "elasticsearch"
+  elasticsearch:
+    host: "elasticsearch"
+    port: "9200"
