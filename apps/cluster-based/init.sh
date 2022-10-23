@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # argo-cd needs to be deployed first on shared cluster
+# don't forget to update overlay.yaml and use base64 value of it.
 
 #on shared services cluster
 
