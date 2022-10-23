@@ -114,6 +114,27 @@ spec:
   selector:
     app: kibana
 ---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  labels:
+    app: elasticsearch
+  name: elasticsearch-httpproxy
+  namespace: tanzu-system-logging
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    pathRewritePolicy:
+      replacePrefix:
+      - prefix: /
+        replacement: /
+    services:
+    - name: elasticsearch
+      port: 9200
+  virtualhost:
+    fqdn: elasticsearch.shared.h2o-4-1384.h2o.vmware.com
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -144,6 +165,27 @@ spec:
           value: http://elasticsearch:9200
         ports:
         - containerPort: 5601
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  labels:
+    app: kibana
+  name: kibana-httpproxy
+  namespace: tanzu-system-logging
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    pathRewritePolicy:
+      replacePrefix:
+      - prefix: /
+        replacement: /
+    services:
+    - name: kibana
+      port: 5601
+  virtualhost:
+    fqdn: kibana.shared.h2o-4-1384.h2o.vmware.com
 ---
 apiVersion: v1
 kind: ServiceAccount

@@ -66,6 +66,27 @@ metadata:
   name: grafana-data-values
   namespace: tanzu-system-monitoring
 ---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  labels:
+    app: grafana
+  name: grafana-httpproxy
+  namespace: tanzu-system-monitoring
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    pathRewritePolicy:
+      replacePrefix:
+      - prefix: /
+        replacement: /
+    services:
+    - name: grafana
+      port: 80
+  virtualhost:
+    fqdn: grafana.shared.h2o-4-1384.h2o.vmware.com
+---
 apiVersion: kappctrl.k14s.io/v1alpha1
 kind: App
 metadata:

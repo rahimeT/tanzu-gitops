@@ -10,5 +10,5 @@ tkg:
 fluent_bit:
   output_plugin: "elasticsearch"
   elasticsearch:
-    host: "elasticsearch"
-    port: "9200"
+    host: "elasticsearch.shared.h2o-4-1384.h2o.vmware.com"
+    port: "80"
