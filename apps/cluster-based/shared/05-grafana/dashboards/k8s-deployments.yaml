@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     grafana_dashboard: "1"
-  name: k8s-deployments
+  name: dashboard-k8s-deployments
   namespace: tanzu-system-monitoring
 data:
   k8s-deployments.json: |-

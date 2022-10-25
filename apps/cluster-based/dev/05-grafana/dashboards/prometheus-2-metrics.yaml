@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     grafana_dashboard: "1"
-  name: prometheus-2-metrics
+  name: dashboard-prometheus-2-metrics
   namespace: tanzu-system-monitoring
 data:
   prometheus-2-metrics.json: |-

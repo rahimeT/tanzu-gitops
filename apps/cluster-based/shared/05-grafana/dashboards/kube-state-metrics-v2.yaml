@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     grafana_dashboard: "1"
-  name: kube-state-metrics-v2
+  name: dashboard-kube-state-metrics-v2
   namespace: tanzu-system-monitoring
 data:
   kube-state-metrics-v2.json: |-

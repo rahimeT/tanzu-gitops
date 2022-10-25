@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     grafana_dashboard: "1"
-  name: k8s-cluster-metrics
+  name: dashboard-k8s-cluster-metrics
   namespace: tanzu-system-monitoring
 data:
   k8s-cluster-metrics.json: |-
