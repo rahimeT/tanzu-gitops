@@ -3,10 +3,10 @@ kind: ConfigMap
 metadata:
   labels:
     grafana_dashboard: "1"
-  name: node-exporter-full-dashboard
+  name: dashboard-node-exporter
   namespace: tanzu-system-monitoring
 data:
-  node-exporter-full-dashboard.json: |-
+  dashboard-node-exporter.json: |-
     {
       "__inputs": [
         {
