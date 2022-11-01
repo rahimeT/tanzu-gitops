@@ -170,3 +170,34 @@ spec:
     syncOptions:
     - ServerSideApply=true
 EOF
+
+
+# bitbucket - "private repo with ssh" + "different branch like 'dev'"
+kubectl apply -f - <<EOF
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shared-cluster-baseline-apps
+  namespace: argo-cd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:gorkemozlu/gitops.git
+    targetRevision: dev
+    path: app/
+    directory:
+      recurse: true
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - ServerSideApply=true
+EOF
