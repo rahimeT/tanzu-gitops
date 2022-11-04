@@ -1,0 +1,14 @@
+apiVersion: run.tanzu.vmware.com/v1alpha2
+kind: TkgServiceConfiguration
+metadata:
+  name: tkg-service-configuration
+spec:
+  defaultCNI: antrea
+  proxy:
+    httpProxy: http://proxy.corp:3128
+    httpsProxy: http://proxy.corp:3128
+    noProxy: [management/24,workload/24,frontend/24,169.254.0.0/16,.local,.svc,.svc.cluster.local]
+  trust:
+    additionalTrustedCAs:
+    - data: LS0tLS1..
+      name: root-ca-map-gorkem
