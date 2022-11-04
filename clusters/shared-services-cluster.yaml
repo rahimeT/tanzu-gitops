@@ -1,0 +1,49 @@
+apiVersion: run.tanzu.vmware.com/v1alpha2
+kind: TanzuKubernetesCluster
+metadata:
+  name: shared-services-cluster
+  namespace: tanzuns1
+spec:
+  topology:
+    controlPlane:
+      replicas: 1
+      vmClass: best-effort-large
+      storageClass: tanzu
+      volumes:
+        - name: etcd
+          mountPath: /var/lib/etcd
+          capacity:
+            storage: 4Gi
+      tkr:  
+        reference:
+          name: v1.22.9---vmware.1-tkg.1.cc71bc8
+    nodePools:
+    - name: worker-nodepool-a1
+      replicas: 3
+      vmClass: best-effort-large
+      storageClass: tanzu
+      volumes:
+        - name: containerd
+          mountPath: /var/lib/containerd
+          capacity:
+            storage: 166Gi
+      tkr:  
+        reference:
+          name: v1.22.9---vmware.1-tkg.1.cc71bc8
+  settings:
+    storage:
+      classes: ["tanzu"]
+      defaultClass: tanzu
+    network:
+      cni:
+        name: antrea
+      proxy:
+        httpProxy: http://corp.proxy:3128
+        httpsProxy: http://corp.proxy:3128
+        noProxy: [management/24,workload/24,frontend/24,169.254.0.0/16,.local,.svc,.svc.cluster.local]
+      trust:
+        additionalTrustedCAs:
+          - name: CompanyInternalCA-1
+            data: LS0tLS1C...LS0tCg==
+          - name: CompanyInternalCA-2
+            data: MTLtMT1C...MT0tPg==
