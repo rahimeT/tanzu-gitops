@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: dev
+spec: {}
+status: {}
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: mem-cpu-dev
+  namespace: dev
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dev-ns-full-access
+  namespace: dev
+rules:
+- apiGroups: [""]
+  resources: ["*"]
+  verbs: ["*"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dev-ns-rolebinding
+  namespace: dev
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: sso:dev@vsphere.local
+roleRef:
+  kind: Role
+  name: dev-ns-full-access
+  apiGroup: rbac.authorization.k8s.io
