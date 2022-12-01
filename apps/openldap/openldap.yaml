@@ -159,7 +159,7 @@ spec:
           {}
       containers:
         - name: openldap
-          image: "harbor.dorn.gorke.ml/tools/openldap:1.2.4"
+          image: "harbor.mgt.mytanzu.org/tools/openldap:1.2.4"
           imagePullPolicy: IfNotPresent
           args:
             - -l
