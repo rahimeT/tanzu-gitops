@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: web-ui
-        image: harbor.dorn.gorke.ml/banking-demo/web-ui:0.0.1-SNAPSHOT
+        image: harbor.mgt.mytanzu.org/banking-demo/web-ui:0.0.1-SNAPSHOT
         imagePullPolicy: Always
         env:
         - name: spring.cloud.config.uri

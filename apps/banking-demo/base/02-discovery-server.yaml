@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: discovery-server
-        image: harbor.dorn.gorke.ml/banking-demo/discovery-server:0.0.1-SNAPSHOT
+        image: harbor.mgt.mytanzu.org/banking-demo/discovery-server:0.0.1-SNAPSHOT
         env:
         - name: management.metrics.export.wavefront.uri
           value: proxy://wf-proxy:2878
