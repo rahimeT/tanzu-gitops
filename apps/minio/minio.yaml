@@ -32,7 +32,7 @@ spec:
           claimName: minio-pv-claim
       containers:
       - name: minio
-        image: harbor.dorn.gorke.ml/minio/minio:latest
+        image: harbor.mgt.mytanzu.org/minio/minio:latest
         command:
         - /bin/bash
         - -c

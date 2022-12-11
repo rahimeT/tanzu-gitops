@@ -22,7 +22,7 @@ done
 kubectl create ns argo-cd
 kubectl apply -f install.yaml -n argo-cd
 kubectl -n argo-cd patch svc argocd-server  -p '{"spec": {"type": "LoadBalancer"}}'
-#kubectl -n argo-cd patch deployment argocd-redis -p '{"spec":{"template":{"spec":{"containers":[{"name":"redis","image":"harbor.dorn.gorke.ml/tools/redis:7.0.5-alpine"}]}}}}'
+#kubectl -n argo-cd patch deployment argocd-redis -p '{"spec":{"template":{"spec":{"containers":[{"name":"redis","image":"harbor.mgt.mytanzu.org/tools/redis:7.0.5-alpine"}]}}}}'
 ARGO_PASS=$(kubectl -n argo-cd get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}'|base64 -d)
 ARGO_IP=$(kubectl -n argo-cd get svc argocd-server -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 

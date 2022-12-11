@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: config-server
-        image: harbor.dorn.gorke.ml/banking-demo/config-server:0.0.1-SNAPSHOT
+        image: harbor.mgt.mytanzu.org/banking-demo/config-server:0.0.1-SNAPSHOT
         env:
         - name: WAVEFRONT_TOKEN
           value: change-me

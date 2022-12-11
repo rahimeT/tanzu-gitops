@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export HARBOR_EXTERNAL="projects.registry.vmware.com"
-export HARBOR_INTERNAL="harbor.dorn.gorke.ml"
+export HARBOR_INTERNAL="harbor.mgt.mytanzu.org"
 export TKG_INSTANCE_NAME="tkgs-instance-name"
 export CLUSTER_NAME="tkgs-cluster-11"
 export HARBOR_FQDN="harbor.corp.com"

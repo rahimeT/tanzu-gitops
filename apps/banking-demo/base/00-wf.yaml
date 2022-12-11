@@ -39,7 +39,7 @@ spec:
           value: 5fb21cf1-b4da-4430-81c1-f9f2fb6dc7f0
         - name: WAVEFRONT_URL
           value: https://longboard.wavefront.com/api
-        image: harbor.dorn.gorke.ml/banking-demo/wf-proxy:latest
+        image: harbor.mgt.mytanzu.org/banking-demo/wf-proxy:latest
         name: wf-proxy
         ports:
         - containerPort: 2878

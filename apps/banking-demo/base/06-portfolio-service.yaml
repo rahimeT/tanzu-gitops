@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: portfolio-service
-        image: harbor.dorn.gorke.ml/banking-demo/portfolio-service:0.0.1-SNAPSHOT
+        image: harbor.mgt.mytanzu.org/banking-demo/portfolio-service:0.0.1-SNAPSHOT
         env:
         - name: spring.cloud.config.uri
           value: http://config-server.test-app.svc.cluster.local
