@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: minio-console-tls
-  namespace:  tanzu-helm-resource
+  namespace:  tanzu-helm-resources
 spec:
   commonName: minio-console.mgt.mytanzu.org
   dnsNames:
@@ -26,7 +26,7 @@ apiVersion: projectcontour.io/v1
 kind: HTTPProxy
 metadata:
   name: minio-console
-  namespace: tanzu-helm-resource
+  namespace: tanzu-helm-resources
 spec:
   routes:
   - services:
