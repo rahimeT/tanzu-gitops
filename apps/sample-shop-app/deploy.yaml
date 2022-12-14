@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: hackazon
+spec: {}
+status: {}
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: hackazon-shop
+  namespace: hackazon
+  labels:
+    app: hackazon-shop
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hackazon-shop
+  template:
+    metadata:
+      labels:
+        app: hackazon-shop
+    spec:
+      containers:
+      - name: hackazon-shop
+        image: projects.registry.vmware.com/tanzu_ese_poc/hackazon:1.0
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: hackazon-svc-lb
+  namespace: hackazon
+  labels:
+    app: hackazon-shop
+    svc: hackazon-svc-lb
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: hackazon-shop
+  type: LoadBalancer
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: hackazon-ingress
+  namespace: hackazon
+spec:
+  routes:
+  - services:
+    - name: hackazon-svc-lb
+      port: 80
+  virtualhost:
+    fqdn: hackazon.mgt.mytanzu.org
