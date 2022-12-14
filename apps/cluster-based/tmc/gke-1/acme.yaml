@@ -117,7 +117,7 @@ spec:
     spec:
       containers:
       - name: cart-redis
-        image: harbor.mgt.mytanzu.org/acme/redis:latest
+        image: gorkemozlu/acme:redis
         imagePullPolicy: Always
         resources:
           requests:
@@ -186,7 +186,7 @@ spec:
       - name: acmefit-cart-data
         emptyDir: {}
       containers:
-      - image: harbor.mgt.mytanzu.org/acme/acmeshop-cart:latest
+      - image: gorkemozlu/acme:cart
         imagePullPolicy: Always
         name: cart
         env:
@@ -281,7 +281,7 @@ spec:
     spec:
       containers:
       - name: catalog-mongo
-        image: harbor.mgt.mytanzu.org/acme/mongo:4
+        image: gorkemozlu/acme:mongo
         resources: {}
         ports:
         - name: catalog-mongo
@@ -354,7 +354,7 @@ spec:
       - name: acmefit-catalog-data
         emptyDir: {}
       containers:
-      - image: harbor.mgt.mytanzu.org/acme/acmeshop-catalog:latest
+      - image: gorkemozlu/acme:catalog
         imagePullPolicy: Always
         name: catalog
         env:
@@ -432,7 +432,7 @@ spec:
         app.kubernetes.io/part-of: acme-fitness
     spec:
       containers:
-      - image: harbor.mgt.mytanzu.org/acme/acmeshop-payment:latest
+      - image: gorkemozlu/acme:payment
         name: payment
         env:
         - name: PAYMENT_PORT
@@ -490,7 +490,7 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: harbor.mgt.mytanzu.org/acme/postgres:9.5
+        image: gorkemozlu/acme:postgres
         imagePullPolicy: Always
         ports:
         - containerPort: 5432
@@ -562,7 +562,7 @@ spec:
       - name: acmefit-order-data
         emptyDir: {}
       containers:
-      - image: harbor.mgt.mytanzu.org/acme/acmeshop-order:latest
+      - image: gorkemozlu/acme:order
         name: order
         env:
         - name: ORDER_DB_HOST
@@ -667,7 +667,7 @@ spec:
     spec:
       containers:
       - name: users-mongo
-        image: harbor.mgt.mytanzu.org/acme/mongo:4
+        image: gorkemozlu/acme:mongo
         resources: {}
         ports:
         - name: users-mongo
@@ -734,7 +734,7 @@ spec:
     spec:
       containers:
       - name: users-redis
-        image: harbor.mgt.mytanzu.org/acme/redis:latest
+        image: gorkemozlu/acme:redis
         imagePullPolicy: Always
         resources:
           requests:
@@ -803,7 +803,7 @@ spec:
       - name: acmefit-users-data
         emptyDir: {}
       containers:
-      - image: harbor.mgt.mytanzu.org/acme/acmeshop-user:latest
+      - image: gorkemozlu/acme:user
         imagePullPolicy: Always
         name: users
         env:
@@ -887,7 +887,7 @@ spec:
         app.kubernetes.io/part-of: acme-fitness
     spec:
       containers:
-      - image: harbor.mgt.mytanzu.org/acme/acmeshop-front-end:latest
+      - image: gorkemozlu/acme:frontend
         name: frontend
         env:
         - name: FRONTEND_PORT
