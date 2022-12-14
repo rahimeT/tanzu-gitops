@@ -117,7 +117,7 @@ spec:
     spec:
       containers:
       - name: cart-redis
-        image: gorkemozlu/acme:redis
+        image: projects.registry.vmware.com/tanzu_meta_pocs/acme/redis:latest
         imagePullPolicy: Always
         resources:
           requests:
@@ -734,7 +734,7 @@ spec:
     spec:
       containers:
       - name: users-redis
-        image: gorkemozlu/acme:redis
+        image: projects.registry.vmware.com/tanzu_meta_pocs/acme/redis:latest
         imagePullPolicy: Always
         resources:
           requests:
