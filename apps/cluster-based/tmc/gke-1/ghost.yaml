@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: ghost
+spec: {}
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog
+  namespace: ghost
+  labels:
+    app: blog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blog
+  template:
+    metadata:
+      labels:
+        app: blog
+    spec:
+      containers:
+      - name: blog
+        image: projects.registry.vmware.com/tanzu_ese_poc/ghost:4.34.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 2368
+        env:
+        - name: url
+          value: http://my-blog.corp.local
+        volumeMounts:
+        - mountPath: /var/lib/ghost/content
+          name: content
+      volumes:
+      - name: content
+        persistentVolumeClaim:
+          claimName: blog-content
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: blog
+  name: blog
+  namespace: ghost
+spec:
+  ports:
+    - port: 80
+      targetPort: 2368
+  selector:
+    app: blog
+  type: LoadBalancer
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: blog-content
+  namespace: ghost
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: blog-ingress
+  namespace: ghost
+spec:
+  routes:
+  - services:
+    - name: blog
+      port: 80
+  virtualhost:
+    fqdn: blog-app.mgt.mytanzu.org
