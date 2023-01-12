@@ -83,7 +83,7 @@ spec:
 apiVersion: projectcontour.io/v1
 kind: HTTPProxy
 metadata:
-  name: test-app-weight-shifting
+  name: sample-app-weight-shifting
   namespace: test-app
 spec:
   virtualhost:
