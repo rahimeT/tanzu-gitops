@@ -65,10 +65,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: test-nodejs-app
+  name: test-nodejs-app-v1
   namespace: test-app
   labels:
     app: test-nodejs-app
+    version: v1
 spec:
   ports:
   - port: 80
@@ -86,7 +87,7 @@ metadata:
 spec:
   routes:
   - services:
-    - name: test-nodejs-app
+    - name: test-nodejs-app-v1
       port: 80
   virtualhost:
     fqdn: sample-app.apps.h2o-4-4411.h2o.vmware.com
