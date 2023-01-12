@@ -22,7 +22,7 @@ spec:
         image: harbor.mgt.mytanzu.org/nodejs/sample-app:v0.2.8
         env:
         - name: var1
-          value: Gorkem
+          value: v1-app
         - name: MY_NODE_NAME
           valueFrom:
             fieldRef:
