@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: contour
+#  annotations:
+#    "ingressclass.kubernetes.io/is-default-class": "true"
+spec:
+  controller: projectcontour.io/contour
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sample-app-ingress
+  namespace: test-app
+spec:
+  ingressClassName: contour
+  rules:
+  - host: sample-app-i.apps.h2o-4-4411.h2o.vmware.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: test-nodejs-app-v2
+            port:
+              number: 80
