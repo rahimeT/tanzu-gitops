@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: octant-deploy-sa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: package-install-admin-role
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- nonResourceURLs:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: octant-deploy-crb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: package-install-admin-role
+subjects:
+- kind: ServiceAccount
+  name: octant-deploy-sa
+  namespace: default
+---
+apiVersion: v1
+data:
+  values.yaml: LS0tCm5hbWVzcGFjZToKICBuYW1lOiBbImdvcmtlbSIsImpvaG4iLCJqYW5lIl0=
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: octant-values
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: simple-app
+  namespace: default
+spec:
+  serviceAccountName: octant-deploy-sa
+  deploy:
+  - kapp:
+      rawOptions:
+      - --wait-timeout=5m
+      - --kube-api-qps=20
+      - --kube-api-burst=30
+  fetch:
+  - git:
+      url: https://github.com/gorkemozlu/tanzu-gitops
+      ref: origin/master
+      subPath: apps/octant/ytt
+  template:
+  - ytt:
+      ignoreUnknownComments: true
+      valuesFrom:
+      - secretRef:
+          name: octant-values
