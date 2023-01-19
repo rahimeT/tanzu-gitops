@@ -1,0 +1,202 @@
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: admin
+spec: {}
+status: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: octant-dev
+  namespace: admin
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-octant-crb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: octant-dev
+  namespace: admin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: octant-dashboard
+  namespace: admin
+  labels:
+    app.kubernetes.io/name: octant
+    app.kubernetes.io/instance: octant-dashboard
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app.kubernetes.io/name: octant
+    app.kubernetes.io/instance: octant-dashboard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: octant-dashboard
+  namespace: admin
+  labels:
+    app.kubernetes.io/name: octant
+    app.kubernetes.io/instance: octant-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: octant
+      app.kubernetes.io/instance: octant-dashboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: octant
+        app.kubernetes.io/instance: octant-dashboard
+    spec:
+      serviceAccountName: octant-dev
+      securityContext:
+        fsGroup: 2000
+      initContainers: null
+      containers:
+      - name: octant
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+        image: harbor.mgt.mytanzu.org/tools/octant-dashboard:v0.25.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        env:
+        - name: OCTANT_HTTP_PORT
+          value: "8000"
+        - name: OCTANT_PLUGINS_DIR
+          value: /home/octant/.config/octant/plugins/
+        - name: OCTANT_PLUGINS_LIST
+          value: ""
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+        volumeMounts:
+        - name: tmp-mount
+          mountPath: /tmp
+        - name: plugins-mount
+          mountPath: /home/octant/.config/octant/plugins/
+        resources: {}
+      volumes:
+      - name: tmp-mount
+        emptyDir: {}
+      - name: plugins-mount
+        emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: octant-auth-proxy
+  name: octant-auth-proxy
+  namespace: admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: octant-auth-proxy
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: octant-auth-proxy
+    spec:
+      containers:
+      - args:
+        - --provider=oidc
+        - --client-id=admin-octant
+        - --client-secret=secretvalue
+        - --oidc-issuer-url=http://dex.h2o-4-5079.h2o.vmware.com
+        - --cookie-secret=bm90LWdvb2Qtc2VjcmV0Cg==
+        - --cookie-refresh=2m
+        - --upstream=http://octant-dashboard:8000/
+        - --http-address=0.0.0.0:3000
+        - --email-domain="*"
+        - --pass-basic-auth=false
+        - --pass-access-token=true
+        - --pass-authorization-header=true
+        - --proxy-prefix=/oauth2
+        image: harbor.mgt.mytanzu.org/tools/oauth2-proxy:7.2.1
+        imagePullPolicy: IfNotPresent
+        name: octant-auth-proxy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: octant-auth-proxy
+  name: octant-auth-proxy
+  namespace: admin
+spec:
+  ports:
+  - name: http
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    name: octant-auth-proxy
+  sessionAffinity: None
+  type: ClusterIP
+---
+# certgen -host "admin-octant.apps.h2o-4-5079.h2o.vmware.com" -common-name "admin-octant.apps.h2o-4-5079.h2o.vmware.com"
+# kubectl create secret tls octant-oauth-tls --key=/tmp/private.key --cert=/tmp/public.crt --dry-run=client -oyaml
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNIVENDQWNTZ0F3SUJBZ0lSQUpTS2ZZbnV4NGhacHMzcWYvSmQyUjB3Q2dZSUtvWkl6ajBFQXdJd1J6RWMKTUJvR0ExVUVDaE1UUTJWeWRHZGxiaUJFWlhabGJHOXdiV1Z1ZERFbk1DVUdBMVVFQ3d3ZVoyOXlhMlZ0UUdkdgpjbXRsYlc5R1RVUTJUaTUyYlhkaGNtVXVZMjl0TUI0WERUSXpNREV4T1RBNE5EWTBNRm9YRFRJME1ERXhPVEE0Ck5EWTBNRm93UnpFY01Cb0dBMVVFQ2hNVFEyVnlkR2RsYmlCRVpYWmxiRzl3YldWdWRERW5NQ1VHQTFVRUN3d2UKWjI5eWEyVnRRR2R2Y210bGJXOUdUVVEyVGk1MmJYZGhjbVV1WTI5dE1Ga3dFd1lIS29aSXpqMENBUVlJS29aSQp6ajBEQVFjRFFnQUV1RGZmVHN3M1lLcmtoZEE0RjE0UXAvbTEvWnZNWjQ5Y09YMUlQcGZyOXlQcTF0OXNxWHBwCi9zY3NkUWUyTG1LK1FHT1pGS1h5SDJrU292WkJkRXl4QjZPQmtEQ0JqVEFPQmdOVkhROEJBZjhFQkFNQ0FxUXcKRXdZRFZSMGxCQXd3Q2dZSUt3WUJCUVVIQXdFd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBZEJnTlZIUTRFRmdRVQp4UlpJNGpnWHM4c21mUjU5ZnVHR21hMldIL0V3TmdZRFZSMFJCQzh3TFlJcllXUnRhVzR0YjJOMFlXNTBMbUZ3CmNITXVhREp2TFRRdE5UQTNPUzVvTW04dWRtMTNZWEpsTG1OdmJUQUtCZ2dxaGtqT1BRUURBZ05IQURCRUFpQVAKSlM4UjhKWGtzSStXS1lmcm53Sy9XaHVOU0J6dytmS2VaREV4WEgrQVF3SWdXSVNzWGYveitwTGhRV2IwbmVCdQpMaGhmQ2ZLNDlvNXBtd2pyMXIxdE01TT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JR0hBZ0VBTUJNR0J5cUdTTTQ5QWdFR0NDcUdTTTQ5QXdFSEJHMHdhd0lCQVFRZ3FINUlYZCtyZHFBM0F5cTQKcFJIaUpKWkN6U3doVHQwVkQ1OGNQLzQrSEZXaFJBTkNBQVM0Tjk5T3pEZGdxdVNGMERnWFhoQ24rYlg5bTh4bgpqMXc1ZlVnK2wrdjNJK3JXMzJ5cGVtbit4eXgxQjdZdVlyNUFZNWtVcGZJZmFSS2k5a0YwVExFSAotLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tCg==
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: octant-oauth-tls
+  namespace: admin
+type: kubernetes.io/tls
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: octant-oauth
+  namespace: admin
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    enableWebsockets: true
+    services:
+    - name: octant-auth-proxy
+      port: 3000
+  virtualhost:
+    fqdn: admin-octant.apps.h2o-4-5079.h2o.vmware.com
+    tls:
+      secretName: octant-oauth-tls
