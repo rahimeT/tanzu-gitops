@@ -46,6 +46,20 @@ data:
     dn: ou=Group,dc=ssotest,dc=mgt,dc=mytanzu,dc=org
     objectClass: organizationalUnit
     ou: Group
+
+    dn: cn=tanzu,ou=People,dc=ssotest,dc=mgt,dc=mytanzu,dc=org
+    objectclass: inetOrgPerson
+    cn: tanzu
+    sn: tanzu
+    uid: tanzu
+    userPassword: {SSHA}KmyLFAr0F0bydKMG3H7RsUNZTzAtq6hJ
+
+    dn: cn=tanzu-users,ou=Group,dc=ssotest,dc=mgt,dc=mytanzu,dc=org
+    objectclass: groupOfUniqueNames
+    cn: tanzu-users
+    sn: tanzu-users
+    uniqueMember: cn=tanzu,ou=People,dc=ssotest,dc=mgt,dc=mytanzu,dc=org
+
 ---
 # Source: openldap/templates/configmap-env.yaml
 #
