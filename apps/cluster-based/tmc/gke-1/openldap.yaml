@@ -220,6 +220,8 @@ spec:
   commonName: ldaps.mgt.mytanzu.org
   dnsNames:
   - ldaps.mgt.mytanzu.org
+  ipNames:
+  - 34.118.30.44
   duration: 2160h0m0s
   issuerRef:
     kind: ClusterIssuer
