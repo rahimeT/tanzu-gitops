@@ -193,10 +193,6 @@ spec:
 #@ end
 ---
 #@ if data.values.efk.deploy.fluentbit:
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: tanzu-system-logging
 ---
 apiVersion: v1
 kind: ServiceAccount
