@@ -193,18 +193,22 @@ spec:
 #@ end
 ---
 #@ if data.values.efk.deploy.fluentbit:
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tanzu-system-logging
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: fluent-bit-extension-sa
-  namespace: default
+  namespace: tanzu-system-logging
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: fluent-bit-extension-role
-  namespace: default
+  namespace: tanzu-system-logging
 rules:
 - apiGroups: ["*"]
   resources: ["*"]
@@ -214,7 +218,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: fluent-bit-extension-rolebinding
-  namespace: default
+  namespace: tanzu-system-logging
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -222,7 +226,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: fluent-bit-extension-sa
-  namespace: default
+  namespace: tanzu-system-logging
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -247,7 +251,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: fluent-bit-extension-sa
-  namespace: default
+  namespace: tanzu-system-logging
 ---
 apiVersion: v1
 data:
@@ -255,13 +259,13 @@ data:
 kind: Secret
 metadata:
   name: fluent-bit-data-values
-  namespace: default
+  namespace: tanzu-system-logging
 ---
 apiVersion: kappctrl.k14s.io/v1alpha1
 kind: App
 metadata:
   name: fluent-bit
-  namespace: default
+  namespace: tanzu-system-logging
   annotations:
     tmc.cloud.vmware.com/managed: "false"
 spec:
