@@ -6,9 +6,9 @@ kind: Namespace
 metadata:
   name: tanzu-system-logging
   annotations:
-    kapp.k14s.io/noop: ""
+    kapp.k14s.io/exists: ""
   labels:
-    kapp.k14s.io/noop: ""
+    kapp.k14s.io/exists: ""
 ---
 #@ if data.values.efk.deploy.elasticsearch:
 apiVersion: apps/v1
