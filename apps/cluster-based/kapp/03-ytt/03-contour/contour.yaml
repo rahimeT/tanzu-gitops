@@ -82,7 +82,7 @@ spec:
   serviceAccountName: contour-extension-sa
   fetch:
     - image:
-        url: #@ data.values.tkgextensions.image
+        url: #@ data.values.tkgextensions.image
   template:
     - ytt:
         ignoreUnknownComments: true
