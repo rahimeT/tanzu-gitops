@@ -4,18 +4,14 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: tanzu-system-logging
-  annotations:
-    kapp.k14s.io/exists: ""
-  labels:
-    kapp.k14s.io/exists: ""
+  name: tanzu-system-elastic
 ---
 #@ if data.values.efk.deploy.elasticsearch:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: elasticsearch
-  namespace: tanzu-system-logging
+  namespace: tanzu-system-elastic
   labels:
     app: elasticsearch
 spec:
@@ -94,7 +90,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: elasticsearch
-  namespace: tanzu-system-logging
+  namespace: tanzu-system-elastic
   labels:
     app: elasticsearch
 spec:
@@ -113,7 +109,7 @@ metadata:
   labels:
     app: elasticsearch
   name: elasticsearch-httpproxy
-  namespace: tanzu-system-logging
+  namespace: tanzu-system-elastic
 spec:
   routes:
   - conditions:
@@ -134,7 +130,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kibana
-  namespace: tanzu-system-logging
+  namespace: tanzu-system-elastic
   labels:
     app: kibana
 spec:
@@ -147,7 +143,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kibana
-  namespace: tanzu-system-logging
+  namespace: tanzu-system-elastic
   labels:
     app: kibana
 spec:
@@ -180,7 +176,7 @@ metadata:
   labels:
     app: kibana
   name: kibana-httpproxy
-  namespace: tanzu-system-logging
+  namespace: tanzu-system-elastic
 spec:
   routes:
   - conditions:
@@ -197,6 +193,11 @@ spec:
 #@ end
 ---
 #@ if data.values.efk.deploy.fluentbit:
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tanzu-system-logging
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
