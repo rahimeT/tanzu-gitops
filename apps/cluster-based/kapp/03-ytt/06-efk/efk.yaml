@@ -1,0 +1,284 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tanzu-system-logging
+---
+#@ if data.values.efk.deploy.elasticsearch:
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: tanzu-system-logging
+  labels:
+    app: elasticsearch
+spec:
+  serviceName: elasticsearch
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      containers:
+      - name: elasticsearch
+        image: #@ data.values.efk.images.elasticsearch.elasticsearch
+        resources:
+            limits:
+              cpu: 1000m
+            requests:
+              cpu: 100m
+        ports:
+        - containerPort: 9200
+          name: rest
+          protocol: TCP
+        - containerPort: 9300
+          name: inter-node
+          protocol: TCP
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+        env:
+          - name: cluster.name
+            value: k8s-logs
+          - name: node.name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: discovery.seed_hosts
+            value: "elasticsearch-0.elasticsearch"
+          - name: cluster.initial_master_nodes
+            value: "elasticsearch-0"
+          - name: ES_JAVA_OPTS
+            value: "-Xms512m -Xmx512m"
+      initContainers:
+      - name: fix-permissions
+        image: #@ data.values.efk.images.elasticsearch.shell
+        command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+      - name: increase-vm-max-map
+        image: #@ data.values.efk.images.elasticsearch.shell
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      - name: increase-fd-ulimit
+        image: #@ data.values.efk.images.elasticsearch.shell
+        command: ["sh", "-c", "ulimit -n 65536"]
+        securityContext:
+          privileged: true
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      labels:
+        app: elasticsearch
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 40Gi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: elasticsearch
+  namespace: tanzu-system-logging
+  labels:
+    app: elasticsearch
+spec:
+  selector:
+    app: elasticsearch
+  type: ClusterIP
+  ports:
+    - port: 9200
+      name: rest
+    - port: 9300
+      name: inter-node
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  labels:
+    app: elasticsearch
+  name: elasticsearch-httpproxy
+  namespace: tanzu-system-logging
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    pathRewritePolicy:
+      replacePrefix:
+      - prefix: /
+        replacement: /
+    services:
+    - name: elasticsearch
+      port: 9200
+  virtualhost:
+    fqdn: #@ "elasticsearch." + data.values.shared.ingress
+#@ end
+---
+#@ if data.values.efk.deploy.kibana:
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: tanzu-system-logging
+  labels:
+    app: kibana
+spec:
+  ports:
+  - port: 5601
+  selector:
+    app: kibana
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: tanzu-system-logging
+  labels:
+    app: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+      - name: kibana
+        image: #@ data.values.efk.images.kibana.kibana
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        env:
+        - name: ELASTICSEARCH_URL
+          value: http://elasticsearch:9200
+        ports:
+        - containerPort: 5601
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  labels:
+    app: kibana
+  name: kibana-httpproxy
+  namespace: tanzu-system-logging
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    pathRewritePolicy:
+      replacePrefix:
+      - prefix: /
+        replacement: /
+    services:
+    - name: kibana
+      port: 5601
+  virtualhost:
+    fqdn: #@ "kibana." + data.values.shared.ingress
+#@ end
+---
+#@ if data.values.efk.deploy.fluentbit:
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluent-bit-extension-sa
+  namespace: tanzu-system-logging
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: fluent-bit-extension-role
+  namespace: tanzu-system-logging
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: fluent-bit-extension-rolebinding
+  namespace: tanzu-system-logging
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: fluent-bit-extension-role
+subjects:
+- kind: ServiceAccount
+  name: fluent-bit-extension-sa
+  namespace: tanzu-system-logging
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluent-bit-extension-cluster-role
+rules:
+- apiGroups: ["*"]
+  resources: ["clusterroles", "clusterrolebindings"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fluent-bit-extension-cluster-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fluent-bit-extension-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: fluent-bit-extension-sa
+  namespace: tanzu-system-logging
+---
+apiVersion: v1
+data:
+  values.yaml: #@ base64.encode(data.values.efk.overlay)
+kind: Secret
+metadata:
+  name: fluent-bit-data-values
+  namespace: tanzu-system-logging
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: fluent-bit
+  namespace: tanzu-system-logging
+  annotations:
+    tmc.cloud.vmware.com/managed: "false"
+spec:
+  syncPeriod: 5m
+  serviceAccountName: fluent-bit-extension-sa
+  fetch:
+    - image:
+        url: #@ data.values.tkgextensions.image
+  template:
+    - ytt:
+        paths:
+          - tkg-extensions/common
+          - tkg-extensions/logging/fluent-bit
+        inline:
+          pathsFrom:
+            - secretRef:
+                name: fluent-bit-data-values
+  deploy:
+    - kapp:
+        rawOptions: ["--wait-timeout=5m"]
+#@ end

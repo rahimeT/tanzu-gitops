@@ -1,0 +1,120 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+---
+#@ if data.values.grafana.deploy:
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tanzu-system-monitoring
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana-extension-sa
+  namespace: tanzu-system-monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: grafana-extension-role
+  namespace: tanzu-system-monitoring
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: grafana-extension-rolebinding
+  namespace: tanzu-system-monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: grafana-extension-role
+subjects:
+- kind: ServiceAccount
+  name: grafana-extension-sa
+  namespace: tanzu-system-monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: grafana-extension-cluster-role
+rules:
+- apiGroups: ["*"]
+  resources: ["clusterroles", "clusterrolebindings"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grafana-extension-cluster-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: grafana-extension-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: grafana-extension-sa
+  namespace: tanzu-system-monitoring
+---
+apiVersion: v1
+data:
+  values.yaml: #@ base64.encode(data.values.grafana.overlay)
+kind: Secret
+metadata:
+  name: grafana-data-values
+  namespace: tanzu-system-monitoring
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  labels:
+    app: grafana
+  name: grafana-httpproxy
+  namespace: tanzu-system-monitoring
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    pathRewritePolicy:
+      replacePrefix:
+      - prefix: /
+        replacement: /
+    services:
+    - name: grafana
+      port: 80
+  virtualhost:
+    fqdn: #@ "grafana." + data.values.shared.ingress
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: grafana
+  namespace: tanzu-system-monitoring
+  annotations:
+    tmc.cloud.vmware.com/managed: "false"
+spec:
+  syncPeriod: 5m
+  serviceAccountName: grafana-extension-sa
+  fetch:
+    - image:
+        url: #@ data.values.tkgextensions.image
+  template:
+    - ytt:
+        ignoreUnknownComments: true
+        paths:
+          - tkg-extensions/common
+          - tkg-extensions/monitoring/grafana
+        inline:
+          pathsFrom:
+            - secretRef:
+                name: grafana-data-values
+  deploy:
+    - kapp:
+        rawOptions: ["--wait-timeout=5m"]
+#@ end
