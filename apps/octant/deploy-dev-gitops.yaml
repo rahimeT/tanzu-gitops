@@ -51,7 +51,7 @@ subjects:
 apiVersion: kappctrl.k14s.io/v1alpha1
 kind: App
 metadata:
-  name: simple-app
+  name: octant-app
   namespace: default
 spec:
   serviceAccountName: octant-deploy-sa
