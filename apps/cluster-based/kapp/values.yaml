@@ -1,13 +1,15 @@
 #@data/values
 ---
 tkgextensions:
-  image: projects.registry.vmware.com/tkg/tkg-extensions-templates:v1.3.1_vmware.1
+  image: harbor.mgt.mytanzu.org/tkg/tkg-extensions-templates:v1.3.1_vmware.2
 shared:
-  ingress: test.h2o-4-5564.h2o.vmware.com
+  ingress: shared.h2o-4-5564.h2o.vmware.com
 contour:
   deploy: true
   overlay: |
-    infrastructure_provider: "vsphere"
+    #@data/values
+    ---
+    infrastructure_provider: vsphere
     contour:
       image:
         repository: projects.registry.vmware.com/tkg
@@ -19,6 +21,8 @@ contour:
 prometheus:
   deploy: true
   overlay: |
+    #@data/values
+    ---
     monitoring:
       prometheus_server:
         image:
@@ -47,6 +51,8 @@ prometheus:
 grafana:
   deploy: true
   overlay: |
+    #@data/values
+    ---
     monitoring:
       grafana:
         image:
@@ -72,20 +78,24 @@ efk:
     kibana:
       kibana: projects.registry.vmware.com/tanzu_meta_pocs/extensions/kibana:7.2.1
   overlay: |
+    #@data/values
+    ---
     logging:
       image:
         repository: projects.registry.vmware.com/tkg
     tkg:
-      instance_name: "TKG_INSTANCE_NAME"
-      cluster_name: "CLUSTER_NAME"
+      instance_name: "shared-cluster"
+      cluster_name: "shared-cluster"
     fluent_bit:
       output_plugin: "elasticsearch"
       elasticsearch:
         host: "elasticsearch"
         port: "9200"
 harbor:
-  deploy: true
+  deploy: false
   overlay: |
+    #@data/values
+    ---
     image:
       repository: projects.registry.vmware.com/tkg/harbor
       tag: v2.1.3_vmware.1
