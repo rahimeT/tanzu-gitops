@@ -2,12 +2,6 @@
 #@ load("@ytt:base64", "base64")
 ---
 #@ if data.values.grafana.deploy:
-#@ if not data.values.prometheus.deploy:
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: tanzu-system-monitoring
-#@ end
 ---
 apiVersion: v1
 kind: ServiceAccount

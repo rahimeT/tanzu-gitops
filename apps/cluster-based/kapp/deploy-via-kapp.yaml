@@ -1,4 +1,14 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: tanzu-system-monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tanzu-system-logging
+---
+apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: extensions-deploy-sa
@@ -34,12 +44,308 @@ subjects:
   namespace: default
 ---
 apiVersion: v1
-data:
-  values.yaml: dGtnZXh0ZW5zaW9uczoKICBpbWFnZTogcHJvamVjdHMucmVnaXN0cnkudm13YXJlLmNvbS90a2cvdGtnLWV4dGVuc2lvbnMtdGVtcGxhdGVzOnYxLjMuMV92bXdhcmUuMQpzaGFyZWQ6CiAgaW5ncmVzczogc2hhcmVkLmgyby00LTU1NjQuaDJvLnZtd2FyZS5jb20KY29udG91cjoKICBkZXBsb3k6IHRydWUKICBvdmVybGF5OiB8CiAgICAjQGRhdGEvdmFsdWVzCiAgICAtLS0KICAgIGluZnJhc3RydWN0dXJlX3Byb3ZpZGVyOiB2c3BoZXJlCiAgICBjb250b3VyOgogICAgICBpbWFnZToKICAgICAgICByZXBvc2l0b3J5OiBwcm9qZWN0cy5yZWdpc3RyeS52bXdhcmUuY29tL3RrZwogICAgZW52b3k6CiAgICAgIGltYWdlOgogICAgICAgIHJlcG9zaXRvcnk6IHByb2plY3RzLnJlZ2lzdHJ5LnZtd2FyZS5jb20vdGtnCiAgICAgIHNlcnZpY2U6CiAgICAgICAgdHlwZTogIkxvYWRCYWxhbmNlciIKcHJvbWV0aGV1czoKICBkZXBsb3k6IHRydWUKICBvdmVybGF5OiB8CiAgICAjQGRhdGEvdmFsdWVzCiAgICAtLS0KICAgIG1vbml0b3Jpbmc6CiAgICAgIHByb21ldGhldXNfc2VydmVyOgogICAgICAgIGltYWdlOgogICAgICAgICAgcmVwb3NpdG9yeTogcHJvamVjdHMucmVnaXN0cnkudm13YXJlLmNvbS90a2cvcHJvbWV0aGV1cwogICAgICBhbGVydG1hbmFnZXI6CiAgICAgICAgaW1hZ2U6CiAgICAgICAgICByZXBvc2l0b3J5OiBwcm9qZWN0cy5yZWdpc3RyeS52bXdhcmUuY29tL3RrZy9wcm9tZXRoZXVzCiAgICAgIGt1YmVfc3RhdGVfbWV0cmljczoKICAgICAgICBpbWFnZToKICAgICAgICAgIHJlcG9zaXRvcnk6IHByb2plY3RzLnJlZ2lzdHJ5LnZtd2FyZS5jb20vdGtnL3Byb21ldGhldXMKICAgICAgbm9kZV9leHBvcnRlcjoKICAgICAgICBpbWFnZToKICAgICAgICAgIHJlcG9zaXRvcnk6IHByb2plY3RzLnJlZ2lzdHJ5LnZtd2FyZS5jb20vdGtnL3Byb21ldGhldXMKICAgICAgcHVzaGdhdGV3YXk6CiAgICAgICAgaW1hZ2U6CiAgICAgICAgICByZXBvc2l0b3J5OiBwcm9qZWN0cy5yZWdpc3RyeS52bXdhcmUuY29tL3RrZy9wcm9tZXRoZXVzCiAgICAgIGNhZHZpc29yOgogICAgICAgIGltYWdlOgogICAgICAgICAgcmVwb3NpdG9yeTogcHJvamVjdHMucmVnaXN0cnkudm13YXJlLmNvbS90a2cvcHJvbWV0aGV1cwogICAgICBwcm9tZXRoZXVzX3NlcnZlcl9jb25maWdtYXBfcmVsb2FkOgogICAgICAgIGltYWdlOgogICAgICAgICAgcmVwb3NpdG9yeTogcHJvamVjdHMucmVnaXN0cnkudm13YXJlLmNvbS90a2cvcHJvbWV0aGV1cwogICAgICBwcm9tZXRoZXVzX3NlcnZlcl9pbml0X2NvbnRhaW5lcjoKICAgICAgICBpbWFnZToKICAgICAgICAgIHJlcG9zaXRvcnk6IHByb2plY3RzLnJlZ2lzdHJ5LnZtd2FyZS5jb20vdGtnL3Byb21ldGhldXMKZ3JhZmFuYToKICBkZXBsb3k6IHRydWUKICBvdmVybGF5OiB8CiAgICAjQGRhdGEvdmFsdWVzCiAgICAtLS0KICAgIG1vbml0b3Jpbmc6CiAgICAgIGdyYWZhbmE6CiAgICAgICAgaW1hZ2U6CiAgICAgICAgICByZXBvc2l0b3J5OiAicHJvamVjdHMucmVnaXN0cnkudm13YXJlLmNvbS90a2cvZ3JhZmFuYSIKICAgICAgICBzZWNyZXQ6CiAgICAgICAgICB0eXBlOiAiT3BhcXVlIgogICAgICAgICAgYWRtaW5fcGFzc3dvcmQ6ICJWazEzWVhKbE1TRT0iCiAgICAgIGdyYWZhbmFfaW5pdF9jb250YWluZXI6CiAgICAgICAgaW1hZ2U6CiAgICAgICAgICByZXBvc2l0b3J5OiAicHJvamVjdHMucmVnaXN0cnkudm13YXJlLmNvbS90a2cvZ3JhZmFuYSIKICAgICAgZ3JhZmFuYV9zY19kYXNoYm9hcmQ6CiAgICAgICAgaW1hZ2U6CiAgICAgICAgICByZXBvc2l0b3J5OiAicHJvamVjdHMucmVnaXN0cnkudm13YXJlLmNvbS90a2cvZ3JhZmFuYSIKZWZrOgogIGRlcGxveToKICAgIGVsYXN0aWNzZWFyY2g6IHRydWUKICAgIGZsdWVudGJpdDogdHJ1ZQogICAga2liYW5hOiB0cnVlCiAgaW1hZ2VzOgogICAgZWxhc3RpY3NlYXJjaDoKICAgICAgZWxhc3RpY3NlYXJjaDogcHJvamVjdHMucmVnaXN0cnkudm13YXJlLmNvbS90YW56dV9tZXRhX3BvY3MvZXh0ZW5zaW9ucy9lbGFzdGljc2VhcmNoOjcuMi4xCiAgICAgIHNoZWxsOiBwcm9qZWN0cy5yZWdpc3RyeS52bXdhcmUuY29tL3Rhbnp1X21ldGFfcG9jcy9leHRlbnNpb25zL2JpdG5hbWktc2hlbGw6MTAtZGViaWFuLTEwLXIxMzgKICAgIGtpYmFuYToKICAgICAga2liYW5hOiBwcm9qZWN0cy5yZWdpc3RyeS52bXdhcmUuY29tL3Rhbnp1X21ldGFfcG9jcy9leHRlbnNpb25zL2tpYmFuYTo3LjIuMQogIG92ZXJsYXk6IHwKICAgICNAZGF0YS92YWx1ZXMKICAgIC0tLQogICAgbG9nZ2luZzoKICAgICAgaW1hZ2U6CiAgICAgICAgcmVwb3NpdG9yeTogcHJvamVjdHMucmVnaXN0cnkudm13YXJlLmNvbS90a2cKICAgIHRrZzoKICAgICAgaW5zdGFuY2VfbmFtZTogInNoYXJlZC1jbHVzdGVyIgogICAgICBjbHVzdGVyX25hbWU6ICJzaGFyZWQtY2x1c3RlciIKICAgIGZsdWVudF9iaXQ6CiAgICAgIG91dHB1dF9wbHVnaW46ICJlbGFzdGljc2VhcmNoIgogICAgICBlbGFzdGljc2VhcmNoOgogICAgICAgIGhvc3Q6ICJlbGFzdGljc2VhcmNoLnRhbnp1LXN5c3RlbS1lbGFzdGljLnN2Yy5jbHVzdGVyLmxvY2FsIgogICAgICAgIHBvcnQ6ICI5MjAwIgpoYXJib3I6CiAgZGVwbG95OiBmYWxzZQogIG92ZXJsYXk6IHwKICAgICNAZGF0YS92YWx1ZXMKICAgIC0tLQogICAgaW1hZ2U6CiAgICAgIHJlcG9zaXRvcnk6IHByb2plY3RzLnJlZ2lzdHJ5LnZtd2FyZS5jb20vdGtnL2hhcmJvcgogICAgICB0YWc6IHYyLjEuM192bXdhcmUuMQogICAgICBwdWxsUG9saWN5OiBJZk5vdFByZXNlbnQKICAgIG5hbWVzcGFjZTogdGFuenUtc3lzdGVtLXJlZ2lzdHJ5CiAgICBob3N0bmFtZTogY29yZS5oYXJib3IuZG9tYWluCiAgICBwb3J0OgogICAgICBodHRwczogNDQzCiAgICB0bHNDZXJ0aWZpY2F0ZToKICAgICAgIyBbUmVxdWlyZWRdIHRoZSBjZXJ0aWZpY2F0ZQogICAgICB0bHMuY3J0OgogICAgICAjIFtSZXF1aXJlZF0gdGhlIHByaXZhdGUga2V5CiAgICAgIHRscy5rZXk6CiAgICAgICMgW09wdGlvbmFsXSB0aGUgY2VydGlmaWNhdGUgb2YgQ0EsIHRoaXMgZW5hYmxlcyB0aGUgZG93bmxvYWQKICAgICAgIyBsaW5rIG9uIHBvcnRhbCB0byBkb3dubG9hZCB0aGUgY2VydGlmaWNhdGUgb2YgQ0EKICAgICAgY2EuY3J0OgogICAgCiAgICAjIFVzZSBjb250b3VyIGh0dHAgcHJveHkgaW5zdGVhZCBvZiB0aGUgaW5ncmVzcyB3aGVuIGl0J3MgdHJ1ZQogICAgZW5hYmxlQ29udG91ckh0dHBQcm94eTogdHJ1ZQogICAgCiAgICAjIFtSZXF1aXJlZF0gVGhlIGluaXRpYWwgcGFzc3dvcmQgb2YgSGFyYm9yIGFkbWluLgogICAgaGFyYm9yQWRtaW5QYXNzd29yZDogIkhhcmJvcjEyMzQ1IgogICAgCiAgICAjIFtSZXF1aXJlZF0gVGhlIHNlY3JldCBrZXkgdXNlZCBmb3IgZW5jcnlwdGlvbi4gTXVzdCBiZSBhIHN0cmluZyBvZiAxNiBjaGFycy4KICAgIHNlY3JldEtleTogNDR6NW1tVFJpREFkM3I3bwogICAgCiAgICBkYXRhYmFzZToKICAgICAgIyBbUmVxdWlyZWRdIFRoZSBpbml0aWFsIHBhc3N3b3JkIG9mIHRoZSBwb3N0Z3JlcyBkYXRhYmFzZS4KICAgICAgcGFzc3dvcmQ6IDQ0ejVtbVRSaURBZDNyN28KICAgIAogICAgY29yZToKICAgICAgcmVwbGljYXM6IDEKICAgICAgIyBbUmVxdWlyZWRdIFNlY3JldCBpcyB1c2VkIHdoZW4gY29yZSBzZXJ2ZXIgY29tbXVuaWNhdGVzIHdpdGggb3RoZXIgY29tcG9uZW50cy4KICAgICAgc2VjcmV0OiA0NHo1bW1UUmlEQWQzcjdvCiAgICAgICMgW1JlcXVpcmVkXSBUaGUgWFNSRiBrZXkuIE11c3QgYmUgYSBzdHJpbmcgb2YgMzIgY2hhcnMuCiAgICAgIHhzcmZLZXk6IERudlFONTA4TTk3bUdtdEs5MjQ4c0NRMHBGRDgyQmhWCiAgICBqb2JzZXJ2aWNlOgogICAgICByZXBsaWNhczogMQogICAgICAjIFtSZXF1aXJlZF0gU2VjcmV0IGlzIHVzZWQgd2hlbiBqb2Igc2VydmljZSBjb21tdW5pY2F0ZXMgd2l0aCBvdGhlciBjb21wb25lbnRzLgogICAgICBzZWNyZXQ6IDQ0ejVtbVRSaURBZDNyN28KICAgIHJlZ2lzdHJ5OgogICAgICByZXBsaWNhczogMQogICAgICAjIFtSZXF1aXJlZF0gU2VjcmV0IGlzIHVzZWQgdG8gc2VjdXJlIHRoZSB1cGxvYWQgc3RhdGUgZnJvbSBjbGllbnQKICAgICAgIyBhbmQgcmVnaXN0cnkgc3RvcmFnZSBiYWNrZW5kLgogICAgICAjIFNlZTogaHR0cHM6Ly9naXRodWIuY29tL2RvY2tlci9kaXN0cmlidXRpb24vYmxvYi9tYXN0ZXIvZG9jcy9jb25maWd1cmF0aW9uLm1kI2h0dHAKICAgICAgc2VjcmV0OiA0NHo1bW1UUmlEQWQzcjdvCiAgICBub3Rhcnk6CiAgICAgICMgV2hldGhlciB0byBpbnN0YWxsIE5vdGFyeQogICAgICBlbmFibGVkOiB0cnVlCiAgICBjbGFpcjoKICAgICAgIyBXaGV0aGVyIHRvIGluc3RhbGwgQ2xhaXIgc2Nhbm5lcgogICAgICBlbmFibGVkOiB0cnVlCiAgICAgIHJlcGxpY2FzOiAxCiAgICAgICMgVGhlIGludGVydmFsIG9mIGNsYWlyIHVwZGF0ZXJzLCB0aGUgdW5pdCBpcyBob3VyLCBzZXQgdG8gMCB0bwogICAgICAjIGRpc2FibGUgdGhlIHVwZGF0ZXJzCiAgICAgIHVwZGF0ZXJzSW50ZXJ2YWw6IDEyCiAgICB0cml2eToKICAgICAgIyBlbmFibGVkIHRoZSBmbGFnIHRvIGVuYWJsZSBUcml2eSBzY2FubmVyCiAgICAgIGVuYWJsZWQ6IHRydWUKICAgICAgcmVwbGljYXM6IDEKICAgICAgIyBnaXRIdWJUb2tlbiB0aGUgR2l0SHViIGFjY2VzcyB0b2tlbiB0byBkb3dubG9hZCBUcml2eSBEQgogICAgICBnaXRIdWJUb2tlbjogIiIKICAgICAgIyBza2lwVXBkYXRlIHRoZSBmbGFnIHRvIGRpc2FibGUgVHJpdnkgREIgZG93bmxvYWRzIGZyb20gR2l0SHViCiAgICAgICMKICAgICAgIyBZb3UgbWlnaHQgd2FudCB0byBzZXQgdGhlIHZhbHVlIG9mIHRoaXMgZmxhZyB0byBgdHJ1ZWAgaW4gdGVzdCBvciBDSS9DRCBlbnZpcm9ubWVudHMgdG8gYXZvaWQgR2l0SHViIHJhdGUgbGltaXRpbmcgaXNzdWVzLgogICAgICAjIElmIHRoZSB2YWx1ZSBpcyBzZXQgdG8gYHRydWVgIHlvdSBoYXZlIHRvIG1hbnVhbGx5IGRvd25sb2FkIHRoZSBgdHJpdnkuZGJgIGZpbGUgYW5kIG1vdW50IGl0IGluIHRoZQogICAgICAjIGAvaG9tZS9zY2FubmVyLy5jYWNoZS90cml2eS9kYi90cml2eS5kYmAgcGF0aC4KICAgICAgc2tpcFVwZGF0ZTogZmFsc2UKICAgIAogICAgIyBUaGUgcGVyc2lzdGVuY2UgaXMgYWx3YXlzIGVuYWJsZWQgYW5kIGEgZGVmYXVsdCBTdG9yYWdlQ2xhc3MKICAgICMgaXMgbmVlZGVkIGluIHRoZSBrOHMgY2x1c3RlciB0byBwcm92aXNpb24gdm9sdW1lcyBkeW5hbWljbHkuCiAgICAjIFNwZWNpZnkgYW5vdGhlciBTdG9yYWdlQ2xhc3MgaW4gdGhlICJzdG9yYWdlQ2xhc3MiIG9yIHNldCAiZXhpc3RpbmdDbGFpbSIKICAgICMgaWYgeW91IGhhdmUgYWxyZWFkeSBleGlzdGluZyBwZXJzaXN0ZW50IHZvbHVtZXMgdG8gdXNlCiAgICAjCiAgICAjIEZvciBzdG9yaW5nIGltYWdlcyBhbmQgY2hhcnRzLCB5b3UgY2FuIGFsc28gdXNlICJhenVyZSIsICJnY3MiLCAiczMiLAogICAgIyAic3dpZnQiIG9yICJvc3MiLiBTZXQgaXQgaW4gdGhlICJpbWFnZUNoYXJ0U3RvcmFnZSIgc2VjdGlvbgogICAgcGVyc2lzdGVuY2U6CiAgICAgIHBlcnNpc3RlbnRWb2x1bWVDbGFpbToKICAgICAgICByZWdpc3RyeToKICAgICAgICAgICMgVXNlIHRoZSBleGlzdGluZyBQVkMgd2hpY2ggbXVzdCBiZSBjcmVhdGVkIG1hbnVhbGx5IGJlZm9yZSBib3VuZCwKICAgICAgICAgICMgYW5kIHNwZWNpZnkgdGhlICJzdWJQYXRoIiBpZiB0aGUgUFZDIGlzIHNoYXJlZCB3aXRoIG90aGVyIGNvbXBvbmVudHMKICAgICAgICAgIGV4aXN0aW5nQ2xhaW06ICIiCiAgICAgICAgICAjIFNwZWNpZnkgdGhlICJzdG9yYWdlQ2xhc3MiIHVzZWQgdG8gcHJvdmlzaW9uIHRoZSB2b2x1bWUuIE9yIHRoZSBkZWZhdWx0CiAgICAgICAgICAjIFN0b3JhZ2VDbGFzcyB3aWxsIGJlIHVzZWQodGhlIGRlZmF1bHQpLgogICAgICAgICAgIyBTZXQgaXQgdG8gIi0iIHRvIGRpc2FibGUgZHluYW1pYyBwcm92aXNpb25pbmcKICAgICAgICAgIHN0b3JhZ2VDbGFzczogIiIKICAgICAgICAgIHN1YlBhdGg6ICIiCiAgICAgICAgICBhY2Nlc3NNb2RlOiBSZWFkV3JpdGVPbmNlCiAgICAgICAgICBzaXplOiA3MEdpCiAgICAgICAgam9ic2VydmljZToKICAgICAgICAgIGV4aXN0aW5nQ2xhaW06ICIiCiAgICAgICAgICBzdG9yYWdlQ2xhc3M6ICIiCiAgICAgICAgICBzdWJQYXRoOiAiIgogICAgICAgICAgYWNjZXNzTW9kZTogUmVhZFdyaXRlT25jZQogICAgICAgICAgc2l6ZTogM0dpCiAgICAgICAgZGF0YWJhc2U6CiAgICAgICAgICBleGlzdGluZ0NsYWltOiAiIgogICAgICAgICAgc3RvcmFnZUNsYXNzOiAiIgogICAgICAgICAgc3ViUGF0aDogIiIKICAgICAgICAgIGFjY2Vzc01vZGU6IFJlYWRXcml0ZU9uY2UKICAgICAgICAgIHNpemU6IDNHaQogICAgICAgIHJlZGlzOgogICAgICAgICAgZXhpc3RpbmdDbGFpbTogIiIKICAgICAgICAgIHN0b3JhZ2VDbGFzczogIiIKICAgICAgICAgIHN1YlBhdGg6ICIiCiAgICAgICAgICBhY2Nlc3NNb2RlOiBSZWFkV3JpdGVPbmNlCiAgICAgICAgICBzaXplOiAzR2kKICAgICAgICB0cml2eToKICAgICAgICAgIGV4aXN0aW5nQ2xhaW06ICIiCiAgICAgICAgICBzdG9yYWdlQ2xhc3M6ICIiCiAgICAgICAgICBzdWJQYXRoOiAiIgogICAgICAgICAgYWNjZXNzTW9kZTogUmVhZFdyaXRlT25jZQogICAgICAgICAgc2l6ZTogNUdpCiAgICAgICMgRGVmaW5lIHdoaWNoIHN0b3JhZ2UgYmFja2VuZCBpcyB1c2VkIGZvciByZWdpc3RyeSBhbmQgY2hhcnRtdXNldW0gdG8gc3RvcmUKICAgICAgIyBpbWFnZXMgYW5kIGNoYXJ0cy4gUmVmZXIgdG8KICAgICAgIyBodHRwczovL2dpdGh1Yi5jb20vZG9ja2VyL2Rpc3RyaWJ1dGlvbi9ibG9iL21hc3Rlci9kb2NzL2NvbmZpZ3VyYXRpb24ubWQjc3RvcmFnZQogICAgICAjIGZvciB0aGUgZGV0YWlsLgogICAgICBpbWFnZUNoYXJ0U3RvcmFnZToKICAgICAgICAjIFNwZWNpZnkgd2hldGhlciB0byBkaXNhYmxlIGByZWRpcmVjdGAgZm9yIGltYWdlcyBhbmQgY2hhcnQgc3RvcmFnZSwgZm9yCiAgICAgICAgIyBiYWNrZW5kcyB3aGljaCBub3Qgc3VwcG9ydGVkIGl0IChzdWNoIGFzIHVzaW5nIG1pbmlvIGZvciBgczNgIHN0b3JhZ2UgdHlwZSksIHBsZWFzZSBkaXNhYmxlCiAgICAgICAgIyBpdC4gVG8gZGlzYWJsZSByZWRpcmVjdHMsIHNpbXBseSBzZXQgYGRpc2FibGVyZWRpcmVjdGAgdG8gYHRydWVgIGluc3RlYWQuCiAgICAgICAgIyBSZWZlciB0bwogICAgICAgICMgaHR0cHM6Ly9naXRodWIuY29tL2RvY2tlci9kaXN0cmlidXRpb24vYmxvYi9tYXN0ZXIvZG9jcy9jb25maWd1cmF0aW9uLm1kI3JlZGlyZWN0CiAgICAgICAgIyBmb3IgdGhlIGRldGFpbC4KICAgICAgICBkaXNhYmxlcmVkaXJlY3Q6IGZhbHNlCiAgICAgICAgIyBTcGVjaWZ5IHRoZSAiY2FCdW5kbGVTZWNyZXROYW1lIiBpZiB0aGUgc3RvcmFnZSBzZXJ2aWNlIHVzZXMgYSBzZWxmLXNpZ25lZCBjZXJ0aWZpY2F0ZS4KICAgICAgICAjIFRoZSBzZWNyZXQgbXVzdCBjb250YWluIGtleXMgbmFtZWQgImNhLmNydCIgd2hpY2ggd2lsbCBiZSBpbmplY3RlZCBpbnRvIHRoZSB0cnVzdCBzdG9yZQogICAgICAgICMgb2YgcmVnaXN0cnkncyBhbmQgY2hhcnRtdXNldW0ncyBjb250YWluZXJzLgogICAgICAgICMgY2FCdW5kbGVTZWNyZXROYW1lOgogICAgCiAgICAgICAgIyBTcGVjaWZ5IHRoZSB0eXBlIG9mIHN0b3JhZ2U6ICJmaWxlc3lzdGVtIiwgImF6dXJlIiwgImdjcyIsICJzMyIsICJzd2lmdCIsCiAgICAgICAgIyAib3NzIiBhbmQgZmlsbCB0aGUgaW5mb3JtYXRpb24gbmVlZGVkIGluIHRoZSBjb3JyZXNwb25kaW5nIHNlY3Rpb24uIFRoZSB0eXBlCiAgICAgICAgIyBtdXN0IGJlICJmaWxlc3lzdGVtIiBpZiB5b3Ugd2FudCB0byB1c2UgcGVyc2lzdGVudCB2b2x1bWVzIGZvciByZWdpc3RyeQogICAgICAgICMgYW5kIGNoYXJ0bXVzZXVtCiAgICAgICAgdHlwZTogZmlsZXN5c3RlbQogICAgICAgIGZpbGVzeXN0ZW06CiAgICAgICAgICByb290ZGlyZWN0b3J5OiAvc3RvcmFnZQogICAgICAgICAgI21heHRocmVhZHM6IDEwMAogICAgICAgIGF6dXJlOgogICAgICAgICAgYWNjb3VudG5hbWU6IGFjY291bnRuYW1lICMgcmVxdWlyZWQKICAgICAgICAgIGFjY291bnRrZXk6IGJhc2U2NGVuY29kZWRhY2NvdW50a2V5ICMgcmVxdWlyZWQKICAgICAgICAgIGNvbnRhaW5lcjogY29udGFpbmVybmFtZSAjIHJlcXVpcmVkCiAgICAgICAgICByZWFsbTogY29yZS53aW5kb3dzLm5ldCAjIG9wdGlvbmFsCiAgICAgICAgZ2NzOgogICAgICAgICAgYnVja2V0OiBidWNrZXRuYW1lICMgcmVxdWlyZWQKICAgICAgICAgICMgVGhlIGJhc2U2NCBlbmNvZGVkIGpzb24gZmlsZSB3aGljaCBjb250YWlucyB0aGUga2V5CiAgICAgICAgICBlbmNvZGVka2V5OiBiYXNlNjQtZW5jb2RlZC1qc29uLWtleS1maWxlICMgb3B0aW9uYWwKICAgICAgICAgIHJvb3RkaXJlY3Rvcnk6IG51bGwgIyBvcHRpb25hbAogICAgICAgICAgY2h1bmtzaXplOiA1MjQyODgwICMgb3B0aW9uYWwKICAgICAgICBzMzoKICAgICAgICAgIHJlZ2lvbjogdXMtd2VzdC0xICMgcmVxdWlyZWQKICAgICAgICAgIGJ1Y2tldDogYnVja2V0bmFtZSAjIHJlcXVpcmVkCiAgICAgICAgICBhY2Nlc3NrZXk6IG51bGwgIyBlZywgYXdzYWNjZXNza2V5CiAgICAgICAgICBzZWNyZXRrZXk6IG51bGwgIyBlZywgYXdzc2VjcmV0a2V5CiAgICAgICAgICByZWdpb25lbmRwb2ludDogbnVsbCAjIG9wdGlvbmFsLCBlZywgaHR0cDovL215b2JqZWN0cy5sb2NhbAogICAgICAgICAgZW5jcnlwdDogZmFsc2UgIyBvcHRpb25hbAogICAgICAgICAga2V5aWQ6IG51bGwgIyBlZywgbXlrZXlpZAogICAgICAgICAgc2VjdXJlOiB0cnVlICMgb3B0aW9uYWwKICAgICAgICAgIHY0YXV0aDogdHJ1ZSAjIG9wdGlvbmFsCiAgICAgICAgICBjaHVua3NpemU6IG51bGwgIyBvcHRpb25hbAogICAgICAgICAgcm9vdGRpcmVjdG9yeTogbnVsbCAjIG9wdGlvbmFsCiAgICAgICAgICBzdG9yYWdlY2xhc3M6IFNUQU5EQVJEICMgb3B0aW9uYWwKICAgICAgICBzd2lmdDoKICAgICAgICAgIGF1dGh1cmw6IGh0dHBzOi8vc3RvcmFnZS5teXByb3ZpZGVyLmNvbS92My9hdXRoCiAgICAgICAgICB1c2VybmFtZTogdXNlcm5hbWUKICAgICAgICAgIHBhc3N3b3JkOiBwYXNzd29yZAogICAgICAgICAgY29udGFpbmVyOiBjb250YWluZXJuYW1lCiAgICAgICAgICByZWdpb246IG51bGwgIyBlZywgZnIKICAgICAgICAgIHRlbmFudDogbnVsbCAjIGVnLCB0ZW5hbnRuYW1lCiAgICAgICAgICB0ZW5hbnRpZDogbnVsbCAjIGVnLCB0ZW5hbnRpZAogICAgICAgICAgZG9tYWluOiBudWxsICMgZWcsIGRvbWFpbm5hbWUKICAgICAgICAgIGRvbWFpbmlkOiBudWxsICMgZWcsIGRvbWFpbmlkCiAgICAgICAgICB0cnVzdGlkOiBudWxsICMgZWcsIHRydXN0aWQKICAgICAgICAgIGluc2VjdXJlc2tpcHZlcmlmeTogbnVsbCAjIGJvb2wgZWcsIGZhbHNlCiAgICAgICAgICBjaHVua3NpemU6IG51bGwgIyBlZywgNU0KICAgICAgICAgIHByZWZpeDogbnVsbCAjIGVnCiAgICAgICAgICBzZWNyZXRrZXk6IG51bGwgIyBlZywgc2VjcmV0a2V5CiAgICAgICAgICBhY2Nlc3NrZXk6IG51bGwgIyBlZywgYWNjZXNza2V5CiAgICAgICAgICBhdXRodmVyc2lvbjogbnVsbCAjIGVnLCAzCiAgICAgICAgICBlbmRwb2ludHR5cGU6IG51bGwgIyBlZywgcHVibGljCiAgICAgICAgICB0ZW1wdXJsY29udGFpbmVya2V5OiBudWxsICMgZWcsIGZhbHNlCiAgICAgICAgICB0ZW1wdXJsbWV0aG9kczogbnVsbCAjIGVnCiAgICAgICAgb3NzOgogICAgICAgICAgYWNjZXNza2V5aWQ6IGFjY2Vzc2tleWlkCiAgICAgICAgICBhY2Nlc3NrZXlzZWNyZXQ6IGFjY2Vzc2tleXNlY3JldAogICAgICAgICAgcmVnaW9uOiByZWdpb25uYW1lCiAgICAgICAgICBidWNrZXQ6IGJ1Y2tldG5hbWUKICAgICAgICAgIGVuZHBvaW50OiBudWxsICMgZWcsIGVuZHBvaW50CiAgICAgICAgICBpbnRlcm5hbDogbnVsbCAjIGVnLCBmYWxzZQogICAgICAgICAgZW5jcnlwdDogbnVsbCAjIGVnLCBmYWxzZQogICAgICAgICAgc2VjdXJlOiBudWxsICMgZWcsIHRydWUKICAgICAgICAgIGNodW5rc2l6ZTogbnVsbCAjIGVnLCAxME0KICAgICAgICAgIHJvb3RkaXJlY3Rvcnk6IG51bGwgIyBlZywgcm9vdGRpcmVjdG9yeQogICAgCiAgICAjIFRoZSBodHRwL2h0dHBzIG5ldHdvcmsgcHJveHkgZm9yIGNsYWlyLCBjb3JlLCBqb2JzZXJ2aWNlLCB0cml2eQogICAgcHJveHk6CiAgICAgIGh0dHBQcm94eToKICAgICAgaHR0cHNQcm94eToKICAgICAgbm9Qcm94eTogMTI3LjAuMC4xLGxvY2FsaG9zdCwubG9jYWwsLmludGVybmFs
 kind: Secret
 metadata:
   creationTimestamp: null
   name: extensions-values
+stringData:
+  values.yaml: |
+    ---
+    tkgextensions:
+      image: harbor.mgt.mytanzu.org/tkg/tkg-extensions-templates:v1.3.1_vmware.2
+    shared:
+      ingress: shared.h2o-4-5564.h2o.vmware.com
+    contour:
+      deploy: true
+      overlay: |
+        #@data/values
+        ---
+        infrastructure_provider: vsphere
+        contour:
+          image:
+            repository: projects.registry.vmware.com/tkg
+        envoy:
+          image:
+            repository: projects.registry.vmware.com/tkg
+          service:
+            type: "LoadBalancer"
+    prometheus:
+      deploy: false
+      overlay: |
+        #@data/values
+        ---
+        monitoring:
+          prometheus_server:
+            image:
+              repository: projects.registry.vmware.com/tkg/prometheus
+          alertmanager:
+            image:
+              repository: projects.registry.vmware.com/tkg/prometheus
+          kube_state_metrics:
+            image:
+              repository: projects.registry.vmware.com/tkg/prometheus
+          node_exporter:
+            image:
+              repository: projects.registry.vmware.com/tkg/prometheus
+          pushgateway:
+            image:
+              repository: projects.registry.vmware.com/tkg/prometheus
+          cadvisor:
+            image:
+              repository: projects.registry.vmware.com/tkg/prometheus
+          prometheus_server_configmap_reload:
+            image:
+              repository: projects.registry.vmware.com/tkg/prometheus
+          prometheus_server_init_container:
+            image:
+              repository: projects.registry.vmware.com/tkg/prometheus
+    grafana:
+      deploy: true
+      overlay: |
+        #@data/values
+        ---
+        monitoring:
+          grafana:
+            image:
+              repository: "projects.registry.vmware.com/tkg/grafana"
+            secret:
+              type: "Opaque"
+              admin_password: "Vk13YXJlMSE="
+          grafana_init_container:
+            image:
+              repository: "projects.registry.vmware.com/tkg/grafana"
+          grafana_sc_dashboard:
+            image:
+              repository: "projects.registry.vmware.com/tkg/grafana"
+    efk:
+      deploy:
+        elasticsearch: true
+        fluentbit: true
+        kibana: true
+      images:
+        elasticsearch:
+          elasticsearch: projects.registry.vmware.com/tanzu_meta_pocs/extensions/elasticsearch:7.2.1
+          shell: projects.registry.vmware.com/tanzu_meta_pocs/extensions/bitnami-shell:10-debian-10-r138
+        kibana:
+          kibana: projects.registry.vmware.com/tanzu_meta_pocs/extensions/kibana:7.2.1
+      overlay: |
+        #@data/values
+        ---
+        logging:
+          image:
+            repository: projects.registry.vmware.com/tkg
+        tkg:
+          instance_name: "shared-cluster"
+          cluster_name: "shared-cluster"
+        fluent_bit:
+          output_plugin: "elasticsearch"
+          elasticsearch:
+            host: "elasticsearch"
+            port: "9200"
+    harbor:
+      deploy: false
+      overlay: |
+        #@data/values
+        ---
+        image:
+          repository: projects.registry.vmware.com/tkg/harbor
+          tag: v2.1.3_vmware.1
+          pullPolicy: IfNotPresent
+        namespace: tanzu-system-registry
+        hostname: core.harbor.domain
+        port:
+          https: 443
+        tlsCertificate:
+          # [Required] the certificate
+          tls.crt:
+          # [Required] the private key
+          tls.key:
+          # [Optional] the certificate of CA, this enables the download
+          # link on portal to download the certificate of CA
+          ca.crt:
+        
+        # Use contour http proxy instead of the ingress when it's true
+        enableContourHttpProxy: true
+        
+        # [Required] The initial password of Harbor admin.
+        harborAdminPassword: "Harbor12345"
+        
+        # [Required] The secret key used for encryption. Must be a string of 16 chars.
+        secretKey: 44z5mmTRiDAd3r7o
+        
+        database:
+          # [Required] The initial password of the postgres database.
+          password: 44z5mmTRiDAd3r7o
+        
+        core:
+          replicas: 1
+          # [Required] Secret is used when core server communicates with other components.
+          secret: 44z5mmTRiDAd3r7o
+          # [Required] The XSRF key. Must be a string of 32 chars.
+          xsrfKey: DnvQN508M97mGmtK9248sCQ0pFD82BhV
+        jobservice:
+          replicas: 1
+          # [Required] Secret is used when job service communicates with other components.
+          secret: 44z5mmTRiDAd3r7o
+        registry:
+          replicas: 1
+          # [Required] Secret is used to secure the upload state from client
+          # and registry storage backend.
+          # See: https://github.com/docker/distribution/blob/master/docs/configuration.md#http
+          secret: 44z5mmTRiDAd3r7o
+        notary:
+          # Whether to install Notary
+          enabled: true
+        clair:
+          # Whether to install Clair scanner
+          enabled: true
+          replicas: 1
+          # The interval of clair updaters, the unit is hour, set to 0 to
+          # disable the updaters
+          updatersInterval: 12
+        trivy:
+          # enabled the flag to enable Trivy scanner
+          enabled: true
+          replicas: 1
+          # gitHubToken the GitHub access token to download Trivy DB
+          gitHubToken: ""
+          # skipUpdate the flag to disable Trivy DB downloads from GitHub
+          #
+          # You might want to set the value of this flag to `true` in test or CI/CD environments to avoid GitHub rate limiting issues.
+          # If the value is set to `true` you have to manually download the `trivy.db` file and mount it in the
+          # `/home/scanner/.cache/trivy/db/trivy.db` path.
+          skipUpdate: false
+        
+        # The persistence is always enabled and a default StorageClass
+        # is needed in the k8s cluster to provision volumes dynamicly.
+        # Specify another StorageClass in the "storageClass" or set "existingClaim"
+        # if you have already existing persistent volumes to use
+        #
+        # For storing images and charts, you can also use "azure", "gcs", "s3",
+        # "swift" or "oss". Set it in the "imageChartStorage" section
+        persistence:
+          persistentVolumeClaim:
+            registry:
+              # Use the existing PVC which must be created manually before bound,
+              # and specify the "subPath" if the PVC is shared with other components
+              existingClaim: ""
+              # Specify the "storageClass" used to provision the volume. Or the default
+              # StorageClass will be used(the default).
+              # Set it to "-" to disable dynamic provisioning
+              storageClass: ""
+              subPath: ""
+              accessMode: ReadWriteOnce
+              size: 70Gi
+            jobservice:
+              existingClaim: ""
+              storageClass: ""
+              subPath: ""
+              accessMode: ReadWriteOnce
+              size: 3Gi
+            database:
+              existingClaim: ""
+              storageClass: ""
+              subPath: ""
+              accessMode: ReadWriteOnce
+              size: 3Gi
+            redis:
+              existingClaim: ""
+              storageClass: ""
+              subPath: ""
+              accessMode: ReadWriteOnce
+              size: 3Gi
+            trivy:
+              existingClaim: ""
+              storageClass: ""
+              subPath: ""
+              accessMode: ReadWriteOnce
+              size: 5Gi
+          # Define which storage backend is used for registry and chartmuseum to store
+          # images and charts. Refer to
+          # https://github.com/docker/distribution/blob/master/docs/configuration.md#storage
+          # for the detail.
+          imageChartStorage:
+            # Specify whether to disable `redirect` for images and chart storage, for
+            # backends which not supported it (such as using minio for `s3` storage type), please disable
+            # it. To disable redirects, simply set `disableredirect` to `true` instead.
+            # Refer to
+            # https://github.com/docker/distribution/blob/master/docs/configuration.md#redirect
+            # for the detail.
+            disableredirect: false
+            # Specify the "caBundleSecretName" if the storage service uses a self-signed certificate.
+            # The secret must contain keys named "ca.crt" which will be injected into the trust store
+            # of registry's and chartmuseum's containers.
+            # caBundleSecretName:
+        
+            # Specify the type of storage: "filesystem", "azure", "gcs", "s3", "swift",
+            # "oss" and fill the information needed in the corresponding section. The type
+            # must be "filesystem" if you want to use persistent volumes for registry
+            # and chartmuseum
+            type: filesystem
+            filesystem:
+              rootdirectory: /storage
+              #maxthreads: 100
+            azure:
+              accountname: accountname # required
+              accountkey: base64encodedaccountkey # required
+              container: containername # required
+              realm: core.windows.net # optional
+            gcs:
+              bucket: bucketname # required
+              # The base64 encoded json file which contains the key
+              encodedkey: base64-encoded-json-key-file # optional
+              rootdirectory: null # optional
+              chunksize: 5242880 # optional
+            s3:
+              region: us-west-1 # required
+              bucket: bucketname # required
+              accesskey: null # eg, awsaccesskey
+              secretkey: null # eg, awssecretkey
+              regionendpoint: null # optional, eg, http://myobjects.local
+              encrypt: false # optional
+              keyid: null # eg, mykeyid
+              secure: true # optional
+              v4auth: true # optional
+              chunksize: null # optional
+              rootdirectory: null # optional
+              storageclass: STANDARD # optional
+            swift:
+              authurl: https://storage.myprovider.com/v3/auth
+              username: username
+              password: password
+              container: containername
+              region: null # eg, fr
+              tenant: null # eg, tenantname
+              tenantid: null # eg, tenantid
+              domain: null # eg, domainname
+              domainid: null # eg, domainid
+              trustid: null # eg, trustid
+              insecureskipverify: null # bool eg, false
+              chunksize: null # eg, 5M
+              prefix: null # eg
+              secretkey: null # eg, secretkey
+              accesskey: null # eg, accesskey
+              authversion: null # eg, 3
+              endpointtype: null # eg, public
+              tempurlcontainerkey: null # eg, false
+              tempurlmethods: null # eg
+            oss:
+              accesskeyid: accesskeyid
+              accesskeysecret: accesskeysecret
+              region: regionname
+              bucket: bucketname
+              endpoint: null # eg, endpoint
+              internal: null # eg, false
+              encrypt: null # eg, false
+              secure: null # eg, true
+              chunksize: null # eg, 10M
+              rootdirectory: null # eg, rootdirectory
+        
+        # The http/https network proxy for clair, core, jobservice, trivy
+        proxy:
+          httpProxy:
+          httpsProxy:
+          noProxy: 127.0.0.1,localhost,.local,.internal
 ---
 #apiVersion: kappctrl.k14s.io/v1alpha1
 #kind: App
@@ -91,27 +397,27 @@ metadata:
 #      - secretRef:
 #          name: extensions-values
 #---
-#apiVersion: kappctrl.k14s.io/v1alpha1
-#kind: App
-#metadata:
-#  name: grafana
-#  namespace: default
-#spec:
-#  serviceAccountName: extensions-deploy-sa
-#  deploy:
-#  - kapp:
-#      rawOptions:
-#      - --wait-timeout=5m
-#      - --kube-api-qps=20
-#      - --kube-api-burst=30
-#  fetch:
-#  - git:
-#      url: https://github.com/gorkemozlu/tanzu-gitops
-#      ref: origin/master
-#      subPath: apps/cluster-based/kapp/03-ytt/05-grafana
-#  template:
-#  - ytt:
-#      ignoreUnknownComments: true
-#      valuesFrom:
-#      - secretRef:
-#          name: extensions-values
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: grafana
+  namespace: default
+spec:
+  serviceAccountName: extensions-deploy-sa
+  deploy:
+  - kapp:
+      rawOptions:
+      - --wait-timeout=5m
+      - --kube-api-qps=20
+      - --kube-api-burst=30
+  fetch:
+  - git:
+      url: https://github.com/gorkemozlu/tanzu-gitops
+      ref: origin/master
+      subPath: apps/cluster-based/kapp/03-ytt/05-grafana
+  template:
+  - ytt:
+      ignoreUnknownComments: true
+      valuesFrom:
+      - secretRef:
+          name: extensions-values
