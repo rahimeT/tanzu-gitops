@@ -1,0 +1,223 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dex
+  labels:
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/instance: dex
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dex
+  labels:
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/instance: dex
+type: Opaque
+data:
+  config.yaml: "aXNzdWVyOiBodHRwczovL2RleC5zaGFyZWQuaDJvLTQtNTU2NC5oMm8udm13YXJlLmNvbQpzdGF0aWNDbGllbnRzOgotIGlkOiBqb2huLW9jdGFudAogIHJlZGlyZWN0VVJJczoKICAtICdodHRwczovL2pvaG4tb2N0YW50LnNoYXJlZC5oMm8tNC01NTY0Lmgyby52bXdhcmUuY29tL29hdXRoMi9jYWxsYmFjaycKICBuYW1lOiAnam9obi1vY3RhbnQnCiAgc2VjcmV0OiBzZWNyZXR2YWx1ZQotIGlkOiBnb3JrZW0tb2N0YW50CiAgcmVkaXJlY3RVUklzOgogIC0gJ2h0dHBzOi8vZ29ya2VtLW9jdGFudC5zaGFyZWQuaDJvLTQtNTU2NC5oMm8udm13YXJlLmNvbS9vYXV0aDIvY2FsbGJhY2snCiAgbmFtZTogJ2dvcmtlbS1vY3RhbnQnCiAgc2VjcmV0OiBzZWNyZXR2YWx1ZQpzdGF0aWNQYXNzd29yZHM6Ci0gZW1haWw6IGFkbWluQGV4YW1wbGUuY29tCiAgaGFzaDogJDJhJDEwJDJiMmNVOENQaE9UYUdyczFIUlF1QXVlUzdKVFQ1WkhzSFN6WWlGUG0xbGVaY2s3TWM4VDRXCiAgdXNlcklEOiAwOGE4Njg0Yi1kYjg4LTRiNzMtOTBhOS0zY2QxNjYxZjU0NjYKICB1c2VybmFtZTogYWRtaW4KZW5hYmxlUGFzc3dvcmREQjogdHJ1ZQpvYXV0aDI6CiAgc2tpcEFwcHJvdmFsU2NyZWVuOiB0cnVlCnN0b3JhZ2U6CiAgdHlwZTogbWVtb3J5CndlYjoKICBodHRwczogMC4wLjAuMDo1NTU0CiAgdGxzQ2VydDogL2NlcnRzL3Rscy5jcnQKICB0bHNLZXk6IC9jZXJ0cy90bHMua2V5CmNvbm5lY3RvcnM6Ci0gdHlwZTogbGRhcAogIG5hbWU6IE9wZW5MREFQCiAgaWQ6IGxkYXAKICBjb25maWc6CiAgICBob3N0OiBvcGVubGRhcC5vcGVubGRhcC5zdmM6Mzg5CiAgICAjIE5vIFRMUyBmb3IgdGhpcyBzZXR1cC4KICAgIGluc2VjdXJlTm9TU0w6IHRydWUKICAgICMgVGhpcyB3b3VsZCBub3JtYWxseSBiZSBhIHJlYWQtb25seSB1c2VyLgogICAgYmluZEROOiBjbj1hZG1pbixkYz1zc290ZXN0LGRjPW1ndCxkYz1teXRhbnp1LGRjPW9yZwogICAgYmluZFBXOiBwYXNzd29yZAogICAgdXNlcm5hbWVQcm9tcHQ6IFVzZXJuYW1lCiAgICB1c2VyU2VhcmNoOgogICAgICBiYXNlRE46IG91PVBlb3BsZSxkYz1zc290ZXN0LGRjPW1ndCxkYz1teXRhbnp1LGRjPW9yZwogICAgICBmaWx0ZXI6ICIob2JqZWN0Y2xhc3M9aW5ldE9yZ1BlcnNvbikiCiAgICAgIHVzZXJuYW1lOiBjbgogICAgICAjICJETiIgKGNhc2Ugc2Vuc2l0aXZlKSBpcyBhIHNwZWNpYWwgYXR0cmlidXRlIG5hbWUuIEl0IGluZGljYXRlcyB0aGF0CiAgICAgICMgdGhpcyB2YWx1ZSBzaG91bGQgYmUgdGFrZW4gZnJvbSB0aGUgZW50aXR5J3MgRE4gbm90IGFuIGF0dHJpYnV0ZSBvbgogICAgICAjIHRoZSBlbnRpdHkuCiAgICAgIGlkQXR0cjogRE4KICAgICAgZW1haWxBdHRyOiBjbgogICAgICBuYW1lQXR0cjogY24KICAgIGdyb3VwU2VhcmNoOgogICAgICBiYXNlRE46IG91PUdyb3VwLGRjPXNzb3Rlc3QsZGM9bWd0LGRjPW15dGFuenUsZGM9b3JnCiAgICAgIGZpbHRlcjogIihvYmplY3RDbGFzcz1ncm91cE9mTmFtZXMpIgogICAgICB1c2VyTWF0Y2hlcnM6CiAgICAgICAgIyBBIHVzZXIgaXMgYSBtZW1iZXIgb2YgYSBncm91cCB3aGVuIHRoZWlyIEROIG1hdGNoZXMKICAgICAgICAjIHRoZSB2YWx1ZSBvZiBhICJtZW1iZXIiIGF0dHJpYnV0ZSBvbiB0aGUgZ3JvdXAgZW50aXR5LgogICAgICAtIHVzZXJBdHRyOiBETgogICAgICAgIGdyb3VwQXR0cjogbWVtYmVyCiAgICAgICMgVGhlIGdyb3VwIG5hbWUgc2hvdWxkIGJlIHRoZSAiY24iIHZhbHVlLgogICAgICBuYW1lQXR0cjogY24="
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dex
+  labels:
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/instance: dex
+rules:
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["list", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dex-cluster
+  labels:
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/instance: dex
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: dex
+subjects:
+- kind: ServiceAccount
+  namespace: default
+  name: dex
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: dex
+  labels:
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/instance: dex
+rules:
+  - apiGroups: ["dex.coreos.com"]
+    resources: ["*"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: dex
+  labels:
+    helm.sh/chart: dex-0.12.1
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/instance: dex
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: dex
+subjects:
+- kind: ServiceAccount
+  namespace: default
+  name: dex
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex
+  labels:
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/instance: dex
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 5556
+      targetPort: http
+      protocol: TCP
+      appProtocol: http
+    - name: https
+      port: 5554
+      targetPort: https
+      protocol: TCP
+      appProtocol: https
+    - name: telemetry
+      port: 5558
+      targetPort: telemetry
+      protocol: TCP
+      appProtocol: http
+  selector:
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/instance: dex
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-cluster-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dex-tls
+spec:
+  commonName: dex.shared.h2o-4-5564.h2o.vmware.com
+  dnsNames:
+  - dex.shared.h2o-4-5564.h2o.vmware.com
+  duration: 2160h0m0s
+  issuerRef:
+    kind: ClusterIssuer
+    name: selfsigned-cluster-issuer
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  subject:
+    organizations:
+    - vmware
+  renewBefore: 360h0m0s
+  secretName: dex-tls
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex
+  labels:
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/instance: dex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dex
+      app.kubernetes.io/instance: dex
+  template:
+    metadata:
+      annotations:
+        checksum/config: 5620ea83fa0ca807c735c2af6d75c95da335d8fedd92a6f166b34e1a614d03a2
+      labels:
+        app.kubernetes.io/name: dex
+        app.kubernetes.io/instance: dex
+    spec:
+      serviceAccountName: dex
+      securityContext:
+        {}
+      containers:
+        - name: dex
+          securityContext:
+            {}
+          image: "ghcr.io/dexidp/dex:v2.35.3"
+          imagePullPolicy: IfNotPresent
+          args:
+            - dex
+            - serve
+            - --web-http-addr
+            - 0.0.0.0:5556
+            - --web-https-addr
+            - 0.0.0.0:5554
+            - --telemetry-addr
+            - 0.0.0.0:5558
+            - /etc/dex/config.yaml
+          ports:
+            - name: http
+              containerPort: 5556
+              protocol: TCP
+            - name: https
+              containerPort: 5554
+              protocol: TCP
+            - name: telemetry
+              containerPort: 5558
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: telemetry
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: telemetry
+          resources:
+            {}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/dex
+              readOnly: true
+            - mountPath: /certs
+              name: certs
+              readOnly: true
+      volumes:
+        - name: config
+          secret:
+            secretName: dex
+        - name: certs
+          secret:
+            secretName: dex-tls
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: dex
+spec:
+  virtualhost:
+    fqdn: dex.shared.h2o-4-5564.h2o.vmware.com
+    tls:
+      secretName: dex-tls
+  tcpproxy:
+    services:
+    - name: dex
+      port: 5554
+      protocol: tls
