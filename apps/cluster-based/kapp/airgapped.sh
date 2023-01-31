@@ -29,13 +29,13 @@ docker tag $TKG_EXTENSION_1 $TKG_EXTENSION_INTERNAL
 docker push $TKG_EXTENSION_INTERNAL
 
 #################################### cert-manager ######################################################
-export CM_1="${HARBOR_EXTERNAL}/tkg/cert-manager/cert-manager-cainjector:v0.16.1_vmware.1"
-export CM_2="${HARBOR_EXTERNAL}/tkg/cert-manager/cert-manager-controller:v0.16.1_vmware.1"
-export CM_3="${HARBOR_EXTERNAL}/tkg/cert-manager/cert-manager-webhook:v0.16.1_vmware.1"
+export CM_1="${HARBOR_EXTERNAL}/tkg/cert-manager-cainjector:v1.7.2_vmware.1"
+export CM_2="${HARBOR_EXTERNAL}/tkg/cert-manager-controller:v1.7.2_vmware.1"
+export CM_3="${HARBOR_EXTERNAL}/tkg/cert-manager-webhook:v1.7.2_vmware.1"
 
-export CM_1_INTERNAL="${HARBOR_INTERNAL}/tkg/cert-manager/cert-manager-cainjector:v0.16.1_vmware.1"
-export CM_2_INTERNAL="${HARBOR_INTERNAL}/tkg/cert-manager/cert-manager-controller:v0.16.1_vmware.1"
-export CM_3_INTERNAL="${HARBOR_INTERNAL}/tkg/cert-manager/cert-manager-webhook:v0.16.1_vmware.1"
+export CM_1_INTERNAL="${HARBOR_INTERNAL}/tkg/cert-manager-cainjector:v1.7.2_vmware.1"
+export CM_2_INTERNAL="${HARBOR_INTERNAL}/tkg/cert-manager-controller:v1.7.2_vmware.1"
+export CM_3_INTERNAL="${HARBOR_INTERNAL}/tkg/cert-manager-webhook:v1.7.2_vmware.1"
 
 docker pull $CM_1
 docker tag $CM_1 $CM_1_INTERNAL
