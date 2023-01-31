@@ -788,4 +788,4 @@ spec:
     - name: test-nodejs-app
       port: 80
   virtualhost:
-    fqdn: sample-app.mgt.mytanzu.org
+    fqdn: sample-app-binding.apps.h2o-4-4411.h2o.vmware.com
