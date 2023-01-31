@@ -100,8 +100,6 @@ kind: Secret
 metadata:
   name: mongo-creds
   namespace: my-apps
-  labels:
-    services.apps.tanzu.vmware.com/class: mongodb 
 ---
 apiVersion: v1
 kind: Service
@@ -405,68 +403,6 @@ spec:
       - name: mysql-configmap
         configMap:
           name: mysql-configmap
----
-apiVersion: projectcontour.io/v1
-kind: HTTPProxy
-metadata:
-  name: sample-app-nodejs
-  namespace: my-apps
-spec:
-  routes:
-  - services:
-    - name: sample-app-nodejs
-      port: 8080
-  virtualhost:
-    fqdn: sample-app.tap.gorkemo-tap.tapdemo.vmware.com
----
-apiVersion: v1
-data:
-  pg_password: cGFzc3dvcmQxMjM= #password123
-  pg_username: YWRtaW51c2Vy #adminuser
-  pg_host: cG9zdGdyZXMtc3Zj #postgres-svc
-  pg_port: NTQzMg== #5432
-  pg_dbname: YXBw #app
-  type: YXBwLWNvbmZpZwo= #app-config
-kind: Secret
-metadata:
-  name: postgres-creds
-  namespace: my-apps
----
-apiVersion: v1
-data:
-  mongo_password: cGFzc3dvcmQxMjM= #password123
-  mongo_username: YWRtaW51c2Vy #adminuser
-  mongo_host: bW9uZ28tc3Zj #mongo-svc
-  mongo_port: MjcwMTc= #27017
-  type: YXBwLWNvbmZpZwo= #app-config
-kind: Secret
-metadata:
-  name: mongo-creds
-  namespace: my-apps
----
-apiVersion: v1
-data:
-  redis_password: cGFzc3dvcmQxMjM= #password123
-  redis_username: ZGVmYXVsdA== #default
-  redis_host: cmVkaXMtc3Zj #redis-svc
-  redis_port: NjM3OQ== #6379
-  type: YXBwLWNvbmZpZw== #app-config
-kind: Secret
-metadata:
-  name: redis-creds
-  namespace: my-apps
----
-apiVersion: v1
-data:
-  mysql_password: cGFzc3dvcmQxMjM= #password123
-  mysql_username: cm9vdA== #root
-  mysql_host: bXlzcWwtc3Zj #mysql-svc
-  mysql_port: MzMwNg== #3306
-  type: YXBwLWNvbmZpZwo= #app-config
-kind: Secret
-metadata:
-  name: mysql-creds
-  namespace: my-apps
 ---
 apiVersion: v1
 data:
@@ -788,4 +724,4 @@ spec:
     - name: test-nodejs-app
       port: 80
   virtualhost:
-    fqdn: sample-app.mgt.mytanzu.org
+    fqdn: sample-app-binding.test.h2o-4-5564.h2o.vmware.com
