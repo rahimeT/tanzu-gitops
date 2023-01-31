@@ -71,10 +71,7 @@ kind: HTTPProxy
 metadata:
   labels:
     app: grafana
-    kapp.k14s.io/noop: ""
-  annotations:
-    kapp.k14s.io/noop: ""
-  name: grafana-httpproxy
+  name: httpproxy-grafana
   namespace: tanzu-system-monitoring
 spec:
   routes:
