@@ -155,7 +155,7 @@ spec:
         - --provider=oidc
         - #@ "--client-id=" + namespace[i] + "-octant"
         - --client-secret=secretvalue
-        - --oidc-issuer-url=https://dex.mgt.mytanzu.org
+        - #@ "--oidc-issuer-url=https://dex." + data.values.ingress
         - --cookie-secret=bm90LWdvb2Qtc2VjcmV0Cg==
         - --cookie-refresh=2m
         - --upstream=http://octant-dashboard:8000/
@@ -193,13 +193,13 @@ metadata:
   name: octant-oauth-tls
   namespace: #@ namespace[i]
 spec:
-  commonName: #@ namespace[i] + "-octant.mgt.mytanzu.org"
+  commonName: #@ namespace[i] + "-octant." + data.values.ingress
   dnsNames:
-  - #@ namespace[i] + "-octant.mgt.mytanzu.org"
+  - #@ namespace[i] + "-octant." + data.values.ingress
   duration: 2160h0m0s
   issuerRef:
     kind: ClusterIssuer
-    name: letsencrypt-contour-cluster-issuer
+    name: #@ data.values.cert.clusterissuer.name
   privateKey:
     algorithm: RSA
     encoding: PKCS1
@@ -224,7 +224,7 @@ spec:
     - name: octant-auth-proxy
       port: 3000
   virtualhost:
-    fqdn: #@ namespace[i] + "-octant.mgt.mytanzu.org"
+    fqdn: #@ namespace[i] + "-octant." + data.values.ingress
     tls:
       secretName: octant-oauth-tls
 
