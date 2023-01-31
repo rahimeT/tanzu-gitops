@@ -91,4 +91,4 @@ spec:
     - name: test-nodejs-app-v1
       port: 80
   virtualhost:
-    fqdn: sample-app.apps.h2o-4-4411.h2o.vmware.com
+    fqdn: sample-app.test.h2o-4-4411.h2o.vmware.com
