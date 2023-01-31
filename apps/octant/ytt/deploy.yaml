@@ -165,6 +165,7 @@ spec:
         - --pass-access-token=true
         - --pass-authorization-header=true
         - --proxy-prefix=/oauth2
+        - --ssl-insecure-skip-verify
         image: harbor.mgt.mytanzu.org/tools/oauth2-proxy:7.2.1
         imagePullPolicy: IfNotPresent
         name: octant-auth-proxy
