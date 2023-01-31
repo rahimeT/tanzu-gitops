@@ -346,6 +346,32 @@ stringData:
           httpProxy:
           httpsProxy:
           noProxy: 127.0.0.1,localhost,.local,.internal
+
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: extensions
+  namespace: default
+spec:
+  serviceAccountName: extensions-deploy-sa
+  deploy:
+  - kapp:
+      rawOptions:
+      - --wait-timeout=5m
+      - --kube-api-qps=20
+      - --kube-api-burst=30
+  fetch:
+  - git:
+      url: https://github.com/gorkemozlu/tanzu-gitops
+      ref: origin/master
+      subPath: apps/cluster-based/kapp/03-ytt
+  template:
+  - ytt:
+      ignoreUnknownComments: true
+      valuesFrom:
+      - secretRef:
+          name: extensions-values
 ---
 #apiVersion: kappctrl.k14s.io/v1alpha1
 #kind: App
@@ -446,28 +472,3 @@ stringData:
 #      valuesFrom:
 #      - secretRef:
 #          name: extensions-values
----
-apiVersion: kappctrl.k14s.io/v1alpha1
-kind: App
-metadata:
-  name: extensions
-  namespace: default
-spec:
-  serviceAccountName: extensions-deploy-sa
-  deploy:
-  - kapp:
-      rawOptions:
-      - --wait-timeout=5m
-      - --kube-api-qps=20
-      - --kube-api-burst=30
-  fetch:
-  - git:
-      url: https://github.com/gorkemozlu/tanzu-gitops
-      ref: origin/master
-      subPath: apps/cluster-based/kapp/03-ytt
-  template:
-  - ytt:
-      ignoreUnknownComments: true
-      valuesFrom:
-      - secretRef:
-          name: extensions-values
