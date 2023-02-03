@@ -31,3 +31,61 @@ spec:
       port: 80
       targetPort: 8080
   type: LoadBalancer
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: l4-ingress-kuard
+spec:
+  routes:
+  - conditions:
+    - prefix: "/"
+    enableWebsockets: true
+    services:
+    - name: kuard
+      port: 80
+  virtualhost:
+    fqdn: l4-kuard.test.h2o-4-5564.h2o.vmware.com
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: contour
+spec:
+  controller: projectcontour.io/contour
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: l4-ingress-kuard
+spec:
+  ingressClassName: contour
+  rules:
+    - host: kuard-l4.test.h2o-4-5564.h2o.vmware.com
+      http:
+        paths:
+        - pathType: Prefix
+          path: /
+          backend:
+            service:
+              name: kuard
+              port:
+                number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: l7-ingress-kuard
+spec:
+  ingressClassName: avi-lb
+  rules:
+    - host: kuard-l7.test.h2o-4-5564.h2o.vmware.com
+      http:
+        paths:
+        - pathType: Prefix
+          path: /
+          backend:
+            service:
+              name: kuard
+              port:
+                number: 80
