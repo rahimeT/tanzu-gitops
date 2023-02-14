@@ -1,0 +1,8 @@
+#@data/values
+---
+image: projects.registry.vmware.com/antreainterworking/interworking-ubuntu:0.7.0
+clusterName: dev-cluster-04
+nsxtManager: nsxt01.h2o-4-6579.h2o.vmware.com
+tls:
+  crt: LS0tLS1...
+  key: LS0tLS1...
