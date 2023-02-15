@@ -4,7 +4,7 @@ metadata:
   labels:
     grafana_dashboard: "1"
   name: dashboard-node-exporter
-  namespace: tanzu-system-monitoring
+  namespace: tanzu-system-dashboards
 data:
   dashboard-node-exporter.json: |-
     {

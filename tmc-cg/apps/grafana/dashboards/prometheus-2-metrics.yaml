@@ -4,7 +4,7 @@ metadata:
   labels:
     grafana_dashboard: "1"
   name: dashboard-prometheus-2-metrics
-  namespace: tanzu-system-monitoring
+  namespace: tanzu-system-dashboards
 data:
   prometheus-2-metrics.json: |-
     {

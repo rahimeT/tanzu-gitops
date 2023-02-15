@@ -4,7 +4,7 @@ metadata:
   labels:
     grafana_dashboard: "1"
   name: dashboard-kube-state-metrics-v2
-  namespace: tanzu-system-monitoring
+  namespace: tanzu-system-dashboards
 data:
   kube-state-metrics-v2.json: |-
     {
