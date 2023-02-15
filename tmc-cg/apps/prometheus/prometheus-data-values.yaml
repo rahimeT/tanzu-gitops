@@ -8,7 +8,7 @@ ingress:
   alertmanagerServicePort: 80
 prometheus:
   service:
-    type: LoadBalancer
+    type: ClusterIP
   pvc:
     storage: 15Gi
     storageClassName: tanzu
