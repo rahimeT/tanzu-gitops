@@ -6,3 +6,4 @@ resources:
 - tanzu-packages-prometheus.yaml
 - tanzu-packages-grafana.yaml
 - tanzu-packages-efk.yaml
+- tanzu-packages-grafana-dashboards.yaml
