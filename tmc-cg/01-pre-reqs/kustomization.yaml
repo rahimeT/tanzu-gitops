@@ -7,3 +7,4 @@ resources:
 - tanzu-packages-psp.yaml
 - tanzu-packages-prometheus-sa.yaml
 - tanzu-packages-package-repo.yaml
+- tanzu-packages-grafana-sa.yaml
