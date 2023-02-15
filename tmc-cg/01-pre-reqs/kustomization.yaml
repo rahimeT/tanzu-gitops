@@ -8,3 +8,4 @@ resources:
 - tanzu-packages-prometheus-sa.yaml
 - tanzu-packages-package-repo.yaml
 - tanzu-packages-grafana-sa.yaml
+- tanzu-packages-efk-sa.yaml

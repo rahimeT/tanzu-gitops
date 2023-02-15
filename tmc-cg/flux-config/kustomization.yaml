@@ -5,3 +5,4 @@ resources:
 - tanzu-packages-contour.yaml
 - tanzu-packages-prometheus.yaml
 - tanzu-packages-grafana.yaml
+- tanzu-packages-efk.yaml
