@@ -12,21 +12,6 @@ fluent_bit:
         HTTP_Port     2020
     outputs: |
       [OUTPUT]
-        Name   syslog
-        Match  kube.*
-        Host   127.0.0.1
-        Port   514
-        Mode   udp
-        Syslog_Format        rfc5424
-        Syslog_Hostname_key  tkg_cluster
-        Syslog_Appname_key   pod_name
-        Syslog_Procid_key    container_name
-        Syslog_Message_key   message
-        Syslog_SD_key        k8s
-        Syslog_SD_key        labels
-        Syslog_SD_key        annotations
-        Syslog_SD_key        tkg
-      [OUTPUT]
         Name            es
         Match           *
         Host            elasticsearch
