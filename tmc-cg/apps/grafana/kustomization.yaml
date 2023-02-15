@@ -4,14 +4,6 @@ generatorOptions:
   disableNameSuffixHash: true
 resources:
 - grafana-package-install.yaml
-- ./dashboards/cluster-networking.yaml
-- ./dashboards/k8s-cluster-metrics.yaml
-- ./dashboards/k8s-deployments.yaml
-- ./dashboards/k8s-networking-namespace-pods.yaml
-- ./dashboards/k8s-pvc.yaml
-- ./dashboards/kube-state-metrics-v2.yaml
-- ./dashboards/node-exporter.yaml
-- ./dashboards/prometheus-2-metrics.yaml
 secretGenerator:
 - name: grafana-packages-values
   namespace: packages
