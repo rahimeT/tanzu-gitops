@@ -5,3 +5,5 @@ resources:
 - tanzu-packages-cert-manager-sa.yaml
 - tanzu-packages-contour-sa.yaml
 - tanzu-packages-psp.yaml
+- tanzu-packages-prometheus-sa.yaml
+- tanzu-packages-package-repo.yaml

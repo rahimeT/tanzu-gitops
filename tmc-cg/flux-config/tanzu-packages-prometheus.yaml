@@ -2,22 +2,21 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: tanzu-packages-cert-manager
+  name: tanzu-packages-prometheus
   namespace: tanzu-continuousdelivery-resources
 spec:
   dependsOn:
-    - name: tanzu-packages-cert-manager-sa
+    - name: tanzu-packages-contour
   interval: 1m0s
-  path: ./tmc-cg/apps/cert-manager
+  path: ./tmc-cg/apps/prometheus
   prune: true
   sourceRef:
     kind: GitRepository
     name: fluxcd-poc
-    namespace: tanzu-continuousdelivery-resources
   healthChecks:
     - apiVersion: apps/v1
       kind: Deployment
-      name: cert-manager
-      namespace: cert-manager
+      name: prometheus-server
+      namespace: tanzu-system-monitoring
 
 

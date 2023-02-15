@@ -8,7 +8,7 @@ spec:
   dependsOn:
     - name: tanzu-packages-cert-manager
   interval: 1m0s
-  path: ./tmc-cg/contour
+  path: ./tmc-cg/apps/contour
   prune: true
   sourceRef:
     kind: GitRepository
