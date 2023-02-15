@@ -13,7 +13,7 @@ spec:
   prune: true
   sourceRef:
     kind: GitRepository
-    name: fluxcd-poc
+    name: tanzu-gitops
   healthChecks:
     - apiVersion: apps/v1
       kind: Deployment
