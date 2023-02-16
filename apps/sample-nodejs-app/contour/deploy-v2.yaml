@@ -92,7 +92,7 @@ spec:
     - services:
         - name: test-nodejs-app-v1
           port: 80
-          weight: 0
+          weight: 100
         - name: test-nodejs-app-v2
           port: 80
-          weight: 100
+          weight: 0
