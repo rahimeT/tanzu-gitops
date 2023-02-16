@@ -87,7 +87,7 @@ metadata:
   namespace: test-app
 spec:
   virtualhost:
-    fqdn: sample-app-w.test.h2o-4-5564.h2o.vmware.com
+    fqdn: sample-app-w.apps.h2o-4-6231.h2o.vmware.com
   routes:
     - services:
         - name: test-nodejs-app-v1
