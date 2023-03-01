@@ -1,19 +1,6 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
-  annotations:
-    run.tanzu.vmware.com/image-registry: ""
-    run.tanzu.vmware.com/proxy-name: ""
-    tkg.tanzu.vmware.com/skip-tls-verify: ""
-    tkg.tanzu.vmware.com/tkg-http-proxy: ""
-    tkg.tanzu.vmware.com/tkg-https-proxy: ""
-    tkg.tanzu.vmware.com/tkg-ip-family: ""
-    tkg.tanzu.vmware.com/tkg-no-proxy: ""
-    tkg.tanzu.vmware.com/tkg-proxy-ca-cert: ""
-  labels:
-    cluster.x-k8s.io/cluster-name: cc-06
-    run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.2-zshippable
-    topology.cluster.x-k8s.io/owned: ""
   name: cc-06
   namespace: dev
 spec:
