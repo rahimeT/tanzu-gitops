@@ -1,21 +1,70 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
-  name: cc-01
-  namespace: tanzuns1
+  annotations:
+    run.tanzu.vmware.com/image-registry: ""
+    run.tanzu.vmware.com/proxy-name: ""
+    tkg.tanzu.vmware.com/skip-tls-verify: ""
+    tkg.tanzu.vmware.com/tkg-http-proxy: ""
+    tkg.tanzu.vmware.com/tkg-https-proxy: ""
+    tkg.tanzu.vmware.com/tkg-ip-family: ""
+    tkg.tanzu.vmware.com/tkg-no-proxy: ""
+    tkg.tanzu.vmware.com/tkg-proxy-ca-cert: ""
+  labels:
+    cluster.x-k8s.io/cluster-name: cc-06
+    run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.2-zshippable
+    topology.cluster.x-k8s.io/owned: ""
+  name: cc-06
+  namespace: dev
 spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 172.20.0.0/16
+    serviceDomain: cluster.local
+    services:
+      cidrBlocks:
+      - 10.96.0.0/16
   topology:
     class: tanzukubernetescluster
-    version: v1.23.8---vmware.2-tkg.2-zshippable
     controlPlane:
+      metadata:
+        annotations:
+          run.tanzu.vmware.com/resolve-os-image: os-name=photon,os-version=3,os-arch=amd64
       replicas: 1
+    variables:
+    - name: controlPlaneVolumes
+      value:
+      - capacity:
+          storage: 50G
+        mountPath: /var/lib/etcd
+        name: etcd
+        storageClass: tanzu
+    - name: nodePoolVolumes
+      value:
+      - capacity:
+          storage: 100G
+        mountPath: /var/lib/containerd
+        name: containerd
+        storageClass: tanzu
+    - name: vmClass
+      value: best-effort-large
+    - name: storageClass
+      value: tanzu
+    - name: ntp
+      value: time1.oc.vmware.com
+    version: v1.23.8+vmware.2
     workers:
       machineDeployments:
-        - class: node-pool
-          name: node-pool-1
-          replicas: 1
-    variables:
-    - name: vmClass
-      value: best-effort-small
-    - name: storageClass
-      value: "tanzu"
+      - class: node-pool
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: os-name=photon,os-version=3,os-arch=amd64
+        name: md-0
+        replicas: 2
+        variables:
+          overrides:
+          - name: vmClass
+            value: best-effort-2xlarge
+          - name: storageClass
+            value: tanzu
