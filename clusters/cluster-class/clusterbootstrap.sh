@@ -1,6 +1,10 @@
 #!/bin/bash
 
-kubectx supervisor
+# ssh to supervisor
+kubectl apply -f repo-v2.1.yaml
+# exit ssh to supervisor
+
+kubectx supervisor-level
 kubectl -n dev patch clusterbootstrap cc-06 --type='json' -p='[{"op": "add", "path": "/spec/additionalPackages/-", "value": {"refName": "cert-manager.tanzu.vmware.com.1.7.2+vmware.3-tkg.1"}}]'
 
 cat <<EOF | kubectl apply -f -
