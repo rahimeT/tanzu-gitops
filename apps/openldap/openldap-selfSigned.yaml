@@ -119,7 +119,9 @@ data:
   LDAP_READONLY_USER_USERNAME: readonly
   LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
   LDAP_TLS: "true"
-  LDAP_TLS_ENFORCE: "false"
+  LDAP_TLS_CA_CRT_FILENAME: ca.crt
+  LDAP_TLS_CRT_FILENAME: tls.crt
+  LDAP_TLS_KEY_FILENAME: tls.key
 ---
 # Source: openldap/templates/pvc.yaml
 kind: PersistentVolumeClaim
