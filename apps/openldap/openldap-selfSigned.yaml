@@ -272,6 +272,7 @@ spec:
           persistentVolumeClaim:
             claimName: openldap
 ---
+## needed for tmc-local
 #apiVersion: idp.supervisor.pinniped.dev/v1alpha1
 #kind: LDAPIdentityProvider
 #metadata:
@@ -294,6 +295,7 @@ spec:
 #    base: dc=pinniped,dc=dev
 #    filter: (objectClass=inetOrgPerson)
 #---
+## needed for tmc-local
 #apiVersion: v1
 #kind: Secret
 #metadata:
@@ -303,6 +305,7 @@ spec:
 #  username: "cn=admin,dc=pinniped,dc=dev"
 #  password: "password"
 #---
+## not needed for tmc-local
 #apiVersion: config.supervisor.pinniped.dev/v1alpha1
 #kind: FederationDomain
 #metadata:
@@ -313,6 +316,7 @@ spec:
 #  tls:
 #    secretName: pinniped-supervisor-server-tls
 #---
+## not needed for tmc-local
 #apiVersion: authentication.concierge.pinniped.dev/v1alpha1
 #kind: JWTAuthenticator
 #metadata:
