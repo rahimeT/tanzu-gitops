@@ -91,7 +91,6 @@ data:
     dn: cn=tanzu-users,ou=Group,dc=pinniped,dc=dev
     objectclass: groupOfUniqueNames
     cn: tanzu-users
-    sn: tanzu-users
     uniqueMember: cn=tanzu,ou=People,dc=pinniped,dc=dev
 
 ---
