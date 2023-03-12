@@ -1,3 +1,5 @@
+# ldapsearch -x -H ldap://10.220.38.71:389 -b dc=pinniped,dc=dev -D "cn=admin,dc=pinniped,dc=dev" -w password
+# ldapadd -x -H ldap://10.220.38.71:389 -W -D "cn=admin,dc=pinniped,dc=dev" -f 1.ldif
 apiVersion: v1
 kind: Namespace
 metadata:
