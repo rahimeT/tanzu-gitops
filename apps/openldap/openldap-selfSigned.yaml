@@ -1,5 +1,11 @@
 # ldapsearch -x -H ldap://10.220.38.71:389 -b dc=pinniped,dc=dev -D "cn=admin,dc=pinniped,dc=dev" -w password
 # ldapadd -x -H ldap://10.220.38.71:389 -W -D "cn=admin,dc=pinniped,dc=dev" -f 1.ldif
+# cat 1.ldif
+#dn: cn=tmc:admin,ou=Group,dc=pinniped,dc=dev
+#objectclass: groupOfUniqueNames
+#cn: tmc:admin
+#uniqueMember: cn=tanzu,ou=People,dc=pinniped,dc=dev
+
 apiVersion: v1
 kind: Namespace
 metadata:
