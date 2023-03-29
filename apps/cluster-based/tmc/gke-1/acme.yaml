@@ -861,7 +861,7 @@ spec:
   selector:
     app: acmefit
     service: frontend
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
