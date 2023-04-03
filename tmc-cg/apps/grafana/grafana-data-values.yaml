@@ -5,6 +5,8 @@ grafana:
     admin_password: "Vk13YXJlMSE="
   pvc:
     storageClassName: tanzu
+  service:
+    type: ClusterIP
 ingress:
   enabled: true
   virtual_host_fqdn: "grafana.system.tanzu"
