@@ -60,7 +60,7 @@ spec:
         app: postgres
     spec:
       containers:
-      - image: harbor.mgt.mytanzu.org/tools/postgres:latest
+      - image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/postgres:latest
         ports:
           - containerPort: 5432
         name: postgres
@@ -136,7 +136,7 @@ spec:
         app: mongo
     spec:
       containers:
-      - image: harbor.mgt.mytanzu.org/tools/mongo:latest
+      - image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mongo:latest
         name: mongo
         args: ["--dbpath","/data/db"]
         env:
@@ -203,7 +203,7 @@ spec:
     spec:
       containers:
       - name: redis
-        image: harbor.mgt.mytanzu.org/tools/redis:latest
+        image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/redis:latest
         imagePullPolicy: Always
         args: ["--requirepass", "$(REDIS_PASS)"]
         ports:
@@ -239,7 +239,7 @@ spec:
     spec:
       containers:
       - name: elasticsearch
-        image: harbor.mgt.mytanzu.org/tools/elasticsearch:7.2.1
+        image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/elasticsearch:7.2.1
         resources:
             limits:
               cpu: 1000m
@@ -270,7 +270,7 @@ spec:
             value: "-Xms512m -Xmx512m"
       initContainers:
       - name: fix-permissions
-        image: harbor.mgt.mytanzu.org/tools/bitnami-shell:10-debian-10-r138
+        image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/bitnami-shell:10-debian-10-r138
         command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
         securityContext:
           privileged: true
@@ -278,12 +278,12 @@ spec:
         - name: data
           mountPath: /usr/share/elasticsearch/data
       - name: increase-vm-max-map
-        image: harbor.mgt.mytanzu.org/tools/bitnami-shell:10-debian-10-r138
+        image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/bitnami-shell:10-debian-10-r138
         command: ["sysctl", "-w", "vm.max_map_count=262144"]
         securityContext:
           privileged: true
       - name: increase-fd-ulimit
-        image: harbor.mgt.mytanzu.org/tools/bitnami-shell:10-debian-10-r138
+        image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/bitnami-shell:10-debian-10-r138
         command: ["sh", "-c", "ulimit -n 65536"]
         securityContext:
           privileged: true
@@ -376,7 +376,7 @@ spec:
         app: mysql
     spec:
       containers:
-      - image: harbor.mgt.mytanzu.org/tools/mysql:5.7
+      - image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mysql:5.7
         args: [--ignore-db-dir=lost+found]
         #lifecycle:
         #  postStart:
@@ -507,7 +507,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: rabbitmq-k8s
-        image: harbor.mgt.mytanzu.org/tools/rabbitmq:3.8
+        image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/rabbitmq:3.8
         volumeMounts:
           - name: config-volume
             mountPath: /etc/rabbitmq
@@ -619,7 +619,7 @@ spec:
       serviceAccountName: my-apps-sa
       containers:
       - name: my-apps
-        image: harbor.mgt.mytanzu.org/nodejs/sample-app:v0.3.27
+        image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/sample-app:v0.3.27
         env:
         - name: var1
           value: Gorkem
