@@ -38,6 +38,9 @@ subjects:
 - kind: ServiceAccount
   name: octant-dev
   namespace: john
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: sso:john@vsphere.local
 ---
 apiVersion: v1
 kind: Service
