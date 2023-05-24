@@ -208,7 +208,7 @@ spec:
     spec:
       initContainers:
       - name: openldap-init-ldif
-        image: harbor.mgt.mytanzu.org/tools/busybox:latest
+        image: projects.registry.vmware.com/tanzu_meta_pocs/tools/busybox:latest
         command: ['sh', '-c', 'cp /customldif/* /ldifworkingdir']
         imagePullPolicy: IfNotPresent
         volumeMounts:
@@ -220,7 +220,7 @@ spec:
           {}
       containers:
         - name: openldap
-          image: "harbor.mgt.mytanzu.org/tools/openldap:1.2.4"
+          image: projects.registry.vmware.com/tanzu_meta_pocs/tools/openldap:1.2.4
           imagePullPolicy: IfNotPresent
           args:
             - -l
