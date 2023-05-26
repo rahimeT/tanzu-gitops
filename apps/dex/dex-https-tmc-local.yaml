@@ -7,6 +7,12 @@
 #  ca:
 #    secretName: local-ca
 ---
+#oidc:
+#    issuerType: "pinniped"
+#    issuerURL: "https://dex.tmc.h2o-4-12022.h2o.vmware.com"
+#    clientID: "tmc-auth"
+#    clientSecret: "secretvalue"
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -69,10 +75,10 @@ stringData:
   config.yaml: |
     issuer: https://dex.tmc.h2o-4-12022.h2o.vmware.com
     staticClients:
-    - id: tap-auth
+    - id: tmc-auth
       redirectURIs:
       - 'https://pinniped-supervisor.tmc.h2o-4-12022.h2o.vmware.com/provider/pinniped/callback'
-      name: 'tap-auth'
+      name: 'tmc-auth'
       secret: secretvalue
     oauth2:
       skipApprovalScreen: true
