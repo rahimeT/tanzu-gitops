@@ -48,16 +48,35 @@ stringData:
   config.yaml: |
     issuer: https://dex.tmc.h2o-4-7855.h2o.vmware.com
     staticClients:
-    - id: tmc-local
+    - id: tmc-auth
       redirectURIs:
       - 'https://pinniped-supervisor.tmc.h2o-4-7855.h2o.vmware.com/provider/pinniped/callback'
-      name: 'tmc-local'
+      name: 'tmc-auth'
       secret: secretvalue
-    staticPasswords:
-    - email: admin@example.com
-      hash: $2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W
-      userID: 08a8684b-db88-4b73-90a9-3cd1661f5466
-      username: admin
+    connectors:
+    - type: ldap
+      name: OpenLDAP
+      id: ldap
+      config:
+        host: openldap.openldap.svc:389
+        insecureNoSSL: true
+        bindDN: cn=admin,dc=pinniped,dc=dev
+        bindPW: password
+        usernamePrompt: Username
+        userSearch:
+          baseDN: dc=pinniped,dc=dev
+          filter: (objectClass=inetOrgPerson)
+          username: cn
+          idAttr: cn
+          emailAttr: cn
+          nameAttr: cn
+        groupSearch:
+          baseDN: dc=pinniped,dc=dev
+          filter: (objectClass=groupOfUniqueNames)
+          userMatchers:
+          - userAttr: DN
+            groupAttr: uniqueMember
+          nameAttr: cn
     enablePasswordDB: true
     oauth2:
       skipApprovalScreen: true
