@@ -48,6 +48,8 @@ spec:
       value: best-effort-large
     - name: storageClass
       value: tanzu
+    - name: defaultStorageClass
+      value: tanzu
     - name: trust
       value:
         additionalTrustedCAs:
