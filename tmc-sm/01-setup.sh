@@ -30,7 +30,7 @@ if [ "$1" = "vsphere-7" ]; then
     kubectx $tmc_cluster
     kubectl create clusterrolebinding default-tkg-admin-privileged-binding --clusterrole=psp:vmware-system-privileged --group=system:authenticated
     ytt -f templates/common/kapp-controller.yaml -f templates/values-template.yaml | kubectl apply -f -
-    while [[ $(kubectl get deployment kapp-controller -n tkg-system -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
+    while [[ $(kubectl get deployment kapp-controller -n kapp-controller -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
         echo "waiting for kapp-controller to be ready"
         sleep 10
     done
