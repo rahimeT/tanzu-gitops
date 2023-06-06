@@ -5,12 +5,12 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-export wcp_ip=$(yq eval '.wcp.ip' ./values.yaml)
-export wcp_user=$(yq eval '.wcp.ip' ./values.yaml)
-export wcp_pass=$(yq eval '.wcp.ip' ./values.yaml)
-export namespace=$(yq eval '.shared_cluster.namespace' ./values.yaml)
+export wcp_ip=$(yq eval '.wcp.ip' ./values-template.yaml)
+export wcp_user=$(yq eval '.wcp.ip' ./values-template.yaml)
+export wcp_pass=$(yq eval '.wcp.ip' ./values-template.yaml)
+export namespace=$(yq eval '.shared_cluster.namespace' ./values-template.yaml)
 export tmc_cluster='shared'
-export ldap_auth=$(yq eval '.auth.ldap.enabled' ./values.yaml)
+export ldap_auth=$(yq eval '.auth.ldap.enabled' ./values-template.yaml)
 
 cp ca.crt /etc/ssl/certs/
 
