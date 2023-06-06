@@ -58,9 +58,6 @@ metadata:
     tkg.tanzu.vmware.com/tanzu-package-ServiceAccount: tanzu-mission-control-packages-sa
     kapp.k14s.io/update-strategy: "fallback-on-replace"
     kapp.k14s.io/create-strategy: "fallback-on-replace"
-    #@ if data.values.auth.ldap.enabled == True:
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tmc-overlay-override
-    #@ end
   name: tanzu-mission-control
   namespace: tmc-local
 spec:

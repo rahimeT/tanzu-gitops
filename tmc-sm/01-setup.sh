@@ -78,12 +78,15 @@ done
 if [ "$ldap_auth" = "true" ]; then
    ytt -f templates/values-template.yaml -f templates/common/openldap.yaml | kubectl apply -f -
     kubectl apply -f templates/common/ldap-overlay.yaml
-    while [[ ${#openldapCaCert} -gt 3 ]]; do
+    while [[ $(kubectl get deployment openldap -n openldap -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
         echo "waiting for openldap to be ready"
         export openldapCaCert=$(kubectl get secret ldap -n openldap -o json | jq -r '.data."ca.crt"')
         sleep 10
     done
     ytt -f  templates/common/ldap-auth.yaml --data-value ldapCa=$openldapCaCert | kubectl apply -f -
+    kubectl annotate packageinstalls tanzu-mission-control -n tmc-local ext.packaging.carvel.dev/ytt-paths-from-secret-name.0=tmc-overlay-override
+    kubectl patch -n tmc-local --type merge pkgi tanzu-mission-control --patch '{"spec": {"paused": true}}'
+    kubectl patch -n tmc-local --type merge pkgi tanzu-mission-control --patch '{"spec": {"paused": false}}'
 fi
 
 
