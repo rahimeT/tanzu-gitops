@@ -9,7 +9,7 @@ auth:
     enabled: true #! or false
   oidc:
     enabled: false #! or true
-    issuerURL: asd
+    issuerURL: https://asd
     clientID: asd
     clientSecret: asd
 shared_cluster:
