@@ -68,8 +68,15 @@ while [[ $(kubectl get pkgr tanzu-mission-control-packages -n tmc-local -o=jsonp
     echo "waiting for tmc-repo to be ready"
     sleep 10
 done
+
+export valuesContent=$(cat values.yaml)
+ytt -f templates/values-template.yaml --data-value valuesContent="$valuesContent" -f templates/common/tmc-install.yaml | kubectl apply -f -
+while [[ $(kubectl get pkgi tanzu-mission-control -n tmc-local -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
+    echo "waiting for tanzu-mission-control to be ready"
+    sleep 10
+done
 if [ "$ldap_auth" = "true" ]; then
-    kubectl apply -f templates/common/openldap.yaml
+   ytt -f templates/values-template.yaml -f templates/common/openldap.yaml | kubectl apply -f -
     kubectl apply -f templates/common/ldap-overlay.yaml
     while [[ ${#openldapCaCert} -gt 3 ]]; do
         echo "waiting for openldap to be ready"
@@ -78,9 +85,6 @@ if [ "$ldap_auth" = "true" ]; then
     done
     ytt -f  templates/common/ldap-auth.yaml --data-value ldapCa=$openldapCaCert | kubectl apply -f -
 fi
-export valuesContent=$(cat values.yaml)
-ytt -f templates/values-template.yaml --data-value valuesContent=$valuesContent -f templates/common/tmc-install.yaml | kubectl apply -f -
-
 
 
 kubectx $wcp_ip

@@ -3,7 +3,7 @@
 apiVersion: run.tanzu.vmware.com/v1alpha2
 kind: TanzuKubernetesCluster
 metadata:
-  name: shared-cluster
+  name: shared
   namespace: #@ "{}".format(data.values.shared_cluster.namespace)
 spec:
   topology:

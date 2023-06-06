@@ -15,7 +15,7 @@ spec:
     filter: (objectClass=groupOfUniqueNames)
   host: "openldap.openldap.svc.cluster.local"
   tls:
-    certificateAuthorityData: #@ "{}".format(data.values.ldapCa)
+    certificateAuthorityData: #@ data.values.ldapCa
   userSearch:
     attributes:
       uid: cn
