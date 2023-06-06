@@ -13,7 +13,7 @@ export tmc_cluster='shared'
 export ldap_auth=$(yq eval '.auth.ldap.enabled' ./values.yaml)
 
 cp ca.crt /etc/ssl/certs/
-
+ytt -f templates/values-template.yaml -f templates/common/tmc-values-template.yaml > values.yaml
 if [ "$1" = "vsphere-7" ]; then
     echo vsphere-7
     export KUBECTL_VSPHERE_PASSWORD=$wcp_pass
@@ -29,7 +29,7 @@ if [ "$1" = "vsphere-7" ]; then
     kubectl vsphere login --server=$wcp_ip --tanzu-kubernetes-cluster-name shared --tanzu-kubernetes-cluster-namespace $namespace --vsphere-username $wcp_user --insecure-skip-tls-verify
     kubectx $tmc_cluster
     kubectl create clusterrolebinding default-tkg-admin-privileged-binding --clusterrole=psp:vmware-system-privileged --group=system:authenticated
-    ytt -f templates/common/kapp-controller.yaml -f templates/values-template.yaml | kubectl apply -f -
+    ytt -f templates/common/kapp-controller.yaml -f values.yaml | kubectl apply -f -
     while [[ $(kubectl get deployment kapp-controller -n tkg-system -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
         echo "waiting for kapp-controller to be ready"
         sleep 10
@@ -50,20 +50,20 @@ elif [ "$1" = "vsphere-8" ]; then
 fi
 
 kubectx $tmc_cluster
-ytt -f templates/common/std-repo.yaml -f templates/values-template.yaml | kubectl apply -f -
+ytt -f templates/common/std-repo.yaml -f values.yaml | kubectl apply -f -
 while [[ $(kubectl get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
     echo "waiting for std-repo to be ready"
     sleep 10
 done
-ytt -f templates/common/cert-manager.yaml -f templates/values-template.yaml | kubectl apply -f -
+ytt -f templates/common/cert-manager.yaml -f values.yaml | kubectl apply -f -
 while [[ $(kubectl get pkgi cert-manager -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
     echo "waiting for cert-manager to be ready"
     sleep 10
 done
 kubectl create secret tls local-ca --key ca-no-pass.key --cert ca.crt -n cert-manager
 kubectl apply -f templates/common/local-issuer.yaml
-ytt -f templates/values-template.yaml -f templates/common/tmc-values-template.yaml > values.yaml
-ytt -f templates/values-template.yaml -f templates/common/tmc-repo.yaml | kubectl apply -f -
+
+ytt -f values.yaml -f templates/common/tmc-repo.yaml | kubectl apply -f -
 while [[ $(kubectl get pkgr tanzu-mission-control-packages -n tmc-local -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
     echo "waiting for tmc-repo to be ready"
     sleep 10
@@ -79,7 +79,7 @@ if [ "$ldap_auth" = "true" ]; then
     ytt -f  templates/common/ldap-auth.yaml --data-value ldapCa=$openldapCaCert | kubectl apply -f -
 fi
 export valuesContent=$(cat values.yaml)
-ytt -f templates/values-template.yaml --data-value valuesContent=$valuesContent -f templates/common/tmc-install.yaml | kubectl apply -f -
+ytt -f values.yaml --data-value valuesContent=$valuesContent -f templates/common/tmc-install.yaml | kubectl apply -f -
 
 
 

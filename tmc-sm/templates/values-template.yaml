@@ -13,9 +13,9 @@ auth:
     clientID: asd
     clientSecret: asd
 shared_cluster:
-  namespace: dev
+  namespace: platform
   k8s_version: v1.23.8---vmware.3-tkg.1
-  storage: platform
+  storage: tanzu
 wcp:
   ip: 10.220.65.100
   user: administrator@vsphere.local
