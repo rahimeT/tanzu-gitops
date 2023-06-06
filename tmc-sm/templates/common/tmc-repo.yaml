@@ -1,0 +1,22 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: tmc-local
+spec: {}
+status: {}
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  annotations:
+    tkg.tanzu.vmware.com/tanzu-package: tanzu-mission-control-packages
+    kapp.k14s.io/update-strategy: "fallback-on-replace"
+  name: tanzu-mission-control-packages
+  namespace: tmc-local
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@ "harbor.{}/tmc/package-repository:{}".format(data.values.tld_domain,data.values.tmc_repo)

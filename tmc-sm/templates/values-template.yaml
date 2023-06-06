@@ -1,0 +1,32 @@
+#@data/values
+---
+tld_domain: tmc.h2o-4-12022.h2o.vmware.com
+std_repo: v2.2.0_update.2
+tmc_repo: 1.0.0-rc.1
+loadbalancer_ip: 10.220.67.102
+auth:
+  ldap:
+    enabled: true #! or false
+  oidc:
+    enabled: false #! or true
+    issuerURL: asd
+    clientID: asd
+    clientSecret: asd
+shared_cluster:
+  namespace: dev
+  k8s_version: v1.23.8---vmware.3-tkg.1
+  storage: platform
+wcp:
+  ip: 10.220.65.100
+  user: administrator@vsphere.local
+  password: VMware1!
+trustedCAs:
+  ca: |-
+    -----BEGIN CERTIFICATE-----
+    MIIFrTCCA5WgAwIBAgIJAKWUQptOQgoxMA0GCSqGSIb3DQEBCwUAMIGEMQswCQYD
+    VQQGEwJUUjERMA8GA1UECAwISXN0YW5idWwxETAPBgNVBAcMCElzdGFuYnVsMRcw
+    ...
+    /2A0B00jNxmc6u7hZ6tVvZhaYMuVzFdTlcLMCuO9hC8DoqX/SP/o3MFkN/cswA0c
+    A68ATA67uSZlkBcUVFMT8mNzIahK82WwHP0/cG+bAMypwidUOzJ+WvHaix4AtcIZ
+    aNWuv2Wcc5ebQWexaw0frvY=
+    -----END CERTIFICATE-----

@@ -1,0 +1,74 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+---
+apiVersion: v1    
+kind: Secret
+metadata:
+  name: tanzu-mission-control-packages-values
+  namespace: tmc-local
+data:
+  values.yaml: #@ base64.encode(data.values.valuesContent)
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    tkg.tanzu.vmware.com/tanzu-package: tanzu-mission-control-packages
+    kapp.k14s.io/update-strategy: "fallback-on-replace"
+  name: tanzu-mission-control-packages-sa
+  namespace: tmc-local
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations:
+    tkg.tanzu.vmware.com/tanzu-package: tanzu-mission-control-packages
+    kapp.k14s.io/update-strategy: "fallback-on-replace"
+  name: tanzu-mission-control-packages-cluster-role
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    tkg.tanzu.vmware.com/tanzu-package: tanzu-mission-control-packages
+    kapp.k14s.io/update-strategy: "fallback-on-replace"
+  name: tanzu-mission-control-packages-cluster-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tanzu-mission-control-packages-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: tanzu-mission-control-packages-sa
+  namespace: tmc-local
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  annotations:
+    tkg.tanzu.vmware.com/tanzu-package-ClusterRole: tanzu-mission-control-packages-cluster-role
+    tkg.tanzu.vmware.com/tanzu-package-ClusterRoleBinding: tanzu-mission-control-packages-cluster-rolebinding
+    tkg.tanzu.vmware.com/tanzu-package-ServiceAccount: tanzu-mission-control-packages-sa
+    kapp.k14s.io/update-strategy: "fallback-on-replace"
+    kapp.k14s.io/create-strategy: "fallback-on-replace"
+    #@ if data.values.auth.ldap.enabled == True:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tmc-overlay-override
+    #@ end
+  name: tanzu-mission-control
+  namespace: tmc-local
+spec:
+  serviceAccountName: tanzu-mission-control-packages-sa
+  packageRef:
+    refName: tmc.tanzu.vmware.com
+    versionSelection:
+      constraints: 1.0.0-rc.1
+  values:
+  - secretRef:
+      name: tanzu-mission-control-packages-values

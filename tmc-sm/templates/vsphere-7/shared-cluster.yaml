@@ -1,0 +1,39 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: run.tanzu.vmware.com/v1alpha2
+kind: TanzuKubernetesCluster
+metadata:
+  name: shared-cluster
+  namespace: #@ "{}".format(data.values.shared_cluster.namespace)
+spec:
+  topology:
+    controlPlane:
+      replicas: 1
+      vmClass: best-effort-large
+      storageClass: tanzu
+      volumes:
+        - name: etcd
+          mountPath: /var/lib/etcd
+          capacity:
+            storage: 4Gi
+      tkr:  
+        reference:
+          name: #@ "{}".format(data.values.shared_cluster.k8s_version)
+    nodePools:
+    - name: worker
+      replicas: 3
+      vmClass: best-effort-large
+      storageClass: tanzu
+      volumes:
+        - name: containerd
+          mountPath: /var/lib/containerd
+          capacity:
+            storage: 60Gi
+      tkr:  
+        reference:
+          name: #@ "{}".format(data.values.shared_cluster.k8s_version)
+  settings:
+    storage:
+      classes: 
+      - #@ "{}".format(data.values.shared_cluster.storage)
+      defaultClass: #@ "{}".format(data.values.shared_cluster.storage)

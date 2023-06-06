@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ldap-overlay-secret
+  namespace: tmc-local
+stringData:
+  patch.yaml: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:overlay", "overlay")
+    ---
+    #@overlay/match by=overlay.subset({"kind":"OIDCIdentityProvider", "metadata": {"name": "pinniped-upstream"}})
+    ---
+    #@overlay/remove
+    apiVersion:
+    #@overlay/remove
+    kind:
+    #@overlay/remove
+    metadata:
+    #@overlay/remove
+    spec:
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tmc-overlay-override
+  namespace: tmc-local
+stringData:
+  patch-oidc.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    #@ def matchTMCStack(index, left, right):
+    #@   if left["apiVersion"] != "packaging.carvel.dev/v1alpha1" or left["kind"] != "PackageInstall":
+    #@     return False
+    #@   end      
+    #@   return left["metadata"]["name"].startswith("tmc-local-stack")
+    #@ end
+    #@overlay/match by=matchTMCStack, expects="0+"
+    ---
+    metadata:
+      annotations:
+        #@overlay/match missing_ok=True
+        ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: ldap-overlay-secret

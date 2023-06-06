@@ -1,0 +1,31 @@
+#@ load("@ytt:data", "data")
+---
+imageRegistry: #@ "harbor.{}".format(data.values.tld_domain)
+dnsZone: #@ "{}".format(data.values.tld_domain)
+clusterIssuer: local-issuer
+postgres:
+  userPassword: Passw0rd
+  maxConnections: 300
+minio:
+  username: root
+  password: Passw0rd
+contourEnvoy:
+  serviceType: LoadBalancer
+  loadBalancerIP: #@ "{}".format(data.values.loadbalancer_ip)
+alertmanager:
+  criticalAlertReceiver: {}
+  warningAlertReceiver: {}
+oidc:
+    issuerType: "pinniped"
+    issuerURL: #@ "{}".format(data.values.auth.oidc.issuerURL)
+    clientID: #@ "{}".format(data.values.auth.oidc.clientID)
+    clientSecret: #@ "{}".format(data.values.auth.oidc.clientSecret)
+pinnipedExtraEnvVars:
+  - name: test
+    value: test
+telemetry:
+  ceipOptIn: true
+  eanNumber: ean-not-specified
+  ceipAgreement: true
+trustedCAs:
+  custom-ca.pem: #@ "{}".format(data.values.trustedCAs.ca)
