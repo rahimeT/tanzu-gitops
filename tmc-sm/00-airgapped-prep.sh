@@ -5,20 +5,20 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-export TLD_DOMAIN=$(yq eval '.tld_domain' ./values.yaml)
+export TLD_DOMAIN=$(yq eval '.tld_domain' ./templates/values-template.yaml)
 export DOMAIN=*.$TLD_DOMAIN
 export REGISTRY_CA_PATH="$(pwd)/ca.crt"
-export std_repo=$(yq eval '.std_repo' ./values.yaml)
+export std_repo=$(yq eval '.std_repo' ./templates/values-template.yaml)
 
 if [ "$1" = "prep" ]; then
     echo prep
-    mkdir -p airgapped-files/
+    mkdir -p airgapped-files/images
     wget "$TMC_SM_DL_URL"
     templates/carvel.sh download
     imgpkg copy -b projects.registry.vmware.com/tkg/packages/standard/repo:$std_repo --to-tar airgapped-files/$std_repo.tar --include-non-distributable-layers --concurrency 30
-    imgpkg copy -b projects.registry.vmware.com/tkg/kapp-controller:v0.30.0_vmware.1 --to-tar=airgapped-files/images/kapp-controller-v030.tar --concurrency 30
-    imgpkg copy -b projects.registry.vmware.com/tanzu_meta_pocs/tools/busybox:latest --to-tar=airgapped-files/images/busybox.tar --concurrency 30
-    imgpkg copy -b projects.registry.vmware.com/tanzu_meta_pocs/tools/openldap:1.2.4 --to-tar=airgapped-files/images/openldap.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tkg/kapp-controller:v0.30.0_vmware.1 --to-tar=airgapped-files/images/kapp-controller-v030.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/tools/busybox:latest --to-tar=airgapped-files/images/busybox.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/tools/openldap:1.2.4 --to-tar=airgapped-files/images/openldap.tar --concurrency 30
 elif [ "$1" = "import-cli" ]; then
     echo import-cli
     templates/carvel.sh install
