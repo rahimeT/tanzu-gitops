@@ -6,8 +6,8 @@ if [ $# -ne 1 ]; then
 fi
 
 export wcp_ip=$(yq eval '.wcp.ip' ./templates/values-template.yaml)
-export wcp_user=$(yq eval '.wcp.ip' ./templates/values-template.yaml)
-export wcp_pass=$(yq eval '.wcp.ip' ./templates/values-template.yaml)
+export wcp_user=$(yq eval '.wcp.user' ./templates/values-template.yaml)
+export wcp_pass=$(yq eval '.wcp.password' ./templates/values-template.yaml)
 export namespace=$(yq eval '.shared_cluster.namespace' ./templates/values-template.yaml)
 export tmc_cluster='shared'
 export ldap_auth=$(yq eval '.auth.ldap.enabled' ./templates/values-template.yaml)
@@ -21,7 +21,7 @@ if [ "$1" = "vsphere-7" ]; then
     kubectx $wcp_ip
     export CA_CERT=$(cat ./ca.crt|base64 -w0)
     kubectl patch TkgServiceConfiguration tkg-service-configuration --type merge -p '{"spec":{"trust":{"additionalTrustedCAs":[{"name":"root-ca-tmc","data":"'$(echo -n "$CA_CERT")'"}]}}}'
-    kubectl apply -f templates/vsphere-7/shared.yaml
+    ytt -f templates/values-template.yaml -f templates/vsphere-7/shared-cluster.yaml | kubectl apply -f -
     while [[ $(kubectl get cluster shared -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $namespace) != "True" ]]; do
         echo "waiting for cluster to be ready"
         sleep 30
