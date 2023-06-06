@@ -1,5 +1,5 @@
 # update DOMAINS and NAMESPACE
-# on line 163-165
+# on line 165-167
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -64,7 +64,7 @@ data:
     
     run_interval=${INTERVAL:=30}
     loginfo "testing /appdir/kubectl and chown cache "
-    /appdir/kubectl get tkc
+    /appdir/kubectl get cluster
     
     function inject_search_domains() {
       echo "checking if search domains exist"
@@ -81,19 +81,19 @@ data:
     }
     
     function run() {
-      tkcs=$(/appdir/kubectl get tkc --output=name -n $NAMESPACE)
-      for row in $tkcs; do
+      clusters=$(/appdir/kubectl get cluster --output=name -n $NAMESPACE)
+      for row in $clusters; do
         loginfo "-------------------"
-        tkc=$(echo $row | rev | cut -d '/' -f 1 | rev)
-        loginfo "cluster: ${tkc}"
-        VMs=$(/appdir/kubectl get vm --output=name -n $NAMESPACE | grep $tkc | rev | cut -d '/' -f 1 | rev)
+        cluster=$(echo $row | rev | cut -d '/' -f 1 | rev)
+        loginfo "cluster: ${cluster}"
+        VMs=$(/appdir/kubectl get vm --output=name -n $NAMESPACE | grep $cluster | rev | cut -d '/' -f 1 | rev)
         for VM in $VMs; do
           VMIP=$(/appdir/kubectl get vm $VM -n dev --template='{{.status.vmIp}}')
           loginfo "ip: ${VMIP}"
-          loginfo "getting ssh key for ${tkc}"
-          /appdir/kubectl get secret ${tkc}-ssh -n ${NAMESPACE} -o jsonpath="{.data.ssh-privatekey}" | base64 -d > /tmp/sshkey.pem
+          loginfo "getting ssh key for ${cluster}"
+          /appdir/kubectl get secret ${cluster}-ssh -n ${NAMESPACE} -o jsonpath="{.data.ssh-privatekey}" | base64 -d > /tmp/sshkey.pem
           chmod 600 /tmp/sshkey.pem
-          currentStatus=$(/appdir/kubectl get tkc $tkc -o=jsonpath='{.status.conditions[?(@.type=="NodesHealthy")].status}' -n $NAMESPACE)
+          currentStatus=$(/appdir/kubectl get cluster $cluster -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $NAMESPACE)
           statusDone="True"
           loginfo "Current Cluster Status: ${currentStatus}"
           if [ "Y$currentStatus" != "Y$statusDone" ]; then
