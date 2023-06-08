@@ -3,7 +3,7 @@
 apiVersion: idp.supervisor.pinniped.dev/v1alpha1
 kind: LDAPIdentityProvider
 metadata:
-  name: openldap
+  name: tmc-self-managed
   namespace: tmc-local
 spec:
   bind:
