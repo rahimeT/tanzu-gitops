@@ -2,7 +2,7 @@
 
 Pre requirement before start: 
  - Harbor with proper CA Cert chain.
- - Have DNS A records to be added for *.tmc.corp.com and tmc.corp.com
+ - Have DNS A records to be added for *.tmc.corp.com and tmc.corp.com with pre-selected LB IP address.
 
 ## Getting Started Quick
 
