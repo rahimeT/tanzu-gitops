@@ -1,6 +1,8 @@
 # TMC Self-Managed Opinionated Install Guide (WIP)
 
-Pre requirement before start: Harbor with proper CA Cert chain.
+Pre requirement before start: 
+ - Harbor with proper CA Cert chain.
+ - Have DNS A records to be added for *.tmc.corp.com and tmc.corp.com
 
 ## Getting Started Quick
 
