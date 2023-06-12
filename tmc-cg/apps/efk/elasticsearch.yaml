@@ -93,3 +93,19 @@ spec:
       name: rest
     - port: 9300
       name: inter-node
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: elasticsearch
+  namespace: tanzu-system-logging
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    enableWebsockets: true
+    services:
+    - name: elasticsearch
+      port: 9200
+  virtualhost:
+    fqdn: elastic.apps.h2o-4-12014.h2o.vmware.com

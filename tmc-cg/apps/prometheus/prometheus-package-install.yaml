@@ -21,3 +21,31 @@ spec:
   values:
   - secretRef:
       name: prometheus-packages-values
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: prometheus
+  namespace: tanzu-system-monitoring
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    pathRewritePolicy:
+      replacePrefix:
+      - prefix: /
+        replacement: /
+    services:
+    - name: prometheus-server
+      port: 80
+  - conditions:
+    - prefix: /alertmanager/
+    pathRewritePolicy:
+      replacePrefix:
+      - prefix: /alertmanager/
+        replacement: /
+    services:
+    - name: alertmanager
+      port: 80
+  virtualhost:
+    fqdn: prometheus.apps.h2o-4-12014.h2o.vmware.com

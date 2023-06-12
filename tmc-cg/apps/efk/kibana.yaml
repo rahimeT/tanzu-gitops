@@ -42,3 +42,19 @@ spec:
           value: http://elasticsearch:9200
         ports:
         - containerPort: 5601
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: kibana
+  namespace: tanzu-system-logging
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    enableWebsockets: true
+    services:
+    - name: kibana
+      port: 5601
+  virtualhost:
+    fqdn: kibana.apps.h2o-4-12014.h2o.vmware.com

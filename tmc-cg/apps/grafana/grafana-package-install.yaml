@@ -20,3 +20,19 @@ spec:
   values:
   - secretRef:
       name: grafana-packages-values
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: grafana
+  namespace: tanzu-system-dashboards
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    enableWebsockets: true
+    services:
+    - name: grafana
+      port: 80
+  virtualhost:
+    fqdn: grafana.apps.h2o-4-12014.h2o.vmware.com
