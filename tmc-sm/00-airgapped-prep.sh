@@ -24,6 +24,12 @@ elif [ "$1" = "import-cli" ]; then
     templates/carvel.sh install
 elif [ "$1" = "import-packages" ]; then
     echo import-packages
+    if [ -f ca.crt ] && [ -f ca-no-pass.key ]; then
+        echo "required files exist, continuing."
+    else
+        echo "check ca.crt and/or ca-no-pass.key do not exist."
+        exit 1
+    fi
     cp ca.crt /etc/ssl/certs/
     tar -xvf airgapped-files/bundle*.tar
     export IMGPKG_REGISTRY_USERNAME=admin && export IMGPKG_REGISTRY_PASSWORD='VMware1!' &&  export IMGPKG_REGISTRY_HOSTNAME=harbor.$TLD_DOMAIN

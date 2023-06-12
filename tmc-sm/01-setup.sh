@@ -5,12 +5,31 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+if [ -f ca.crt ] && [ -f ca-no-pass.key ]; then
+    echo "required files exist, continuing."
+else
+    echo "check ca.crt and/or ca-no-pass.key"
+    exit 1
+fi
+
 export wcp_ip=$(yq eval '.wcp.ip' ./templates/values-template.yaml)
 export wcp_user=$(yq eval '.wcp.user' ./templates/values-template.yaml)
 export wcp_pass=$(yq eval '.wcp.password' ./templates/values-template.yaml)
 export namespace=$(yq eval '.shared_cluster.namespace' ./templates/values-template.yaml)
 export tmc_cluster='shared'
 export ldap_auth=$(yq eval '.auth.ldap.enabled' ./templates/values-template.yaml)
+export tmc_dns=$(yq eval '.tld_domain' ./templates/values-template.yaml)
+export hostnames=($tmc_dns *.$tmc_dns)
+
+for hostname in "${hostnames[@]}"; do
+    output=$(dig +short "$hostname")
+    if [[ -n "$output" ]]; then
+        echo "DNS A record is resolvable for $hostname"
+    else
+        echo "DNS A record is not resolvable for $hostname"
+        exit 1
+    fi
+done
 
 cp ca.crt /etc/ssl/certs/
 
@@ -46,6 +65,14 @@ elif [ "$1" = "vsphere-8" ]; then
     done
     kubectl vsphere login --server=$wcp_ip --tanzu-kubernetes-cluster-name shared --tanzu-kubernetes-cluster-namespace $namespace --vsphere-username $wcp_user --insecure-skip-tls-verify
     kubectx $tmc_cluster
+    export node_names=$(kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+    while [[ -z "$node_names" ]]; do
+        node_names=$(kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+        if [[ -z "$node_names" ]]; then
+            echo "waiting for cluster to be ready"
+            sleep 30
+        fi
+    done
     kubectl create clusterrolebinding default-tkg-admin-privileged-binding --clusterrole=psp:vmware-system-privileged --group=system:authenticated
 fi
 
@@ -83,6 +110,8 @@ if [ "$ldap_auth" = "true" ]; then
         export openldapCaCert=$(kubectl get secret ldap -n openldap -o json | jq -r '.data."ca.crt"')
         sleep 10
     done
+    sleep 30
+    export openldapCaCert=$(kubectl get secret ldap -n openldap -o json | jq -r '.data."ca.crt"')
     ytt -f  templates/common/ldap-auth.yaml --data-value ldapCa=$openldapCaCert | kubectl apply -f -
     kubectl annotate packageinstalls tanzu-mission-control -n tmc-local ext.packaging.carvel.dev/ytt-paths-from-secret-name.0=tmc-overlay-override
     kubectl patch -n tmc-local --type merge pkgi tanzu-mission-control --patch '{"spec": {"paused": true}}'
