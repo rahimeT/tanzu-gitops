@@ -19,7 +19,7 @@ spec:
       serviceAccountName: test-app-sa
       containers:
       - name: test-app
-        image: harbor.mgt.mytanzu.org/nodejs/sample-app:v0.2.8
+        image: projects.registry.vmware.com/tanzu_meta_pocs/app/sample-app:v0.2.8
         env:
         - name: var1
           value: v2-app
