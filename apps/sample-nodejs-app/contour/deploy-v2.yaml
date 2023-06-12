@@ -87,12 +87,12 @@ metadata:
   namespace: test-app
 spec:
   virtualhost:
-    fqdn: sample-app-w.apps.h2o-4-6231.h2o.vmware.com
+    fqdn: sample-app-w.apps.h2o-4-12014.h2o.vmware.com
   routes:
     - services:
         - name: test-nodejs-app-v1
           port: 80
-          weight: 100
+          weight: 0
         - name: test-nodejs-app-v2
           port: 80
-          weight: 0
+          weight: 100
