@@ -724,4 +724,4 @@ spec:
     - name: test-nodejs-app
       port: 80
   virtualhost:
-    fqdn: sample-app-binding.apps.h2o-4-9583.h2o.vmware.com
+    fqdn: sample-app-binding.apps.h2o-4-12014.h2o.vmware.com
