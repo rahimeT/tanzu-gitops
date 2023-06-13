@@ -18,6 +18,8 @@ kind: VirtualMachine
 metadata:
   name: minio-vm
   namespace: tanzuns1
+  labels:
+    vm-selector: minio-vm
 spec:
   className: best-effort-medium
   imageName: centos-stream-8-vmservice-v1alpha1-1619529007339
