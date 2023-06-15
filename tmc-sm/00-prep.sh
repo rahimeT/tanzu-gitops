@@ -44,4 +44,6 @@ elif [ "$1" = "gen-cert" ]; then
 elif [ "$1" = "post-install" ]; then
     kubectl get httpproxy -A
     kubectl get svc -A|grep LoadBalancer
+    echo "on vSphere 8, run below command before creating workload cluster "
+    echo "ytt -f templates/values-template.yaml -f templates/vsphere-8/cluster-config.yaml | kubectl apply -f -"
 fi

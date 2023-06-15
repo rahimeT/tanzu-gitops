@@ -16,24 +16,24 @@ vi templates/values-template.yaml
 
 If you need to create required certificates: (You can use these certs for Harbor as well)
 ```
-$ ./00-airgapped-prep.sh gen-cert
+$ ./00-prep.sh gen-cert
 ```
 
-For airgapped environments, run the ```00-airgapped-prep.sh``` script.
+For airgapped environments, run the ```00-prep.sh``` script.
 
 Downloading required all packages.
 ```
-$ ./00-airgapped-prep.sh prep
+$ ./00-prep.sh prep
 ```
 
 Importing required all CLIs
 ```
-$ ./00-airgapped-prep.sh import-cli
+$ ./00-prep.sh import-cli
 ```
 
 Importing required all packages.
 ```
-$ ./00-airgapped-prep.sh import-packages
+$ ./00-prep.sh import-packages
 ```
 
 Then run the ```01-setup.sh``` for installation.
