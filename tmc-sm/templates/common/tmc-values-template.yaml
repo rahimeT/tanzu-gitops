@@ -1,6 +1,6 @@
 #@ load("@ytt:data", "data")
 ---
-imageRegistry: #@ "harbor.{}/tmc".format(data.values.tld_domain)
+harborProject: #@ "harbor.{}/tmc".format(data.values.tld_domain)
 dnsZone: #@ "{}".format(data.values.tld_domain)
 clusterIssuer: local-issuer
 postgres:
