@@ -16,6 +16,11 @@ shared_cluster:
   namespace: platform
   k8s_version: v1.23.8---vmware.3-tkg.1
   storage: tanzu
+workload_cluster:
+  name: dev
+  namespace: dev
+  k8s_version: v1.23.8---vmware.3-tkg.1
+  storage: tanzu
 wcp:
   ip: 10.220.65.100
   user: administrator@vsphere.local
