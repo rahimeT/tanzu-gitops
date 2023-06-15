@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -ne 1 ]; then
-    echo "Usage: $0 vsphere-7|vsphere8"
+    echo "Usage: $0 vsphere-7|vsphere-8"
     exit 1
 fi
 
