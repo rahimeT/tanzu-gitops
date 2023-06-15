@@ -34,7 +34,7 @@ elif [ "$1" = "import-packages" ]; then
     tar -xvf airgapped-files/bundle*.tar
     export IMGPKG_REGISTRY_USERNAME=admin && export IMGPKG_REGISTRY_PASSWORD='VMware1!' &&  export IMGPKG_REGISTRY_HOSTNAME=harbor.$TLD_DOMAIN
     curl -u "${IMGPKG_REGISTRY_USERNAME}:${IMGPKG_REGISTRY_PASSWORD}" -X POST -H "content-type: application/json" "https://harbor.$TLD_DOMAIN/api/v2.0/projects" -d "{\"project_name\": \"tmc\", \"public\": true, \"storage_limit\": -1 }" -k
-    ./tmc-local push-images harbor --project harbor.$TLD_DOMAIN/tmc --username admin --password VMware1! --concurrency 10
+    ./tmc-sm push-images harbor --project harbor.$TLD_DOMAIN/tmc --username admin --password VMware1! --concurrency 10
     imgpkg copy --tar airgapped-files/$std_repo.tar --to-repo harbor.$TLD_DOMAIN/tmc/498533941640.dkr.ecr.us-west-2.amazonaws.com/packages/standard/repo --include-non-distributable-layers --registry-ca-cert-path $REGISTRY_CA_PATH
     imgpkg copy --tar airgapped-files/images/kapp-controller.tar --to-repo harbor.$TLD_DOMAIN/tmc/kapp-controller --include-non-distributable-layers --registry-ca-cert-path $REGISTRY_CA_PATH
     imgpkg copy --tar airgapped-files/images/busybox.tar --to-repo harbor.$TLD_DOMAIN/tmc/busybox --include-non-distributable-layers --registry-ca-cert-path $REGISTRY_CA_PATH
