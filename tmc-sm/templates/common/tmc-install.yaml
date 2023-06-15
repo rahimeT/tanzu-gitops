@@ -65,7 +65,7 @@ spec:
   packageRef:
     refName: tmc.tanzu.vmware.com
     versionSelection:
-      constraints: 1.0.0-rc.1
+      constraints: #@ "{}".format(data.values.tmc_repo)
   values:
   - secretRef:
       name: tanzu-mission-control-packages-values
