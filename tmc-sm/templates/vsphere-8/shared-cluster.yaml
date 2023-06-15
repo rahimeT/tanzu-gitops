@@ -13,9 +13,6 @@ type: Opaque
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: KappControllerConfig
 metadata:
-  labels:
-    tkg.tanzu.vmware.com/cluster-name: shared
-    tkg.tanzu.vmware.com/package-name: kapp-controller.tanzu.vmware.com.0.41.5---vmware.1-tkg.1
   name: shared
   namespace: #@ "{}".format(data.values.shared_cluster.namespace)
 spec:
@@ -47,6 +44,23 @@ spec:
         value: "true"
     globalNamespace: tkg-system
   namespace: tkg-system
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  name: shared
+  namespace: #@ "{}".format(data.values.shared_cluster.namespace)
+  annotations:
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ "{}".format(data.values.shared_cluster.k8s_version)
+spec:
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com.0.41.5+vmware.1-tkg.1
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: shared
+
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
