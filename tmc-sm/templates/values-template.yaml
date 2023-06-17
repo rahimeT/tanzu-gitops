@@ -1,31 +1,31 @@
 #@data/values
 ---
-tld_domain: tmc.h2o-4-12022.h2o.vmware.com
-std_repo: v2.2.0_update.2
-tmc_repo: 1.0.0-rc.1
-loadbalancer_ip: 10.220.67.102
+tld_domain: tmc.h2o-4-12022.h2o.vmware.com  #! enter the domain. a subdomain like "tmc." is recommended as in the example.
+std_repo: v2.2.0_update.2                   #! enter the tanzu packages version. 
+tmc_repo: 1.0.0-rc.1                        #! enter the tmc packages version.
+loadbalancer_ip: 10.220.67.102              #! define and enter an empty loadbalancer ip address from the loadbalancer subnet.
 auth:
   ldap:
-    enabled: true #! or false
+    enabled: true                           #! true or false . if you want openldap to be configured automatically, enable this.
   oidc:
-    enabled: false #! or true
-    issuerURL: https://asd
-    clientID: asd
-    clientSecret: asd
+    enabled: false                          #! true or false . if you want to use OIDC identity provider, enable this.
+    issuerURL: https://asd                  #! enter OIDC url
+    clientID: asd                           #! enter OIDC clientID
+    clientSecret: asd                       #! enter OIDC clientSecret
 shared_cluster:
-  namespace: platform
-  k8s_version: v1.23.8---vmware.3-tkg.1
-  storage: tanzu
+  namespace: platform                       #! the tmc cluster that is going to be provisioned, will be in this vSphere namespace
+  k8s_version: v1.23.8---vmware.3-tkg.1     #! the tmc cluster that is going to be provisioned, will use this k8s version
+  storage: tanzu                            #! the tmc cluster that is going to be provisioned, will use this storage
 workload_cluster:
-  name: dev
-  namespace: dev
-  k8s_version: v1.23.8---vmware.3-tkg.1
-  storage: tanzu
+  name: dev                                 #! Only for vSphere 8. the name of workload cluster that is going to be provisioned
+  namespace: dev                            #! Only for vSphere 8. the namespace of workload cluster that is going to be provisioned
+  k8s_version: v1.23.8---vmware.3-tkg.1     #! Only for vSphere 8. the k8s version of workload cluster that is going to be provisioned
+  storage: tanzu                            #! Only for vSphere 8. the storage of workload cluster that is going to be provisioned
 wcp:
-  ip: 10.220.65.100
-  user: administrator@vsphere.local
-  password: VMware1!
-trustedCAs:
+  ip: 10.220.65.100                         #! WCP ip
+  user: administrator@vsphere.local         #! username
+  password: VMware1!                        #! password
+trustedCAs:                                 #! ca.crt content. Customer CA Certs can also be added as well.
   ca: |-
     -----BEGIN CERTIFICATE-----
     MIIFrTCCA5WgAwIBAgIJAKWUQptOQgoxMA0GCSqGSIb3DQEBCwUAMIGEMQswCQYD
