@@ -22,7 +22,7 @@ workload_cluster:
   k8s_version: v1.23.8---vmware.3-tkg.1     #! Only for vSphere 8. the k8s version of workload cluster that is going to be provisioned
   storage: tanzu                            #! Only for vSphere 8. the storage of workload cluster that is going to be provisioned
 wcp:
-  ip: 10.220.65.100                         #! WCP ip
+  ip: 10.220.65.100                         #! supervisor ip
   user: administrator@vsphere.local         #! username
   password: VMware1!                        #! password
 trustedCAs:                                 #! ca.crt content. Customer CA Certs can also be added as well.
