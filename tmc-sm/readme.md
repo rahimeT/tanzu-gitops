@@ -28,6 +28,8 @@ Downloading required all packages.
 $ ./00-prep.sh prep
 ```
 
+If your jumpbox does not have internet connection, you need to manually transfer downloaded files (TMC-SM files, images etc.) into ```airgapped-files/``` folder.
+
 Importing required all CLIs
 ```
 $ ./00-prep.sh import-cli

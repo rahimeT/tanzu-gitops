@@ -9,6 +9,7 @@ export TLD_DOMAIN=$(yq eval '.tld_domain' ./templates/values-template.yaml)
 export DOMAIN=*.$TLD_DOMAIN
 export REGISTRY_CA_PATH="$(pwd)/ca.crt"
 export std_repo=$(yq eval '.std_repo' ./templates/values-template.yaml)
+export TMC_SM_DL_URL='https://artifactory.eng.vmware.com/artifactory/tmc-generic-local/bundle-1.0.0-rc.2.tar'
 
 if [ "$1" = "prep" ]; then
     echo prep

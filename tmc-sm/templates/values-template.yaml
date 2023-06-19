@@ -1,8 +1,8 @@
 #@data/values
 ---
 tld_domain: tmc.h2o-4-12022.h2o.vmware.com  #! enter the domain. a subdomain like "tmc." is recommended as in the example.
-std_repo: v2.2.0_update.2                   #! enter the tanzu packages version. 
-tmc_repo: 1.0.0-rc.1                        #! enter the tmc packages version.
+std_repo: v2.2.0_update.2                   #! enter the tanzu package version. You do not need to change that with current release.
+tmc_repo: 1.0.0-rc.2                        #! enter the tmc package version.
 loadbalancer_ip: 10.220.67.102              #! define and enter an empty loadbalancer ip address from the loadbalancer subnet.
 auth:
   ldap:
