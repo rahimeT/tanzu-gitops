@@ -1,5 +1,6 @@
 # update DOMAINS and NAMESPACE
 # on line 165-167
+# run/apply on supervisor node
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -138,7 +139,7 @@ metadata:
   name: tld-fix-dev
   namespace: default
 spec:
-  schedule: "*/5 * * * *"
+  schedule: "* * * * *"
   successfulJobsHistoryLimit: 5
   failedJobsHistoryLimit: 5
   jobTemplate:
