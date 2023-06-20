@@ -9,12 +9,13 @@ export TLD_DOMAIN=$(yq eval '.tld_domain' ./templates/values-template.yaml)
 export DOMAIN=*.$TLD_DOMAIN
 export REGISTRY_CA_PATH="$(pwd)/ca.crt"
 export std_repo=$(yq eval '.std_repo' ./templates/values-template.yaml)
-export TMC_SM_DL_URL='https://artifactory.eng.vmware.com/artifactory/tmc-generic-local/bundle-1.0.0-rc.2.tar'
+export tmc_repo=$(yq eval '.tmc_repo' ./templates/values-template.yaml)
+export TMC_SM_DL_URL="https://artifactory.eng.vmware.com/artifactory/tmc-generic-local/bundle-$tmc_repo.tar"
 
 if [ "$1" = "prep" ]; then
     echo prep
     mkdir -p airgapped-files/images
-    wget "$TMC_SM_DL_URL"
+    wget -P airgapped-files/ "$TMC_SM_DL_URL"
     templates/carvel.sh download
     imgpkg copy -b projects.registry.vmware.com/tkg/packages/standard/repo:$std_repo --to-tar airgapped-files/$std_repo.tar --include-non-distributable-layers --concurrency 30
     imgpkg copy -i ghcr.io/carvel-dev/kapp-controller@sha256:8011233b43a560ed74466cee4f66246046f81366b7695979b51e7b755ca32212 --to-tar=airgapped-files/images/kapp-controller.tar --concurrency 30
