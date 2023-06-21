@@ -5,6 +5,17 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+yq eval '.' ./templates/values-template.yaml
+export yaml_check=$?
+
+if [ $yaml_check -eq 0 ]; then
+    echo "Valid yaml structure for: values-template.yaml . Continuing."
+else
+    echo ""
+    echo "Invalid yaml structure for: values-template.yaml . Check values-template.yaml"
+    exit 1
+fi
+
 export TLD_DOMAIN=$(yq eval '.tld_domain' ./templates/values-template.yaml)
 export DOMAIN=*.$TLD_DOMAIN
 export REGISTRY_CA_PATH="$(pwd)/ca.crt"
