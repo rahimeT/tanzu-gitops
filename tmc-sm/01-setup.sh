@@ -126,6 +126,7 @@ export tmcNS=$(kubectl get ns|grep svc-tmc|awk '{ print $1 }')
 yq e -i ".spec.caCerts = strenv(caCert)" ./templates/common/agentconfig.yaml
 yq e -i ".spec.allowedHostNames = [env(tmcURL)]" ./templates/common/agentconfig.yaml
 yq e -i ".metadata.namespace = strenv(tmcNS)" ./templates/common/agentconfig.yaml
+yq e -i ".metadata.namespace = strenv(tmcNS)" ./templates/common/agentinstall.yaml
 
 kubectl apply -f ./templates/common/agentconfig.yaml
 
