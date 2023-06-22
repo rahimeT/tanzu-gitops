@@ -10,7 +10,7 @@ spec:
     controlPlane:
       replicas: 1
       vmClass: best-effort-large
-      storageClass: tanzu
+      storageClass: #@ "{}".format(data.values.shared_cluster.storage)
       volumes:
         - name: etcd
           mountPath: /var/lib/etcd
@@ -23,7 +23,7 @@ spec:
     - name: worker
       replicas: 3
       vmClass: best-effort-large
-      storageClass: tanzu
+      storageClass: #@ "{}".format(data.values.shared_cluster.storage)
       volumes:
         - name: containerd
           mountPath: /var/lib/containerd
