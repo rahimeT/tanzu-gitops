@@ -27,6 +27,14 @@ If you need to create required certificates: (You can use these certs for Harbor
 $ ./00-prep.sh gen-cert
 ```
 
+You can easily update the `templates/values-template.yaml` file with CA Certs/Keys with below commands.
+```
+export CA_CERT=$(cat ./ca.crt)
+yq e -i ".trustedCAs.ca = strenv(CA_CERT)" ./templates/values-template.yaml
+export CA_KEY=$(cat ./ca-no-pass.key)
+yq e -i ".trustedCAs.key = strenv(CA_KEY)" ./templates/values-template.yaml
+```
+
 For airgapped environments, run the ```00-prep.sh``` script.
 
 Downloading required all packages.

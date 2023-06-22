@@ -29,7 +29,8 @@ wcp:
   ip: 10.220.65.100                            #! supervisor ip
   user: administrator@vsphere.local            #! username
   password: VMware1!                           #! password
-trustedCAs:                                    #! ca.crt content. Customer Root CA / Intermediate Certs can also be added as well. if you're using your own certs, add your un-encrypted Root CA Cert Key for wildcard certs
+trustedCAs:                                    #! Certificate section
+  #! Paste ca.crt. Customer Root CA / Intermediate Certs can also be added as well.if you're using your own certs, add your un-encrypted Root CA Cert Key for wildcard certs
   ca: |-
     -----BEGIN CERTIFICATE-----
     MIIFrTCCA5WgAwIBAgIJAKWUQptOQgoxMA0GCSqGSIb3DQEBCwUAMIGEMQswCQYD
@@ -39,6 +40,7 @@ trustedCAs:                                    #! ca.crt content. Customer Root 
     A68ATA67uSZlkBcUVFMT8mNzIahK82WwHP0/cG+bAMypwidUOzJ+WvHaix4AtcIZ
     aNWuv2Wcc5ebQWexaw0frvY=
     -----END CERTIFICATE-----
+  #! Paste ca-no-pass.key
   key: |-
     -----BEGIN RSA PRIVATE KEY-----
     MIIJKgIBAAKCAgEA7xcuX9hnmbUoFKsdvO2XnEP+M42dksAWOJso/x78xulDYQQs
