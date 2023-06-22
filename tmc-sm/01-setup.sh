@@ -51,7 +51,7 @@ if [ "$1" = "vsphere-7" ]; then
     export CA_CERT=$(cat ./ca.crt|base64 -w0)
     kubectl patch TkgServiceConfiguration tkg-service-configuration --type merge -p '{"spec":{"trust":{"additionalTrustedCAs":[{"name":"root-ca-tmc","data":"'$(echo -n "$CA_CERT")'"}]}}}'
     ytt -f templates/values-template.yaml -f templates/vsphere-7/shared-cluster.yaml | kubectl apply -f -
-    while [[ $(kubectl get cluster shared -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $namespace) != "True" ]]; do
+    while [[ $(kubectl get tkc shared -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $namespace) != "True" ]]; do
         echo "waiting for cluster to be ready"
         sleep 30
     done
