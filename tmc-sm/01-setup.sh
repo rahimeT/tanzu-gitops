@@ -8,8 +8,18 @@ fi
 if [ -f ca.crt ] && [ -f ca-no-pass.key ]; then
     echo "required files exist, continuing."
 else
-    echo "check ca.crt and/or ca-no-pass.key"
-    exit 1
+    export CA_CERT=$(yq eval '.trustedCAs.ca' ./templates/values-template.yaml)
+    export CA_KEY=$(yq eval '.trustedCAs.key' ./templates/values-template.yaml)
+    echo "$CA_CERT" > ./ca.crt
+    echo "$CA_KEY" > ./ca-no-pass.crt
+    if [ -s ca.crt ] && [ -s ca-no-pass.key ]; then
+        echo "ca.crt and ca-no-pass.crt files created."
+    else
+        echo "The file is empty or does not exist."
+        echo "check ca.crt and/or ca-no-pass.key"
+        echo "check ./templates/values-template.yaml file for CA Cert and Key"
+        exit 1
+    fi
 fi
 
 export wcp_ip=$(yq eval '.wcp.ip' ./templates/values-template.yaml)

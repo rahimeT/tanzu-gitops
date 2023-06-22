@@ -2,6 +2,12 @@
 
 Pre requirement before start: 
  - Harbor with proper CA Cert chain.
+    - ```00-prep.sh``` script will validate the Harbor's Certificates.
+    - If Certs cannot be trusted in chain, it will intentionally throw error and stop.
+ - If you're using your own certificates, 
+    - make sure that creating following files into ```tmc-sm``` folder
+        - ```ca.crt``` for Root CA Cert and if present Intermediate Cert
+        - ```ca-no-pass.key``` for un-encrypted Root CA Cert Key for wildcard certs
  - Have DNS A records to be added for *.tmc.corp.com and tmc.corp.com with pre-selected LB IP address.
 
 ![Alt text](image.png)
