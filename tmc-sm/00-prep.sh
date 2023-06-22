@@ -18,7 +18,6 @@ fi
 
 export TLD_DOMAIN=$(yq eval '.tld_domain' ./templates/values-template.yaml)
 export DOMAIN=*.$TLD_DOMAIN
-export REGISTRY_CA_PATH="$(pwd)/ca.crt"
 export std_repo=$(yq eval '.std_repo' ./templates/values-template.yaml)
 export tmc_repo=$(yq eval '.tmc_repo' ./templates/values-template.yaml)
 export TMC_SM_DL_URL="https://artifactory.eng.vmware.com/artifactory/tmc-generic-local/bundle-$tmc_repo.tar"
@@ -37,21 +36,37 @@ elif [ "$1" = "import-cli" ]; then
     templates/carvel.sh install
 elif [ "$1" = "import-packages" ]; then
     echo import-packages
-    if [ -f ca.crt ] && [ -f ca-no-pass.key ]; then
+    if [ -f ca.crt ] ; then
+        export CA_CERT=$(cat ./ca.crt)
+        cp ca.crt /etc/ssl/certs/
         echo "required files exist, continuing."
     else
-        echo "check ca.crt and/or ca-no-pass.key do not exist."
+        echo "no ca.crt fall back to values-template.yaml"
+        export CA_CERT=$(yq eval '.trustedCAs.ca' ./templates/values-template.yaml)
+        echo "$CA_CERT" > ./ca.crt
+        echo "$CA_CERT" > /etc/ssl/certs/ca.crt
+    fi
+    export HARBOR_URL=$(yq eval '.harbor.fqdn' ./templates/values-template.yaml)
+    export HARBOR_USER=$(yq eval '.harbor.user' ./templates/values-template.yaml)
+    export HARBOR_PASS=$(yq eval '.harbor.pass' ./templates/values-template.yaml)
+    export HARBOR_CERT=$(echo | openssl s_client -connect $HARBOR_URL:443 2>&1 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p')
+    openssl verify -CAfile <(echo "$CA_CERT") <(echo "$HARBOR_CERT")
+    export harbor_cert_check=$?
+    if [ $harbor_cert_check -eq 0 ]; then
+        echo "Valid Harbor Cert , Continuing."
+    else
+        echo ""
+        echo "INVALID Harbor Cert , Check Harbor Cert and CA Cert."
         exit 1
     fi
-    cp ca.crt /etc/ssl/certs/
     tar -xvf airgapped-files/bundle*.tar
-    export IMGPKG_REGISTRY_USERNAME=admin && export IMGPKG_REGISTRY_PASSWORD='VMware1!' &&  export IMGPKG_REGISTRY_HOSTNAME=harbor.$TLD_DOMAIN
-    curl -u "${IMGPKG_REGISTRY_USERNAME}:${IMGPKG_REGISTRY_PASSWORD}" -X POST -H "content-type: application/json" "https://harbor.$TLD_DOMAIN/api/v2.0/projects" -d "{\"project_name\": \"tmc\", \"public\": true, \"storage_limit\": -1 }" -k
-    ./tmc-sm push-images harbor --project harbor.$TLD_DOMAIN/tmc --username admin --password VMware1! --concurrency 10
-    imgpkg copy --tar airgapped-files/$std_repo.tar --to-repo harbor.$TLD_DOMAIN/tmc/498533941640.dkr.ecr.us-west-2.amazonaws.com/packages/standard/repo --include-non-distributable-layers --registry-ca-cert-path $REGISTRY_CA_PATH
-    imgpkg copy --tar airgapped-files/images/kapp-controller.tar --to-repo harbor.$TLD_DOMAIN/tmc/kapp-controller --include-non-distributable-layers --registry-ca-cert-path $REGISTRY_CA_PATH
-    imgpkg copy --tar airgapped-files/images/busybox.tar --to-repo harbor.$TLD_DOMAIN/tmc/busybox --include-non-distributable-layers --registry-ca-cert-path $REGISTRY_CA_PATH
-    imgpkg copy --tar airgapped-files/images/openldap.tar --to-repo harbor.$TLD_DOMAIN/tmc/openldap --include-non-distributable-layers --registry-ca-cert-path $REGISTRY_CA_PATH
+    export IMGPKG_REGISTRY_USERNAME=$HARBOR_USER && export IMGPKG_REGISTRY_PASSWORD=$HARBOR_PASS &&  export IMGPKG_REGISTRY_HOSTNAME=$HARBOR_URL
+    curl -u "${IMGPKG_REGISTRY_USERNAME}:${IMGPKG_REGISTRY_PASSWORD}" -X POST -H "content-type: application/json" "https://$HARBOR_URL/api/v2.0/projects" -d "{\"project_name\": \"tmc\", \"public\": true, \"storage_limit\": -1 }" -k
+    ./tmc-sm push-images harbor --project $HARBOR_URL/tmc --username $HARBOR_USER --password $HARBOR_PASS --concurrency 10
+    imgpkg copy --tar airgapped-files/$std_repo.tar --to-repo $HARBOR_URL/tmc/498533941640.dkr.ecr.us-west-2.amazonaws.com/packages/standard/repo --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/kapp-controller.tar --to-repo $HARBOR_URL/tmc/kapp-controller --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/busybox.tar --to-repo $HARBOR_URL/tmc/busybox --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/openldap.tar --to-repo $HARBOR_URL/tmc/openldap --include-non-distributable-layers
 elif [ "$1" = "gen-cert" ]; then
     templates/gen-cert.sh
 elif [ "$1" = "post-install" ]; then
