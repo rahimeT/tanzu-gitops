@@ -6,7 +6,7 @@ harbor:
   user: admin                                  #! enter the Harbor username
   pass: VMware1!                               #! enter the Harbor password
 std_repo: v2.2.0_update.2                      #! enter the tanzu package version. You do not need to change that with current release.
-tmc_repo: 1.0.0-rc.2                           #! enter the tmc package version.
+tmc_repo: 1.0.0-rc.3                           #! enter the tmc package version.
 loadbalancer_ip: 10.220.67.102                 #! define and enter an empty loadbalancer ip address from the loadbalancer subnet.
 auth:
   ldap:
