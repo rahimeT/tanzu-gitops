@@ -112,6 +112,12 @@ ytt -f templates/common/std-repo.yaml -f templates/values-template.yaml | kubect
 while [[ $(kubectl get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
     echo "waiting for std-repo to be ready"
     sleep 10
+    if [ $(kubectl get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') = "ReconcileFailed" ]; then
+        kubectl get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.usefulErrorMessage}'
+        ytt -f templates/common/std-repo.yaml -f templates/values-template.yaml | kubectl delete -f -
+        sleep 5
+        ytt -f templates/common/std-repo.yaml -f templates/values-template.yaml | kubectl apply -f -
+    fi
 done
 ytt -f templates/common/cert-manager.yaml -f templates/values-template.yaml | kubectl apply -f -
 while [[ $(kubectl get pkgi cert-manager -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
