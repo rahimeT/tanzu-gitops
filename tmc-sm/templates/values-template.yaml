@@ -29,6 +29,8 @@ wcp:
   ip: 10.220.65.100                            #! supervisor ip
   user: administrator@vsphere.local            #! username
   password: VMware1!                           #! password
+vcenter:
+  fqdn: vc01.h2o-4-12022.h2o.vmware.com        #! vCenter FQDN or IP. No "http"/"https" needed.
 trustedCAs:                                    #! Certificate section
   #! Paste ca.crt. Customer Root CA / Intermediate Certs can also be added as well.if you're using your own certs, add your un-encrypted Root CA Cert Key for wildcard certs
   ca: |-

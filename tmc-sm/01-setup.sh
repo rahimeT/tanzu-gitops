@@ -22,6 +22,27 @@ else
     fi
 fi
 
+export GOVC_URL=$(yq eval '.vcenter.fqdn' ./templates/values-template.yaml)
+export GOVC_INSECURE=1
+
+export vCenter_version=$(govc about|grep Version|awk '{ print $2 }')
+export vCenter_build=$(govc about|grep Build|awk '{ print $2 }')
+
+if [[ "$vCenter_version" == "7.0.3" ]]; then
+    if [[ $vCenter_build -le "21477706" ]]; then
+        echo "vCenter version: " "$vCenter_version "/ Build" $vCenter_build, upgrade vCenter. Exiting"
+        exit 1
+    fi
+elif [[ "$vCenter_version" == "8.0.1" ]]; then
+    if [[ $vCenter_build -le "21457384" ]]; then
+        echo "vCenter version: " "$vCenter_version "/ Build" $vCenter_build, upgrade vCenter. Exiting"
+        exit 1
+    fi
+else
+    echo "wrong vcenter build/version. Exiting"
+    exit 1
+fi
+
 export wcp_ip=$(yq eval '.wcp.ip' ./templates/values-template.yaml)
 export wcp_user=$(yq eval '.wcp.user' ./templates/values-template.yaml)
 export wcp_pass=$(yq eval '.wcp.password' ./templates/values-template.yaml)
