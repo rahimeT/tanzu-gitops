@@ -5,19 +5,22 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 echo "#################################################################################Checking Certificate files#"
-if [ -f ca.crt ] && [ -f ca-no-pass.key ]; then
+if [ -f tmc-ca.crt ] && [ -f tmc-ca-no-pass.key ]; then
     echo "required files exist, continuing."
 else
-    export CA_CERT=$(yq eval '.trustedCAs.ca' ./templates/values-template.yaml)
-    export CA_KEY=$(yq eval '.trustedCAs.key' ./templates/values-template.yaml)
-    echo "$CA_CERT" > ./ca.crt
-    echo "$CA_KEY" > ./ca-no-pass.key
-    if [ -s ca.crt ] && [ -s ca-no-pass.key ]; then
-        echo "ca.crt and ca-no-pass.crt files created."
+    export TMC_CA_CERT=$(yq eval '.trustedCAs.tmc_ca' ./templates/values-template.yaml)
+    export TMC_CA_KEY=$(yq eval '.trustedCAs.tmc_key' ./templates/values-template.yaml)
+    export OTHER_CA_CERT=$(yq eval '.trustedCAs.other_ca' ./templates/values-template.yaml)
+    export ALL_CA_CERT=$(echo -e "$TMC_CA_CERT""\n""$OTHER_CA_CERT")
+    echo "$ALL_CA_CERT" > ./all-ca.crt
+    echo "$TMC_CA_CERT" > ./tmc-ca.crt
+    echo "$TMC_CA_KEY" > ./tmc-ca-no-pass.key
+    if [ -s tmc-ca.crt ] && [ -s tmc-ca-no-pass.key ] && [ -s all-ca.crt ]; then
+        echo "tmc-ca.crt, all-ca.crt and tmc-ca-no-pass.crt files created."
     else
         echo "The file is empty or does not exist."
-        echo "check ca.crt and/or ca-no-pass.key"
-        echo "check ./templates/values-template.yaml file for CA Cert and Key"
+        echo "check tmc-ca.crt and/or tmc-ca-no-pass.key and/or all-ca.crt"
+        echo "check ./templates/values-template.yaml file for CA Certs and Key"
         exit 1
     fi
 fi
@@ -62,7 +65,7 @@ for hostname in "${hostnames[@]}"; do
     fi
 done
 
-cp ca.crt /etc/ssl/certs/
+cp all-ca.crt /etc/ssl/certs/
 
 if [ "$1" = "vsphere-7" ]; then
     echo "####################################################################################Logging into Supervisor#"
@@ -71,8 +74,8 @@ if [ "$1" = "vsphere-7" ]; then
     kubectl vsphere login --server=$wcp_ip --vsphere-username $wcp_user --insecure-skip-tls-verify
     kubectx $wcp_ip
     echo "##############################################################Patching TkgServiceConfiguration with CA Cert#"
-    export CA_CERT=$(cat ./ca.crt|base64 -w0)
-    kubectl patch TkgServiceConfiguration tkg-service-configuration --type merge -p '{"spec":{"trust":{"additionalTrustedCAs":[{"name":"root-ca-tmc","data":"'$(echo -n "$CA_CERT")'"}]}}}'
+    export ALL_CA_CERT_B64=$(cat ./all-ca.crt|base64 -w0)
+    kubectl patch TkgServiceConfiguration tkg-service-configuration --type merge -p '{"spec":{"trust":{"additionalTrustedCAs":[{"name":"root-ca-tmc","data":"'$(echo -n "$ALL_CA_CERT_B64")'"}]}}}'
     echo "####################################################################################Creating Shared Cluster#"
     ytt -f templates/values-template.yaml -f templates/vsphere-7/shared-cluster.yaml | kubectl apply -f -
     while [[ $(kubectl get tkc shared -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $namespace) != "True" ]]; do
@@ -140,7 +143,7 @@ while [[ $(kubectl get pkgi cert-manager -n packages -o=jsonpath='{.status.condi
     kubectl get pods -n cert-manager -o json | jq -r '.items[] | select(.status.containerStatuses[].state.waiting.reason | contains("ErrImagePull", "ImagePullBackOff")) | .metadata.name' | xargs kubectl delete pod -n cert-manager
 done
 echo "#####################################################################Creating ClusterIssuer on Cert-Manager#"
-kubectl create secret tls local-ca --key ca-no-pass.key --cert ca.crt -n cert-manager
+kubectl create secret tls local-ca --key tmc-ca-no-pass.key --cert tmc-ca.crt -n cert-manager
 kubectl apply -f templates/common/local-issuer.yaml
 ytt -f templates/values-template.yaml -f templates/common/tmc-values-template.yaml > values.yaml
 echo "##############################################################################Deploying TMC-SM Package Repo#"

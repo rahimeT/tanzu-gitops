@@ -32,8 +32,8 @@ wcp:
 vcenter:
   fqdn: vc01.h2o-4-12022.h2o.vmware.com        #! vCenter FQDN or IP. No "http"/"https" needed.
 trustedCAs:                                    #! Certificate section
-  #! Paste ca.crt. Customer Root CA / Intermediate Certs can also be added as well.if you're using your own certs, add your un-encrypted Root CA Cert Key for wildcard certs
-  ca: |-
+  #! Paste tmc-ca.crt for TMC. Example: CA Cert for *.tmc.corp.com
+  tmc_ca: |-
     -----BEGIN CERTIFICATE-----
     MIIFrTCCA5WgAwIBAgIJAKWUQptOQgoxMA0GCSqGSIb3DQEBCwUAMIGEMQswCQYD
     VQQGEwJUUjERMA8GA1UECAwISXN0YW5idWwxETAPBgNVBAcMCElzdGFuYnVsMRcw
@@ -42,10 +42,19 @@ trustedCAs:                                    #! Certificate section
     A68ATA67uSZlkBcUVFMT8mNzIahK82WwHP0/cG+bAMypwidUOzJ+WvHaix4AtcIZ
     aNWuv2Wcc5ebQWexaw0frvY=
     -----END CERTIFICATE-----
-  #! Paste ca-no-pass.key
-  key: |-
+  #! Paste tmc-ca-no-pass.key if you're using your own certs, add your un-encrypted Root CA Cert Key. Example: CA Key for *.tmc.corp.com
+  tmc_key: |-
     -----BEGIN RSA PRIVATE KEY-----
     MIIJKgIBAAKCAgEA7xcuX9hnmbUoFKsdvO2XnEP+M42dksAWOJso/x78xulDYQQs
     ...
     MlgzPM32OSjhyErlj1aOFPRIJXGg3cPRWCoHV51f2lzUXdLkJIWcwQhWXTealw==
     -----END RSA PRIVATE KEY-----
+  #! Paste other ca.crt files. Example: CA Cert for *.tap.corp.com If you don't have other CAs remove the values from line 54 to 61.
+  other_ca: |-
+    -----BEGIN CERTIFICATE-----
+    MIIFrTCCA5WgAwIBAgIJAIjU55dYs8ORMA0GCSqGSIb3DQEBCwUAMIGEMQswCQYD
+    VQQGEwJUUjERMA8GA1UECAwISXN0YW5idWwxETAPBgNVBAcMCElzdGFuYnVsMRcw
+    ...
+    wpzYazH1Y/xwH7lrZ7zL8WDtYSNCtNKlpIpOmT7bRGHHabB4CkfQmZgIlQhDXs6r
+    bhsM31ea8EuDv9orDHfHPTo=
+    -----END CERTIFICATE-----

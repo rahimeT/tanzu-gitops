@@ -36,21 +36,23 @@ elif [ "$1" = "import-cli" ]; then
     templates/carvel.sh install
 elif [ "$1" = "import-packages" ]; then
     echo import-packages
-    if [ -f ca.crt ] ; then
-        export CA_CERT=$(cat ./ca.crt)
-        cp ca.crt /etc/ssl/certs/
+    if [ -f tmc-ca.crt ] ; then
+        export TMC_CA_CERT=$(cat ./tmc-ca.crt)
+        cp tmc-ca.crt /etc/ssl/certs/
         echo "required files exist, continuing."
     else
-        echo "no ca.crt fall back to values-template.yaml"
-        export CA_CERT=$(yq eval '.trustedCAs.ca' ./templates/values-template.yaml)
-        echo "$CA_CERT" > ./ca.crt
-        echo "$CA_CERT" > /etc/ssl/certs/ca.crt
+        echo "no tmc-ca.crt fall back to values-template.yaml"
+        export TMC_CA_CERT=$(yq eval '.trustedCAs.tmc_ca' ./templates/values-template.yaml)
+        export OTHER_CA_CERT=$(yq eval '.trustedCAs.other_ca' ./templates/values-template.yaml)
+        export ALL_CA_CERT=$(echo -e "$TMC_CA_CERT""\n""$OTHER_CA_CERT")
+        echo "$ALL_CA_CERT" > ./all-ca.crt
+        echo "$ALL_CA_CERT" > /etc/ssl/certs/all-ca.crt
     fi
     export HARBOR_URL=$(yq eval '.harbor.fqdn' ./templates/values-template.yaml)
     export HARBOR_USER=$(yq eval '.harbor.user' ./templates/values-template.yaml)
     export HARBOR_PASS=$(yq eval '.harbor.pass' ./templates/values-template.yaml)
     export HARBOR_CERT=$(echo | openssl s_client -connect $HARBOR_URL:443 2>&1 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p')
-    openssl verify -CAfile <(echo "$CA_CERT") <(echo "$HARBOR_CERT")
+    openssl verify -CAfile <(echo "$ALL_CA_CERT") <(echo "$HARBOR_CERT")
     export harbor_cert_check=$?
     if [ $harbor_cert_check -eq 0 ]; then
         echo "Valid Harbor Cert , Continuing."

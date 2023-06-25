@@ -5,9 +5,10 @@ Pre requirement before start:
     - ```00-prep.sh``` script will validate the Harbor's Certificates.
     - If Certs cannot be trusted in chain, it will intentionally throw error and stop.
  - If you're using your own certificates, 
-    - make sure that creating following files into ```tmc-sm``` folder
-        - ```ca.crt``` for Root CA Cert and if present Intermediate Cert
-        - ```ca-no-pass.key``` for un-encrypted Root CA Cert Key for wildcard certs
+    - make sure that updating ```templates/values-template.yaml``` file with:
+        - ```tmc_ca``` section for Root CA Cert and their Intermediate Cert that will hold Certs for TMC domain. Example: CA Cert for *.tmc.corp.com
+        - ```tmc_key``` section for Root CA Cert's un-encrypted Key for wildcard certs. Example: CA Key for *.tmc.corp.com
+        - ```other_ca``` section for all other Root CA Cert and their Intermediate Cert. Example: CA Cert for *.tap.corp.com
  - Have DNS A records to be added for *.tmc.corp.com and tmc.corp.com with pre-selected LB IP address.
 
 ![Alt text](image.png)
@@ -29,10 +30,12 @@ $ ./00-prep.sh gen-cert
 
 You can easily update the `templates/values-template.yaml` file with CA Certs/Keys with below commands.
 ```
-export CA_CERT=$(cat ./ca.crt)
-yq e -i ".trustedCAs.ca = strenv(CA_CERT)" ./templates/values-template.yaml
-export CA_KEY=$(cat ./ca-no-pass.key)
-yq e -i ".trustedCAs.key = strenv(CA_KEY)" ./templates/values-template.yaml
+export TMC_CA_CERT=$(cat ./tmc-ca.crt)
+yq e -i ".trustedCAs.tmc_ca = strenv(TMC_CA_CERT)" ./templates/values-template.yaml
+export TMC_CA_KEY=$(cat ./tmc-ca-no-pass.key)
+yq e -i ".trustedCAs.tmc_key = strenv(TMC_CA_KEY)" ./templates/values-template.yaml
+export ALL_CA_CERT=$(cat ./all-ca.crt)
+yq e -i ".trustedCAs.other_ca = strenv(ALL_CA_CERT)" ./templates/values-template.yaml
 ```
 
 For airgapped environments, run the ```00-prep.sh``` script.

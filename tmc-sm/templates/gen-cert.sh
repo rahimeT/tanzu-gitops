@@ -2,7 +2,7 @@
 
 echo gen-cert
 export SUBJ="/C=TR/ST=Istanbul/L=Istanbul/O=Customer, Inc./OU=IT/CN=${DOMAIN}"
-openssl genrsa -des3 -out ca.key -passout pass:1234 4096
+openssl genrsa -des3 -out tmc-ca.key -passout pass:1234 4096
 cat > ca.conf <<-EOF
 [req]
 distinguished_name = req_distinguished_name
@@ -17,7 +17,7 @@ CN = $DOMAIN
 basicConstraints=CA:TRUE
 keyUsage=critical, digitalSignature, keyCertSign, cRLSign
 EOF
-openssl req -x509 -new -nodes -key ca.key -sha256 -days 1024 -passin pass:1234 -subj "$SUBJ" -extensions ca -config ca.conf -out ca.crt
+openssl req -x509 -new -nodes -key tmc-ca.key -sha256 -days 1024 -passin pass:1234 -subj "$SUBJ" -extensions ca -config ca.conf -out tmc-ca.crt
 openssl genrsa -out server-app.key 4096
 openssl req -sha512 -new \
       -subj "$SUBJ" \
@@ -35,10 +35,10 @@ EOF
 openssl x509 -req -sha512 -days 3650 \
       -passin pass:1234 \
       -extfile v3.ext \
-      -CA ca.crt -CAkey ca.key -CAcreateserial \
+      -CA tmc-ca.crt -CAkey tmc-ca.key -CAcreateserial \
       -in server-app.csr \
       -out server-app.crt
-openssl rsa -in ca.key -out ca-no-pass.key -passin pass:1234
+openssl rsa -in tmc-ca.key -out tmc-ca-no-pass.key -passin pass:1234
 md5crt=$(openssl x509 -modulus -noout -in server-app.crt | openssl md5|awk '{print $2}')
 md5key=$(openssl rsa -noout -modulus -in server-app.key | openssl md5|awk '{print $2}')
 echo $md5crt

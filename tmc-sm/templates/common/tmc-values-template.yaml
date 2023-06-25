@@ -28,4 +28,4 @@ telemetry:
   eanNumber: ean-not-specified
   ceipAgreement: true
 trustedCAs:
-  custom-ca.pem: #@ "{}".format(data.values.trustedCAs.ca)
+  custom-ca.pem: #@ "{}".format(data.values.trustedCAs.tmc_ca)
