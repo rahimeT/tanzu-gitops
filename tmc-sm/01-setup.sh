@@ -11,7 +11,7 @@ else
     export CA_CERT=$(yq eval '.trustedCAs.ca' ./templates/values-template.yaml)
     export CA_KEY=$(yq eval '.trustedCAs.key' ./templates/values-template.yaml)
     echo "$CA_CERT" > ./ca.crt
-    echo "$CA_KEY" > ./ca-no-pass.crt
+    echo "$CA_KEY" > ./ca-no-pass.key
     if [ -s ca.crt ] && [ -s ca-no-pass.key ]; then
         echo "ca.crt and ca-no-pass.crt files created."
     else
