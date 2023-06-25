@@ -69,12 +69,12 @@ $ ./01-setup.sh vsphere-8
 
 ## For troubleshooting:
 
-export all TMC-SM pod logs into log files.
+export all pod logs into log files.
 ```
 export ns=tmc-local && kubectl get pods -n $ns --no-headers=true -o custom-columns=:metadata.name | xargs -I {} sh -c 'kubectl get pods -n $ns {} -o jsonpath="{.spec.containers[*].name}" | tr " " "\n" | xargs -I {container} sh -c "kubectl logs -n $ns {} {container} > {}-{container}.log"'
 ```
 
-export all TMC-SM CrashLoopBackOff pod logs into log files.
+export only CrashLoopBackOff pod logs into log files.
 ```
 export ns=tmc-local && kubectl get pods -n $ns --no-headers=true -o custom-columns=:metadata.name | xargs -I {} sh -c 'status=$(kubectl get pod -n $ns {} -o jsonpath="{.status.containerStatuses[*].state.waiting.reason}") && [ "$status" = "CrashLoopBackOff" ] && kubectl get pods -n $ns {} -o jsonpath="{.spec.containers[*].name}" | tr " " "\n" | xargs -I {container} sh -c "kubectl logs -n $ns {} {container} > {}-{container}.log"'
 ```
