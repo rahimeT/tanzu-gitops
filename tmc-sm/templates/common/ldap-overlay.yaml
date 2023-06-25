@@ -27,13 +27,7 @@ metadata:
 stringData:
   patch-oidc.yaml: |
     #@ load("@ytt:overlay", "overlay")
-    #@ def matchTMCStack(index, left, right):
-    #@   if left["apiVersion"] != "packaging.carvel.dev/v1alpha1" or left["kind"] != "PackageInstall":
-    #@     return False
-    #@   end      
-    #@   return left["metadata"]["name"].startswith("tmc-local-stack")
-    #@ end
-    #@overlay/match by=matchTMCStack, expects="0+"
+    #@overlay/match by=overlay.subset({"kind":"PackageInstall", "metadata": {"name": "tmc-local-stack"}})
     ---
     metadata:
       annotations:
