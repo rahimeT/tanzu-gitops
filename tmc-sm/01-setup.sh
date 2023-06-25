@@ -90,6 +90,7 @@ if [ "$1" = "vsphere-7" ]; then
     while [[ $(kubectl get deployment kapp-controller -n kapp-controller -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
         echo "Waiting for kapp-controller to be ready"
         sleep 10
+        kubectl get pods -n kapp-controller -o json | jq -r '.items[] | select(.status.containerStatuses[].state.waiting.reason | contains("ErrImagePull", "ImagePullBackOff")) | .metadata.name' | xargs kubectl delete pod -n kapp-controller
     done
 elif [ "$1" = "vsphere-8" ]; then
     echo "####################################################################################Logging into Supervisor#"
@@ -136,6 +137,7 @@ ytt -f templates/common/cert-manager.yaml -f templates/values-template.yaml | ku
 while [[ $(kubectl get pkgi cert-manager -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
     echo "Waiting for cert-manager to be ready: " $(kubectl get pkgi cert-manager -n packages -o=jsonpath='{.status.conditions[0].type}')
     sleep 10
+    kubectl get pods -n cert-manager -o json | jq -r '.items[] | select(.status.containerStatuses[].state.waiting.reason | contains("ErrImagePull", "ImagePullBackOff")) | .metadata.name' | xargs kubectl delete pod -n cert-manager
 done
 echo "#####################################################################Creating ClusterIssuer on Cert-Manager#"
 kubectl create secret tls local-ca --key ca-no-pass.key --cert ca.crt -n cert-manager
