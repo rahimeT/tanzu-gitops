@@ -193,7 +193,7 @@ spec:
     spec:
       initContainers:
       - name: openldap-init-ldif
-        image: #@ "harbor.{}/tmc/busybox:latest".format(data.values.tld_domain)
+        image: #@ "{}/tmc/busybox:latest".format(data.values.harbor.fqdn)
         command: ['sh', '-c', 'cp /customldif/* /ldifworkingdir']
         imagePullPolicy: IfNotPresent
         volumeMounts:
@@ -205,7 +205,7 @@ spec:
           {}
       containers:
         - name: openldap
-          image: #@ "harbor.{}/tmc/openldap:1.2.4".format(data.values.tld_domain)
+          image: #@ "{}/tmc/openldap:1.2.4".format(data.values.harbor.fqdn)
           imagePullPolicy: IfNotPresent
           args:
             - -l

@@ -19,4 +19,4 @@ metadata:
 spec:
   fetch:
     imgpkgBundle:
-      image: #@ "harbor.{}/tmc/package-repository:{}".format(data.values.tld_domain,data.values.tmc_repo)
+      image: #@ "{}/tmc/package-repository:{}".format(data.values.harbor.fqdn,data.values.tmc_repo)

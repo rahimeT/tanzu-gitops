@@ -2354,7 +2354,7 @@ spec:
               fieldPath: metadata.namespace
         - name: KAPPCTRL_API_PORT
           value: "10350"
-        image: #@ "harbor.{}/tmc/kapp-controller@sha256:8011233b43a560ed74466cee4f66246046f81366b7695979b51e7b755ca32212".format(data.values.tld_domain)
+        image: #@ "{}/tmc/kapp-controller@sha256:8011233b43a560ed74466cee4f66246046f81366b7695979b51e7b755ca32212".format(data.values.harbor.fqdn)
         name: kapp-controller
         ports:
         - containerPort: 10350
@@ -2383,7 +2383,7 @@ spec:
           value: /etc/kappctrl-mem-tmp/sidecarexec.sock
         - name: IMGPKG_ACTIVE_KEYCHAINS
           value: gke,aks,ecr
-        image: #@ "harbor.{}/tmc/kapp-controller@sha256:8011233b43a560ed74466cee4f66246046f81366b7695979b51e7b755ca32212".format(data.values.tld_domain)
+        image: #@ "{}/tmc/kapp-controller@sha256:8011233b43a560ed74466cee4f66246046f81366b7695979b51e7b755ca32212".format(data.values.harbor.fqdn)
         name: kapp-controller-sidecarexec
         resources:
           requests:

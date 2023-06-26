@@ -19,4 +19,4 @@ metadata:
 spec:
   fetch:
     imgpkgBundle:
-      image: #@ "harbor.{}/tmc/498533941640.dkr.ecr.us-west-2.amazonaws.com/packages/standard/repo:{}".format(data.values.tld_domain,data.values.std_repo)
+      image: #@ "{}/tmc/498533941640.dkr.ecr.us-west-2.amazonaws.com/packages/standard/repo:{}".format(data.values.harbor.fqdn,data.values.std_repo)
