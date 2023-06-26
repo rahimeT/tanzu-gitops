@@ -1,0 +1,735 @@
+#@ load("@ytt:data", "data")
+---
+#! ytt -f templates/values-template.yaml -f templates/demo/sample-app.yaml | kubectl apply -f -
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-apps
+---
+apiVersion: v1
+data:
+  pg_password: cGFzc3dvcmQxMjM= #!password123
+  pg_username: YWRtaW51c2Vy #!adminuser
+  pg_host: cG9zdGdyZXMtc3Zj #!postgres-svc
+  pg_port: NTQzMg== #!5432
+  pg_dbname: YXBw #!app
+  type: YXBwLWNvbmZpZwo= #!app-config
+kind: Secret
+metadata:
+  name: postgres-creds
+  namespace: my-apps
+---
+apiVersion: v1
+data:
+  rbmq_password: Z3Vlc3Q= #!guest
+  rbmq_username: Z3Vlc3Q= #!guest
+  rbmq_host: cmFiYml0bXE= #!rabbitmq
+  rbmq_port: NTY3Mg== #!5672
+  rbmq_queue: dGVzdC1xdWV1ZQ== #!test-queue
+  type: YXBwLWNvbmZpZwo= #!app-config
+kind: Secret
+metadata:
+  name: rbmq-creds
+  namespace: my-apps
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: postgres
+  name: postgres-svc
+  namespace: my-apps
+spec:
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    app: postgres
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: postgres
+  name: postgres
+  namespace: my-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - image: #@ "{}/apps/postgres:latest".format(data.values.harbor.fqdn)
+        ports:
+          - containerPort: 5432
+        name: postgres
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: pg_username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: pg_password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: pg_dbname
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/sample-app/"
+        volumeMounts:
+        - name: "postgres-data-dir"
+          mountPath: "/var/lib/postgresql/data"
+      volumes:
+      - name: "postgres-data-dir"
+        emptyDir: {}
+---
+apiVersion: v1
+data:
+  mongo_password: cGFzc3dvcmQxMjM= #!password123
+  mongo_username: YWRtaW51c2Vy #!adminuser
+  mongo_host: bW9uZ28tc3Zj #!mongo-svc
+  mongo_port: MjcwMTc= #!27017
+  type: YXBwLWNvbmZpZwo= #!app-config
+kind: Secret
+metadata:
+  name: mongo-creds
+  namespace: my-apps
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mongo
+  name: mongo-svc
+  namespace: my-apps
+spec:
+  ports:
+  - port: 27017
+    protocol: TCP
+    targetPort: 27017
+  selector:
+    app: mongo
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mongo
+  name: mongo
+  namespace: my-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - image: #@ "{}/apps/mongo:latest".format(data.values.harbor.fqdn)
+        name: mongo
+        args: ["--dbpath","/data/db"]
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-creds
+              key: mongo_username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-creds
+              key: mongo_password
+        volumeMounts:
+        - name: "mongo-data-dir"
+          mountPath: "/data/db"
+      volumes:
+      - name: "mongo-data-dir"
+        emptyDir: {}
+---
+apiVersion: v1
+data:
+  redis_password: cGFzc3dvcmQxMjM= #!password123
+  redis_username: ZGVmYXVsdA== #!default
+  redis_host: cmVkaXMtc3Zj #!redis-svc
+  redis_port: NjM3OQ== #!6379
+  type: YXBwLWNvbmZpZw== #!app-config
+kind: Secret
+metadata:
+  name: redis-creds
+  namespace: my-apps
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-svc
+  namespace: my-apps
+  labels:
+    name: redis
+spec:
+  ports:
+    - port: 6379
+      targetPort: redis
+      name: redis
+  selector:
+    name: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: redis
+  name: redis
+  namespace: my-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis
+  template:
+    metadata:
+      labels:
+        name: redis
+    spec:
+      containers:
+      - name: redis
+        image: #@ "{}/apps/redis:latest".format(data.values.harbor.fqdn)
+        imagePullPolicy: Always
+        args: ["--requirepass", "$(REDIS_PASS)"]
+        ports:
+        - containerPort: 6379
+          name: redis
+        env:
+        - name: MASTER
+          value: "true"
+        - name: REDIS_PASS
+          valueFrom:
+            secretKeyRef:
+              name: redis-creds
+              key: redis_password
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: my-apps
+  labels:
+    app: elasticsearch
+spec:
+  serviceName: elasticsearch
+  replicas: 1
+  volumeClaimTemplates: []
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      containers:
+      - name: elasticsearch
+        image: #@ "{}/apps/elasticsearch:7.2.1".format(data.values.harbor.fqdn)
+        resources:
+            limits:
+              cpu: 1000m
+            requests:
+              cpu: 100m
+        ports:
+        - containerPort: 9200
+          name: rest
+          protocol: TCP
+        - containerPort: 9300
+          name: inter-node
+          protocol: TCP
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+        env:
+          - name: cluster.name
+            value: k8s-logs
+          - name: node.name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: discovery.seed_hosts
+            value: "elasticsearch-0.elasticsearch"
+          - name: cluster.initial_master_nodes
+            value: "elasticsearch-0"
+          - name: ES_JAVA_OPTS
+            value: "-Xms512m -Xmx512m"
+      initContainers:
+      - name: fix-permissions
+        image: #@ "{}/apps/bitnami-shell:10-debian-10-r138".format(data.values.harbor.fqdn)
+        command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+      - name: increase-vm-max-map
+        image: #@ "{}/apps/bitnami-shell:10-debian-10-r138".format(data.values.harbor.fqdn)
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      - name: increase-fd-ulimit
+        image: #@ "{}/apps/bitnami-shell:10-debian-10-r138".format(data.values.harbor.fqdn)
+        command: ["sh", "-c", "ulimit -n 65536"]
+        securityContext:
+          privileged: true
+      volumes:
+      - name: data
+        emptyDir: {}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: elastic-svc
+  namespace: my-apps
+  labels:
+    app: elasticsearch
+spec:
+  selector:
+    app: elasticsearch
+  type: ClusterIP
+  ports:
+    - port: 9200
+      name: rest
+    - port: 9300
+      name: inter-node
+---
+apiVersion: v1
+data:
+  mysql_password: cGFzc3dvcmQxMjM= #!password123
+  mysql_username: cm9vdA== #!root
+  mysql_host: bXlzcWwtc3Zj #!mysql-svc
+  mysql_port: MzMwNg== #!3306
+  type: YXBwLWNvbmZpZwo= #!app-config
+kind: Secret
+metadata:
+  name: mysql-creds
+  namespace: my-apps
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-configmap
+  namespace: my-apps
+data:
+  my.cnf: |
+    [mysqld]
+    skip-host-cache
+    datadir=/var/lib/mysql
+    socket=/var/run/mysqld/mysqld.sock
+    secure-file-priv=/var/lib/mysql-files
+    user=mysql
+    symbolic-links=0
+    pid-file=/var/run/mysqld/mysqld.pid
+    bind-address=0.0.0.0
+    max_allowed_packet=256M
+
+    [client]
+    socket=/var/run/mysqld/mysqld.sock
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mysql
+  name: mysql-svc
+  namespace: my-apps
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    app: mysql
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mysql
+  name: mysql
+  namespace: my-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image: #@ "{}/apps/mysql:5.7".format(data.values.harbor.fqdn)
+        args: [--ignore-db-dir=lost+found]
+        #!lifecycle:
+        #!  postStart:
+        #!    exec:
+        #!      command: ["/bin/sh", "-c", "mysql -u root --password='password123' -e \"GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password123';\""]
+        ports:
+          - containerPort: 3306
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-creds
+              key: mysql_password
+        volumeMounts:
+        - name: "mysql-data-dir"
+          mountPath: "/var/lib/mysql"
+        - name: mysql-configmap
+          mountPath: /etc/my.cnf
+          subPath: my.cnf
+      volumes:
+      - name: "mysql-data-dir"
+        emptyDir: {}
+      - name: mysql-configmap
+        configMap:
+          name: mysql-configmap
+---
+apiVersion: v1
+data:
+  elastic_host: ZWxhc3RpYy1zdmM= #!elastic-svc
+  elastic_port: OTIwMA== #!9200
+  type: YXBwLWNvbmZpZwo= #!app-config
+kind: Secret
+metadata:
+  name: elastic-creds
+  namespace: my-apps
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rabbitmq-peer-discovery-rbac
+  namespace: my-apps
+rules:
+- apiGroups: 
+    - ""
+  resources: 
+    - endpoints
+  verbs: 
+    - get
+    - list
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - events
+  verbs:
+    - create
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rabbitmq-peer-discovery-rbac
+  namespace: my-apps
+subjects:
+- kind: ServiceAccount
+  name: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rabbitmq-peer-discovery-rbac
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-config
+  namespace: my-apps
+data:
+  enabled_plugins: |
+      [rabbitmq_management,rabbitmq_peer_discovery_k8s].
+
+  rabbitmq.conf: |
+      #!#! Cluster formation. See https://www.rabbitmq.com/cluster-formation.html to learn more.
+      cluster_formation.peer_discovery_backend  = rabbit_peer_discovery_k8s
+      cluster_formation.k8s.host = kubernetes.default.svc.cluster.local
+      #!#! Should RabbitMQ node name be computed from the pod's hostname or IP address?
+      #!#! IP addresses are not stable, so using [stable] hostnames is recommended when possible.
+      #!#! Set to "hostname" to use pod hostnames.
+      #!#! When this value is changed, so should the variable used to set the RABBITMQ_NODENAME
+      #!#! environment variable.
+      log.file.level = debug
+      log.console = true
+      log.console.level = debug
+      cluster_formation.k8s.address_type = hostname
+      #!#! How often should node cleanup checks run?
+      cluster_formation.node_cleanup.interval = 30
+      #!#! Set to false if automatic removal of unknown/absent nodes
+      #!#! is desired. This can be dangerous, see
+      #!#!  * https://www.rabbitmq.com/cluster-formation.html#node-health-checks-and-cleanup
+      #!#!  * https://groups.google.com/forum/#!msg/rabbitmq-users/wuOfzEywHXo/k8z_HWIkBgAJ
+      cluster_formation.node_cleanup.only_log_warning = true
+      cluster_partition_handling = autoheal
+      #!# See https://www.rabbitmq.com/ha.html#master-migration-data-locality
+      queue_master_locator=min-masters
+      #!#! This is just an example.
+      #!#! This enables remote access for the default user with well known credentials.
+      #!#! Consider deleting the default user and creating a separate user with a set of generated
+      #!#! credentials instead.
+      #!# Learn more at https://www.rabbitmq.com/access-control.html#loopback-users
+      loopback_users.guest = false
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+  namespace: my-apps
+spec:
+  serviceName: rabbitmq
+  replicas: 1
+  volumeClaimTemplates: []
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: rabbitmq-k8s
+        image: #@ "{}/apps/rabbitmq:3.8".format(data.values.harbor.fqdn)
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/rabbitmq
+        ports:
+          - name: http
+            protocol: TCP
+            containerPort: 15672
+          - name: amqp
+            protocol: TCP
+            containerPort: 5672
+        livenessProbe:
+          exec:
+            command: ["rabbitmq-diagnostics", "status"]
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 15
+        readinessProbe:
+          exec:
+            command: ["rabbitmq-diagnostics", "ping"]
+          initialDelaySeconds: 20
+          periodSeconds: 60
+          timeoutSeconds: 10
+        imagePullPolicy: Always
+        env:
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: RABBITMQ_USE_LONGNAME
+            value: "true"
+          - name: K8S_SERVICE_NAME
+            value: rabbitmq
+          - name: RABBITMQ_NODENAME
+            value: rabbit@$(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+          - name: K8S_HOSTNAME_SUFFIX
+            value: .$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+          - name: RABBITMQ_ERLANG_COOKIE
+            value: "mycookie"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: rabbitmq-config
+            items:
+            - key: rabbitmq.conf
+              path: rabbitmq.conf
+            - key: enabled_plugins
+              path: enabled_plugins
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: rabbitmq
+  namespace: my-apps
+spec:
+  type: ClusterIP
+  ports:
+   - name: http
+     protocol: TCP
+     port: 15672
+     targetPort: 15672
+   - name: amqp
+     protocol: TCP
+     port: 5672
+     targetPort: 5672
+  selector:
+    app: rabbitmq
+---
+apiVersion: v1
+data:
+  username: dXNlcm5hbWUtZnJvbS1zZWNyZXQK
+  password: cGFzc3dvcmQtZnJvbS1zZWNyZXQK
+kind: Secret
+metadata:
+  name: gorkem-secret
+  namespace: my-apps
+type: Opaque
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-apps-sa
+  namespace: my-apps
+secrets:
+- name: gorkem-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-nodejs-app-deployment-v1
+  namespace: my-apps
+spec:
+  selector:
+    matchLabels:
+      app: test-nodejs-app
+      version: v1
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: nodejs-data
+      labels:
+        app: test-nodejs-app
+        version: v1
+    spec:
+      serviceAccountName: my-apps-sa
+      containers:
+      - name: my-apps
+        image: #@ "{}/apps/sample-app:v0.3.27".format(data.values.harbor.fqdn)
+        env:
+        - name: var1
+          value: Gorkem
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: MY_POD_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        - name: SECRET_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: gorkem-secret
+              key: username
+        - name: SECRET_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: gorkem-secret
+              key: password
+        - name: SERVICE_BINDING_ROOT
+          value: "/bindings"
+        volumeMounts:
+        - mountPath: /appdir
+          name: nodejs-data
+        - mountPath: /bindings/redis-claim
+          name: redis-creds
+        - mountPath: /bindings/postgres-claim
+          name: postgres-creds
+        - mountPath: /bindings/mysql-claim
+          name: mysql-creds
+        - mountPath: /bindings/mongo-claim
+          name: mongo-creds
+        - mountPath: /bindings/elastic-claim
+          name: elastic-creds
+        - mountPath: /bindings/rbmq-claim
+          name: rbmq-creds
+        ports:
+        - containerPort: 8080
+      volumes:
+      - name: nodejs-data
+        emptyDir: {}
+      - name: redis-creds
+        secret:
+          secretName: redis-creds
+      - name: postgres-creds
+        secret:
+          secretName: postgres-creds
+      - name: mysql-creds
+        secret:
+          secretName: mysql-creds
+      - name: mongo-creds
+        secret:
+          secretName: mongo-creds
+      - name: elastic-creds
+        secret:
+          secretName: elastic-creds
+      - name: rbmq-creds
+        secret:
+          secretName: rbmq-creds
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-nodejs-app
+  namespace: my-apps
+  labels:
+    app: test-nodejs-app
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: test-nodejs-app
+  type: ClusterIP
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: sample-app-nodejs
+  namespace: my-apps
+spec:
+  ingressClassName: tmc-local
+  routes:
+  - conditions:
+    - prefix: /
+    enableWebsockets: true
+    services:
+    - name: test-nodejs-app
+      port: 80
+  virtualhost:
+    fqdn: #@ "sample-app.{}".format(data.values.tld_domain)

@@ -31,6 +31,17 @@ if [ "$1" = "prep" ]; then
     imgpkg copy -i ghcr.io/carvel-dev/kapp-controller@sha256:8011233b43a560ed74466cee4f66246046f81366b7695979b51e7b755ca32212 --to-tar=airgapped-files/images/kapp-controller.tar --concurrency 30
     imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/tools/busybox:latest --to-tar=airgapped-files/images/busybox.tar --concurrency 30
     imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/tools/openldap:1.2.4 --to-tar=airgapped-files/images/openldap.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/sample-app/postgres:latest --to-tar=airgapped-files/images/postgres.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mongo:latest --to-tar=airgapped-files/images/mongo.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/sample-app/redis:latest --to-tar=airgapped-files/images/redis.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/sample-app/elasticsearch:7.2.1 --to-tar=airgapped-files/images/elasticsearch.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/sample-app/bitnami-shell --to-tar=airgapped-files/images/bitnami-shell.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mysql:5.7 --to-tar=airgapped-files/images/mysql.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/sample-app/rabbitmq:3.8 --to-tar=airgapped-files/images/rabbitmq.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/sample-app/sample-app:v0.3.27 --to-tar=airgapped-files/images/sample-app.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/tools/gitea:1.13.2 --to-tar=airgapped-files/images/gitea.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/extensions/kibana:7.2.1 --to-tar=airgapped-files/images/kibana.tar --concurrency 30
+    git clone https://github.com/gorkemozlu/tanzu-gitops airgapped-files/tanzu-gitops && rm -rf airgapped-files/tanzu-gitops/.git
 elif [ "$1" = "import-cli" ]; then
     echo import-cli
     templates/carvel.sh install
@@ -69,6 +80,19 @@ elif [ "$1" = "import-packages" ]; then
     imgpkg copy --tar airgapped-files/images/kapp-controller.tar --to-repo $HARBOR_URL/tmc/kapp-controller --include-non-distributable-layers
     imgpkg copy --tar airgapped-files/images/busybox.tar --to-repo $HARBOR_URL/tmc/busybox --include-non-distributable-layers
     imgpkg copy --tar airgapped-files/images/openldap.tar --to-repo $HARBOR_URL/tmc/openldap --include-non-distributable-layers
+    curl -u "${IMGPKG_REGISTRY_USERNAME}:${IMGPKG_REGISTRY_PASSWORD}" -X POST -H "content-type: application/json" "https://$HARBOR_URL/api/v2.0/projects" -d "{\"project_name\": \"apps\", \"public\": true, \"storage_limit\": -1 }" -k
+    imgpkg copy --tar airgapped-files/images/postgres.tar --to-repo $HARBOR_URL/apps/postgres --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/mongo.tar --to-repo $HARBOR_URL/apps/mongo --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/redis.tar --to-repo $HARBOR_URL/apps/redis --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/elasticsearch.tar --to-repo $HARBOR_URL/apps/elasticsearch --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/bitnami-shell.tar --to-repo $HARBOR_URL/apps/bitnami-shell --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/mysql.tar --to-repo $HARBOR_URL/apps/mysql --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/rabbitmq.tar --to-repo $HARBOR_URL/apps/rabbitmq --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/sample-app.tar --to-repo $HARBOR_URL/apps/sample-app --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/gitea.tar --to-repo $HARBOR_URL/apps/gitea --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/kibana.tar --to-repo $HARBOR_URL/apps/kibana --include-non-distributable-layers
+    export es_old_image='projects.registry.vmware.com/tanzu_meta_pocs/extensions/elasticsearch:7.2.1' && export es_new_image=$HARBOR_URL/apps/elasticsearch:7.2.1 && sed -i -e "s~$es_old_image~$es_new_image~g" airgapped-files/tanzu-gitops/tmc-cg/apps/efk/elasticsearch.yaml
+    export kb_old_image='projects.registry.vmware.com/tanzu_meta_pocs/extensions/kibana:7.2.1' && export kb_new_image=$HARBOR_URL/apps/kibana:7.2.1 && sed -i -e "s~$kb_old_image~$kb_new_image~g" airgapped-files/tanzu-gitops/tmc-cg/apps/efk/kibana.yaml
 elif [ "$1" = "gen-cert" ]; then
     templates/gen-cert.sh
 elif [ "$1" = "post-install" ]; then
