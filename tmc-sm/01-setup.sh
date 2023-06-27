@@ -202,8 +202,9 @@ if [[ "$vCenter_version" == "8.0.1" ]]; then
     echo " "
 fi
 
-echo "#####################################################################################Deploy Gitea & Sample App#"
+echo "#################################################################################################Sample App#"
 ytt -f templates/values-template.yaml -f templates/demo/sample-app.yaml | kubectl apply -f -
+echo "################################################################################################Deploy Gitea#"
 ytt -f templates/values-template.yaml -f templates/demo/git.yaml | kubectl apply -f -
 export gitea=git.$(yq eval '.tld_domain' ./templates/values-template.yaml)
 while [[ $(kubectl get pkgi gitea -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
@@ -234,7 +235,8 @@ git config --global user.name "tanzu"
 git commit -m "big bang"
 git config http.sslVerify "false"
 git remote add origin https://git.$tmc_dns/tanzu/tanzu-gitops.git
-echo "user: tanzu / pass: VMware1!"
+echo ""
+echo "git user: tanzu / pass: VMware1!"
 git push -u origin main
 echo "##################################################################################Finished Deploying TMC-SM#"
 echo "-------------------"
