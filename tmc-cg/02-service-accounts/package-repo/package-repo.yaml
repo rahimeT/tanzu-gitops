@@ -4,9 +4,9 @@ metadata:
   annotations:
     tkg.tanzu.vmware.com/tanzu-package: package-repo-packages
     kapp.k14s.io/update-strategy: "fallback-on-replace"
-  name: tanzu-std-161u1
+  name: tanzu-std-22u2
   namespace: packages
 spec:
   fetch:
     imgpkgBundle:
-      image: projects.registry.vmware.com/tkg/packages/standard/repo:v1.6.1_update.1
+      image: projects.registry.vmware.com/tkg/packages/standard/repo:v2.2.0_update.2
