@@ -24,7 +24,7 @@ export TMC_SM_DL_URL="https://artifactory.eng.vmware.com/artifactory/tmc-generic
 
 if [ "$1" = "prep" ]; then
     echo prep
-    mkdir -p airgapped-files/images
+    mkdir -p airgapped-files/images/inspection
     mkdir -p airgapped-files/tools
     wget -P airgapped-files/ "$TMC_SM_DL_URL"
     templates/carvel.sh download
@@ -44,6 +44,19 @@ if [ "$1" = "prep" ]; then
     imgpkg copy -b projects.registry.vmware.com/tanzu_meta_pocs/tools/gitea:1.15.3_2 --to-tar=airgapped-files/images/gitea-bundle.tar --include-non-distributable-layers --concurrency 30
     imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/extensions/kibana:7.2.1 --to-tar=airgapped-files/images/kibana.tar --concurrency 30
     imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/tools/minio:latest --to-tar=airgapped-files/images/minio.tar --concurrency 30
+    #export k8s_versions=(v1.23.8 v1.23.15 v1.24.9)
+    #wget -P airgapped-files/ "https://github.com/vmware-tanzu/sonobuoy/releases/download/v0.56.16/sonobuoy_0.56.16_linux_amd64.tar.gz"
+    #tar -xvf airgapped-files/sonobuoy*.tar.gz
+    #for i in "${k8s_versions[@]}"
+    #do
+    #   ./sonobuoy images list --kubernetes-version $i > images_$i.txt
+    #   while read image
+    #   do
+    #     export base=$(basename "$image")
+    #     export output=${image#*/*}
+    #     imgpkg copy -i $image --to-tar=airgapped-files/images/inspection/$base.tar --concurrency 30
+    #   done < images_$i.txt
+    #done
     git clone https://github.com/gorkemozlu/tanzu-gitops airgapped-files/tanzu-gitops && rm -rf airgapped-files/tanzu-gitops/.git
     wget --content-disposition -P airgapped-files/tools/ "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-archive"
     wget --content-disposition -P airgapped-files/tools/ "https://code.visualstudio.com/sha/download?build=stable&os=darwin-universal"
@@ -101,6 +114,14 @@ elif [ "$1" = "import-packages" ]; then
     imgpkg copy --tar airgapped-files/images/kibana.tar --to-repo $HARBOR_URL/apps/kibana --include-non-distributable-layers
     imgpkg copy --tar airgapped-files/images/gitea-bundle.tar --to-repo $HARBOR_URL/apps/gitea --include-non-distributable-layers
     imgpkg copy --tar airgapped-files/images/minio.tar --to-repo $HARBOR_URL/apps/minio --include-non-distributable-layers
+    #for file in airgapped-files/images/inspection/*.tar; do
+    #    if [ -f "$file" ]; then
+    #        section="${file%%:*}"
+    #        base=$(basename "$section")
+    #        echo $section $base
+    #        imgpkg copy --tar "$file" --to-repo "${HARBOR_URL}/tmc/498533941640.dkr.ecr.us-west-2.amazonaws.com/extensions/inspection-images/$base" --include-non-distributable-layers
+    #    fi
+    #done
     export es_old_image='projects.registry.vmware.com/tanzu_meta_pocs/extensions/elasticsearch:7.2.1' && export es_new_image=$HARBOR_URL/apps/elasticsearch:7.2.1 && sed -i -e "s~$es_old_image~$es_new_image~g" airgapped-files/tanzu-gitops/tmc-cg/apps/efk/elasticsearch.yaml
     export kb_old_image='projects.registry.vmware.com/tanzu_meta_pocs/extensions/kibana:7.2.1' && export kb_new_image=$HARBOR_URL/apps/kibana:7.2.1 && sed -i -e "s~$kb_old_image~$kb_new_image~g" airgapped-files/tanzu-gitops/tmc-cg/apps/efk/kibana.yaml
     export pkgr_old_image='projects.registry.vmware.com/tkg/packages/standard/repo:v2.2.0_update.2' && export pkgr_new_image=$HARBOR_URL/tmc/498533941640.dkr.ecr.us-west-2.amazonaws.com/packages/standard/repo:v2.2.0_update.2 && sed -i -e "s~$pkgr_old_image~$pkgr_new_image~g" airgapped-files/tanzu-gitops/tmc-cg/02-service-accounts/package-repo/package-repo.yaml
