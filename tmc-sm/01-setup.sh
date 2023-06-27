@@ -93,7 +93,7 @@ if [ "$1" = "vsphere-7" ]; then
     while [[ $(kubectl get deployment kapp-controller -n kapp-controller -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
         echo "Waiting for kapp-controller to be ready"
         sleep 10
-        kubectl get pods -n kapp-controller | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n kapp-controller
+        kubectl get pods -n kapp-controller | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n kapp-controller 2>/dev/null
     done
 elif [ "$1" = "vsphere-8" ]; then
     echo "####################################################################################Logging into Supervisor#"
@@ -140,7 +140,7 @@ ytt -f templates/common/cert-manager.yaml -f templates/values-template.yaml | ku
 while [[ $(kubectl get pkgi cert-manager -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
     echo "Waiting for cert-manager to be ready: " $(kubectl get pkgi cert-manager -n packages -o=jsonpath='{.status.conditions[0].type}')
     sleep 10
-    kubectl get pods -n cert-manager | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n cert-manager
+    kubectl get pods -n cert-manager | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n cert-manager 2>/dev/null
 done
 echo "#####################################################################Creating ClusterIssuer on Cert-Manager#"
 kubectl create secret tls local-ca --key tmc-ca-no-pass.key --cert tmc-ca.crt -n cert-manager
@@ -178,7 +178,6 @@ if [ "$ldap_auth" = "true" ]; then
     kubectl patch -n tmc-local --type merge pkgi tanzu-mission-control --patch '{"spec": {"paused": false}}'
 fi
 
-
 kubectx $wcp_ip
 export caCert=$(yq eval '.trustedCAs."custom-ca.pem"' ./values.yaml)
 export tmcURL=$(yq eval '.dnsZone' ./values.yaml)
@@ -202,3 +201,38 @@ if [[ "$vCenter_version" == "8.0.1" ]]; then
     echo "ytt -f templates/values-template.yaml -f templates/vsphere-8/cluster-config.yaml | kubectl apply -f -"
     echo " "
 fi
+
+echo "#####################################################################################Deploy Gitea & Sample App#"
+ytt -f templates/values-template.yaml -f templates/demo/sample-app.yaml | kubectl apply -f -
+ytt -f templates/values-template.yaml -f templates/demo/git.yaml | kubectl apply -f -
+export gitea=git.$(yq eval '.tld_domain' ./templates/values-template.yaml)
+while [[ $(kubectl get statefulset gitea -n gitea -o=jsonpath='{.status.readyReplicas}') != "1" && $(kubectl get statefulset gitea-postgresql -n gitea -o=jsonpath='{.status.readyReplicas}') != "1" && $(kubectl get deployment gitea-memcached -n gitea -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" && $(kubectl get httpproxy gitea -n gitea -o=jsonpath='{.status.conditions[?(@.type=="Valid")].status}') != "True"]]; do
+    echo "Waiting for gitea to be ready"
+    sleep 10
+    kubectl get pods -n gitea | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n gitea 2>/dev/null
+done
+curl https://$gitea -k|grep html
+export gitea_check=$?
+if [ $gitea_check -eq 0 ]; then
+    echo "Gitea is ready"
+else
+    echo ""
+    echo "Gitea is not accessible"
+    exit 1
+fi
+export gitea_pass='VMware1!'
+export gitea_token=$(curl -X POST "https://tanzu:$gitea_pass@git.$tmc_dns/api/v1/users/tanzu/tokens" -H  "accept: application/json" -H "Content-Type: application/json" -d "{\"name\": \"token_name\"}" -k|jq -r .sha1)
+curl -k -X POST "https://git.$tmc_dns/api/v1/user/repos" -H "content-type: application/json" -H "Authorization: token $gitea_token" --data '{"name":"tanzu-gitops","default_branch":"main"}' -k
+cd airgapped-files/tanzu-gitops
+
+git init
+git checkout -b main
+git add .
+git commit -m "big bang"
+git config --global user.email "tanzu@vmware.com"
+git config --global user.name "tanzu"
+git commit -m "big bang"
+git config http.sslVerify "false"
+git remote add origin https://git.$tmc_dns/tanzu/tanzu-gitops.git
+#git push -u origin main
+git push https://tanzu:$giteapass@git.$tmc_dns/tanzu/tanzu-gitops.git
