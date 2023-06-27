@@ -95,12 +95,11 @@ elif [ "$1" = "import-packages" ]; then
     imgpkg copy --tar airgapped-files/images/mysql.tar --to-repo $HARBOR_URL/apps/mysql --include-non-distributable-layers
     imgpkg copy --tar airgapped-files/images/rabbitmq.tar --to-repo $HARBOR_URL/apps/rabbitmq --include-non-distributable-layers
     imgpkg copy --tar airgapped-files/images/sample-app.tar --to-repo $HARBOR_URL/apps/sample-app --include-non-distributable-layers
-    imgpkg copy --tar airgapped-files/images/gitea.tar --to-repo $HARBOR_URL/apps/gitea --include-non-distributable-layers
     imgpkg copy --tar airgapped-files/images/kibana.tar --to-repo $HARBOR_URL/apps/kibana --include-non-distributable-layers
     imgpkg copy --tar airgapped-files/images/gitea-bundle.tar --to-repo $HARBOR_URL/apps/gitea --include-non-distributable-layers
     export es_old_image='projects.registry.vmware.com/tanzu_meta_pocs/extensions/elasticsearch:7.2.1' && export es_new_image=$HARBOR_URL/apps/elasticsearch:7.2.1 && sed -i -e "s~$es_old_image~$es_new_image~g" airgapped-files/tanzu-gitops/tmc-cg/apps/efk/elasticsearch.yaml
     export kb_old_image='projects.registry.vmware.com/tanzu_meta_pocs/extensions/kibana:7.2.1' && export kb_new_image=$HARBOR_URL/apps/kibana:7.2.1 && sed -i -e "s~$kb_old_image~$kb_new_image~g" airgapped-files/tanzu-gitops/tmc-cg/apps/efk/kibana.yaml
-    export pkgr_old_image='projects.registry.vmware.com/tkg/packages/standard/repo:v2.2.0_update.2' && export pkgr_new_image=$HARBOR_URL/tmc/498533941640.dkr.ecr.us-west-2.amazonaws.com/packages/standard/repo:v2.2.0_update.2 && sed -i -e "s~$pkgr_old_image~$pkgr_new_image~g" airgapped-files/tanzu-gitops/tmc-cg/02-service-accounts/package-repo/package-repo.yaml
+    export pkgr_old_image='projects.registry.vmware.com/tkg/packages/standard/repo:v2.2.0_update.2' && export pkgr_new_image=$HARBOR_URL/tmc/498533941640.dkr.ecr.us-west-2.amazonaws.com/packages/standard/repo:v2.2.0_update.2 && sed -i -e "s~$pkgr_old_image~$pkgr_new_image~g" c
 elif [ "$1" = "gen-cert" ]; then
     templates/gen-cert.sh
 elif [ "$1" = "post-install" ]; then
