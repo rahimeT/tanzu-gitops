@@ -86,3 +86,28 @@ extract/read error logs from each log file.
 ```
 for file in *.log; do grep -q "error" "$file" && (echo "=== $file ==="; grep "error" "$file"; echo); done
 ```
+
+Get all packageinstall-s
+```
+kubectl get pkgi -A
+```
+
+Get all packagerepository-s
+```
+kubectl get pkgr -A
+```
+
+Get all ingress-es
+```
+kubectl get httpproxy -A
+```
+
+Get all certificate-s
+```
+kubectl get cert -A
+```
+
+Get all cluster-issuer-s
+```
+kubectl get ClusterIssuer -A
+```
