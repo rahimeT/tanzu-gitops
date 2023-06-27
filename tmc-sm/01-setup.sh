@@ -206,7 +206,7 @@ echo "##########################################################################
 ytt -f templates/values-template.yaml -f templates/demo/sample-app.yaml | kubectl apply -f -
 ytt -f templates/values-template.yaml -f templates/demo/git.yaml | kubectl apply -f -
 export gitea=git.$(yq eval '.tld_domain' ./templates/values-template.yaml)
-while [[ $(kubectl get statefulset gitea -n gitea -o=jsonpath='{.status.readyReplicas}') != "1" && $(kubectl get statefulset gitea-postgresql -n gitea -o=jsonpath='{.status.readyReplicas}') != "1" && $(kubectl get deployment gitea-memcached -n gitea -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" && $(kubectl get httpproxy gitea -n gitea -o=jsonpath='{.status.conditions[?(@.type=="Valid")].status}') != "True"]]; do
+while [[ $(kubectl get pkgi gitea -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
     echo "Waiting for gitea to be ready"
     sleep 10
     kubectl get pods -n gitea | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n gitea 2>/dev/null
