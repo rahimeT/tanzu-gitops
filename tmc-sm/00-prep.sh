@@ -25,6 +25,7 @@ export TMC_SM_DL_URL="https://artifactory.eng.vmware.com/artifactory/tmc-generic
 if [ "$1" = "prep" ]; then
     echo prep
     mkdir -p airgapped-files/images
+    mkdir -p airgapped-files/tools
     wget -P airgapped-files/ "$TMC_SM_DL_URL"
     templates/carvel.sh download
     imgpkg copy -b projects.registry.vmware.com/tkg/packages/standard/repo:$std_repo --to-tar airgapped-files/$std_repo.tar --include-non-distributable-layers --concurrency 30
@@ -42,6 +43,11 @@ if [ "$1" = "prep" ]; then
     imgpkg copy -b projects.registry.vmware.com/tanzu_meta_pocs/tools/gitea:1.15.3_2 --to-tar=airgapped-files/images/gitea-bundle.tar --include-non-distributable-layers --concurrency 30
     imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/extensions/kibana:7.2.1 --to-tar=airgapped-files/images/kibana.tar --concurrency 30
     git clone https://github.com/gorkemozlu/tanzu-gitops airgapped-files/tanzu-gitops && rm -rf airgapped-files/tanzu-gitops/.git
+    wget --content-disposition -P airgapped-files/tools/ "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-archive"
+    wget --content-disposition -P airgapped-files/tools/ "https://code.visualstudio.com/sha/download?build=stable&os=darwin-universal"
+    wget --content-disposition -P airgapped-files/tools/ "https://the.earth.li/~sgtatham/putty/latest/w64/putty.exe"
+    wget --content-disposition -P airgapped-files/tools/ "https://winscp.net/download/WinSCP-6.1.1-Setup.exe"
+    wget --content-disposition -P airgapped-files/tools/ "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.5.4/npp.8.5.4.portable.x64.zip"
 elif [ "$1" = "import-cli" ]; then
     echo import-cli
     templates/carvel.sh install
