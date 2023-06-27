@@ -202,8 +202,18 @@ if [[ "$vCenter_version" == "8.0.1" ]]; then
     echo " "
 fi
 
-echo "#################################################################################################Sample App#"
+echo "##########################################################################################Deploy Sample App#"
 ytt -f templates/values-template.yaml -f templates/demo/sample-app.yaml | kubectl apply -f -
+echo "###############################################################################################Deploy Minio#"
+ytt -f templates/values-template.yaml -f templates/demo/minio.yaml | kubectl apply -f -
+while [[ $(kubectl get deployment minio-deployment -n minio -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
+    echo "Waiting for minio to be ready"
+    sleep 10
+    kubectl get pods -n minio | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n minio 2>/dev/null
+done
+mc alias set minio https://minio.$tmc_dns  minio minio123 --insecure
+mc mb minio/velero --insecure
+mc anonymous set download minio/velero --insecure
 echo "################################################################################################Deploy Gitea#"
 ytt -f templates/values-template.yaml -f templates/demo/git.yaml | kubectl apply -f -
 export gitea=git.$(yq eval '.tld_domain' ./templates/values-template.yaml)
