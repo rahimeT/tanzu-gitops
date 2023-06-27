@@ -234,5 +234,9 @@ git config --global user.name "tanzu"
 git commit -m "big bang"
 git config http.sslVerify "false"
 git remote add origin https://git.$tmc_dns/tanzu/tanzu-gitops.git
-#git push -u origin main
-git push https://tanzu:$giteapass@git.$tmc_dns/tanzu/tanzu-gitops.git
+echo "user: tanzu / pass: VMware1!"
+git push -u origin main
+echo "##################################################################################Finished Deploying TMC-SM#"
+echo "-------------------"
+echo Open TMC-SM via this URL: https://$tmc_dns
+echo "-------------------"
