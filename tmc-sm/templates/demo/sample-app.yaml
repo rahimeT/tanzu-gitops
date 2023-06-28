@@ -63,6 +63,8 @@ spec:
   strategy: {}
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: postgres-data-dir
       labels:
         app: postgres
     spec:
@@ -139,6 +141,8 @@ spec:
   strategy: {}
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: mongo-data-dir
       labels:
         app: mongo
     spec:
@@ -241,6 +245,8 @@ spec:
       app: elasticsearch
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: data
       labels:
         app: elasticsearch
     spec:
@@ -379,6 +385,8 @@ spec:
   strategy: {}
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: mysql-data-dir
       labels:
         app: mysql
     spec:
@@ -427,11 +435,11 @@ metadata:
   name: rabbitmq-peer-discovery-rbac
   namespace: my-apps
 rules:
-- apiGroups: 
+- apiGroups:
     - ""
-  resources: 
+  resources:
     - endpoints
-  verbs: 
+  verbs:
     - get
     - list
     - watch
