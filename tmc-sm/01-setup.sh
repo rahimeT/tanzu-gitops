@@ -202,6 +202,8 @@ if [[ "$vCenter_version" == "8.0.1" ]]; then
     echo " "
 fi
 
+echo "##########################################################################################Deploy EFK#"
+ytt -f templates/values-template.yaml -f templates/demo/efk.yaml | kubectl apply -f -
 echo "##########################################################################################Deploy Sample App#"
 ytt -f templates/values-template.yaml -f templates/demo/sample-app.yaml | kubectl apply -f -
 echo "###############################################################################################Deploy Minio#"
@@ -252,3 +254,9 @@ echo "##########################################################################
 echo "-------------------"
 echo Open TMC-SM via this URL: https://$tmc_dns
 echo "-------------------"
+if [[ "$vCenter_version" == "8.0.1" ]]; then
+    echo "Run below command on supervisor level before creating each new workload cluster "
+    echo " "
+    echo "ytt -f templates/values-template.yaml -f templates/vsphere-8/cluster-config.yaml | kubectl apply -f -"
+    echo " "
+fi
