@@ -111,3 +111,35 @@ Get all cluster-issuer-s
 ```
 kubectl get ClusterIssuer -A
 ```
+
+## DNS Records:
+
+This is the recommended way with wildcard:
+|FQDN| IP |
+|---|---|
+|*.tmc.corp.com| LB IP|
+|tmc.corp.com| LB IP|
+|harbor.tmc.corp.com| Harbor IP|
+
+If DNS entries need to be manually added, follow below table:
+|FQDN| IP |
+|---|---|
+|harbor.tmc.corp.com| Harbor IP|
+|auth.tmc.corp.com|LB IP|
+|s3.tmc.corp.com|LB IP|
+|tmc-local.s3.tmc.corp.com|LB IP|
+|console.s3.tmc.corp.com|LB IP|
+|pinniped-supervisor.tmc.corp.com|LB IP|
+|tmc.corp.com|LB IP|
+|gts.tmc.corp.com|LB IP|
+|gts-rest.tmc.corp.com|LB IP|
+|git.tmc.corp.com|LB IP|
+|minio-console.tmc.corp.com|LB IP|
+|minio.tmc.corp.com|LB IP|
+|sample-app.tmc.corp.com|LB IP|
+|elastic.tmc.corp.com|LB IP|
+|prometheus.tmc.corp.com|LB IP|
+|grafana.tmc.corp.com|LB IP|
+|kibana.tmc.corp.com|LB IP|
+
+`LB IP` is the `loadbalancer_ip` value in `templates/values-template.yaml` 
