@@ -88,6 +88,12 @@ elif [ "$1" = "import-packages" ]; then
         export TMC_CA_CERT=$(cat ./tmc-ca.crt)
         cp tmc-ca.crt /etc/ssl/certs/
         echo "required files exist, continuing."
+        if [ ! -f all-ca.crt ] ; then
+            export OTHER_CA_CERT=$(yq eval '.trustedCAs.other_ca' ./templates/values-template.yaml)
+            export ALL_CA_CERT=$(echo -e "$TMC_CA_CERT""\n""$OTHER_CA_CERT")
+            echo "$ALL_CA_CERT" > ./all-ca.crt
+            echo "$ALL_CA_CERT" > /etc/ssl/certs/all-ca.crt
+        fi
     else
         echo "no tmc-ca.crt fall back to values-template.yaml"
         export TMC_CA_CERT=$(yq eval '.trustedCAs.tmc_ca' ./templates/values-template.yaml)
