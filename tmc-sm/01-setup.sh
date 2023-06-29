@@ -238,12 +238,11 @@ export gitea_token=$(curl -X POST "https://tanzu:$gitea_pass@git.$tmc_dns/api/v1
 curl -k -X POST "https://git.$tmc_dns/api/v1/user/repos" -H "content-type: application/json" -H "Authorization: token $gitea_token" --data '{"name":"tanzu-gitops","default_branch":"main"}' -k
 cd airgapped-files/tanzu-gitops
 
+git config --global user.email "tanzu@vmware.com"
+git config --global user.name "tanzu"
 git init
 git checkout -b main
 git add .
-git commit -m "big bang"
-git config --global user.email "tanzu@vmware.com"
-git config --global user.name "tanzu"
 git commit -m "big bang"
 git config http.sslVerify "false"
 git remote add origin https://git.$tmc_dns/tanzu/tanzu-gitops.git
