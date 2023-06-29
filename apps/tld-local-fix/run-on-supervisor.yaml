@@ -89,7 +89,7 @@ data:
         loginfo "cluster: ${cluster}"
         VMs=$(/appdir/kubectl get vm --output=name -n $NAMESPACE | grep $cluster | rev | cut -d '/' -f 1 | rev)
         for VM in $VMs; do
-          VMIP=$(/appdir/kubectl get vm $VM -n dev --template='{{.status.vmIp}}')
+          VMIP=$(/appdir/kubectl get vm $VM -n $NAMESPACE --template='{{.status.vmIp}}')
           loginfo "ip: ${VMIP}"
           loginfo "getting ssh key for ${cluster}"
           /appdir/kubectl get secret ${cluster}-ssh -n ${NAMESPACE} -o jsonpath="{.data.ssh-privatekey}" | base64 -d > /tmp/sshkey.pem
