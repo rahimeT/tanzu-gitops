@@ -4,6 +4,20 @@ if [ $# -ne 1 ]; then
     echo "Usage: $0 vsphere-7|vsphere-8"
     exit 1
 fi
+echo "###############################################################################Checking CLIs/Binaries files#"
+binaries=("kubectl" "openssl" "jq" "yq" "govc" "dig" "kubectl-vsphere" "ytt" "curl" "git" "wget" "imgpkg")
+missing_binaries=""
+for binary in "${binaries[@]}"; do
+    if ! command -v "$binary" >/dev/null 2>&1; then
+        missing_binaries+="$binary "
+    fi
+done
+if [ -n "$missing_binaries" ]; then
+    echo "The following binaries are missing: $missing_binaries"
+    exit 1
+else
+    echo "All CLIs are present."
+fi
 echo "#################################################################################Checking Certificate files#"
 if [ -f tmc-ca.crt ] && [ -f tmc-ca-no-pass.key ]; then
     echo "required files exist, continuing."

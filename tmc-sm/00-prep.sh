@@ -5,6 +5,21 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+
+binaries=("kubectl" "openssl" "jq" "yq" "govc" "dig" "kubectl-vsphere" "ytt" "curl" "git" "wget" "imgpkg")
+missing_binaries=""
+for binary in "${binaries[@]}"; do
+    if ! command -v "$binary" >/dev/null 2>&1; then
+        missing_binaries+="$binary "
+    fi
+done
+if [ -n "$missing_binaries" ]; then
+    echo "The following binaries are missing: $missing_binaries"
+    exit 1
+else
+    echo "All binaries are present."
+fi
+
 yq eval '.' ./templates/values-template.yaml
 export yaml_check=$?
 
