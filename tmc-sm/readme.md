@@ -125,6 +125,7 @@ If DNS entries need to be manually added, follow below table:
 |FQDN| IP |
 |---|---|
 |harbor.tmc.corp.com| Harbor IP|
+|landing.tmc.corp.com|LB IP|
 |auth.tmc.corp.com|LB IP|
 |s3.tmc.corp.com|LB IP|
 |tmc-local.s3.tmc.corp.com|LB IP|
