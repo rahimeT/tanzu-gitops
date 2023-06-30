@@ -1,0 +1,284 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: local-tld-fix
+  namespace: default
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: psp-hostpath
+spec:
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  runAsUser:
+    rule: RunAsAny
+  fsGroup:
+    rule: RunAsAny
+  volumes:
+  - '*'
+  privileged: true
+  hostPID: true
+  hostNetwork: true
+  allowedHostPaths:
+  - pathPrefix: /etc/ssl/certs/
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: role-authorize-hostpath
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - psp-hostpath
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tld-sa-cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: local-tld-fix
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: ""
+---
+apiVersion: v1
+data:
+  inject: |
+    #!/bin/bash
+    
+    #! Logging function that will redirect to stderr with timestamp:
+    logerr() { echo "$(date) ERROR: $@" 1>&2; }
+    #! Logging function that will redirect to stdout with timestamp
+    loginfo() { echo "$(date) INFO: $@" ;}
+    
+    run_interval=${INTERVAL:=30}
+    loginfo "testing /appdir/kubectl and chown cache "
+    /appdir/kubectl get cluster
+    
+    function inject_search_domains() {
+      echo "checking if search domains exist"
+      touch /etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf
+      if cmp -s "/etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf.new" "/etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf"; then
+        echo "the search domains already exist and have not changed"
+      else
+        echo "updating the search domains"
+        mv /etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf.new /etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf
+        chmod -R 755 /etc/systemd/network/10-gosc-eth0.network.d
+        systemctl restart systemd-networkd
+        echo "domains updated!"
+      fi
+    }
+    
+    function run() {
+      clusters=$(/appdir/kubectl get cluster --output=name -n $NAMESPACE)
+      for row in $clusters; do
+        loginfo "-------------------"
+        cluster=$(echo $row | rev | cut -d '/' -f 1 | rev)
+        loginfo "cluster: ${cluster}"
+        VMs=$(/appdir/kubectl get vm --output=name -n $NAMESPACE | grep $cluster | rev | cut -d '/' -f 1 | rev)
+        for VM in $VMs; do
+          VMIP=$(/appdir/kubectl get vm $VM -n $NAMESPACE --template='{{.status.vmIp}}')
+          loginfo "ip: ${VMIP}"
+          loginfo "getting ssh key for ${cluster}"
+          /appdir/kubectl get secret ${cluster}-ssh -n ${NAMESPACE} -o jsonpath="{.data.ssh-privatekey}" | base64 -d > /tmp/sshkey.pem
+          chmod 600 /tmp/sshkey.pem
+          currentStatus=$(/appdir/kubectl get cluster $cluster -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $NAMESPACE)
+          statusDone="True"
+          loginfo "Current Cluster Status: ${currentStatus}"
+          if [ "Y$currentStatus" != "Y$statusDone" ]; then
+            loginfo "cluster is not in a ready state, will retry"
+            exit 0
+          fi
+          loginfo "attempting ssh to ${VMIP}"
+          /appdir/ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /tmp/sshkey.pem vmware-system-user@${VMIP} <<EOF
+          sudo -i
+    
+          if [[ -z "${DOMAINS}" ]]; then
+            echo "No domains provided, skipping..."
+          else
+            $(typeset -f inject_search_domains)
+            mkdir -p /etc/systemd/network/10-gosc-eth0.network.d
+            echo -e "[Network]\nDomains=${DOMAINS}" > /etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf.new
+            inject_search_domains
+          fi
+    EOF
+          if [ $? -eq 0 ]; then
+            loginfo "script ran successfully!"
+          else
+            logerr "There was an error running the script. Exiting..."
+          fi
+          loginfo "-------------------"
+        done
+      done
+    }
+    
+    set +e
+    run
+
+kind: ConfigMap
+metadata:
+  name: inject-config
+  namespace: default
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: #@ "tld-fix-{}".format(data.values.shared_cluster.namespace)
+  namespace: default
+spec:
+  schedule: "* * * * *"
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: local-tld-fix
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node-role.kubernetes.io/master
+                    operator: Exists
+                - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: Exists
+          containers:
+          - name: tld-local-fix
+            image: localhost:5000/vmware/tmc-agent-installer:1.0
+            command: ["config/inject"]
+            env:
+              - name: NAMESPACE
+                value: #@ "{}".format(data.values.shared_cluster.namespace)
+              - name: DOMAINS
+                value: #@ "{}".format(data.values.tld_local_domain)
+            securityContext:
+              privileged: true
+            volumeMounts:
+            - mountPath: /appdir
+              name: usrbin-vol
+            - mountPath: /opt/kubernetes/
+              name: k8s-vol
+            - mountPath: /config
+              name: config-vol
+          hostNetwork: true
+          tolerations:
+          - key: CriticalAddonsOnly
+            operator: Exists
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/master
+            operator: Exists
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/control-plane
+            operator: Exists
+          - effect: NoSchedule
+            key: kubeadmNode
+            operator: Equal
+            value: master
+          - effect: NoExecute
+            key: node.kubernetes.io/not-ready
+            operator: Exists
+            tolerationSeconds: 300
+          - effect: NoExecute
+            key: node.kubernetes.io/unreachable
+            operator: Exists
+          restartPolicy: OnFailure
+          volumes:
+             - name: usrbin-vol
+               hostPath:
+                 path: /usr/bin/
+             - name: k8s-vol
+               hostPath:
+                 path: /opt/kubernetes/
+             - name: config-vol
+               configMap:
+                 name: inject-config
+                 defaultMode: 0777
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: #@ "tld-fix-{}".format(data.values.workload_cluster.namespace)
+  namespace: default
+spec:
+  schedule: "* * * * *"
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: local-tld-fix
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node-role.kubernetes.io/master
+                    operator: Exists
+                - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: Exists
+          containers:
+          - name: tld-local-fix
+            image: localhost:5000/vmware/tmc-agent-installer:1.0
+            command: ["config/inject"]
+            env:
+              - name: NAMESPACE
+                value: #@ "{}".format(data.values.workload_cluster.namespace)
+              - name: DOMAINS
+                value: #@ "{}".format(data.values.tld_local_domain)
+            securityContext:
+              privileged: true
+            volumeMounts:
+            - mountPath: /appdir
+              name: usrbin-vol
+            - mountPath: /opt/kubernetes/
+              name: k8s-vol
+            - mountPath: /config
+              name: config-vol
+          hostNetwork: true
+          tolerations:
+          - key: CriticalAddonsOnly
+            operator: Exists
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/master
+            operator: Exists
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/control-plane
+            operator: Exists
+          - effect: NoSchedule
+            key: kubeadmNode
+            operator: Equal
+            value: master
+          - effect: NoExecute
+            key: node.kubernetes.io/not-ready
+            operator: Exists
+            tolerationSeconds: 300
+          - effect: NoExecute
+            key: node.kubernetes.io/unreachable
+            operator: Exists
+          restartPolicy: OnFailure
+          volumes:
+             - name: usrbin-vol
+               hostPath:
+                 path: /usr/bin/
+             - name: k8s-vol
+               hostPath:
+                 path: /opt/kubernetes/
+             - name: config-vol
+               configMap:
+                 name: inject-config
+                 defaultMode: 0777
