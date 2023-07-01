@@ -36,6 +36,14 @@ export TMC_CA_KEY=$(cat ./tmc-ca-no-pass.key)
 yq e -i ".trustedCAs.tmc_key = strenv(TMC_CA_KEY)" ./templates/values-template.yaml
 export ALL_CA_CERT=$(cat ./all-ca.crt)
 yq e -i ".trustedCAs.other_ca = strenv(ALL_CA_CERT)" ./templates/values-template.yaml
+
+export TMC_CA_CERT=$(cat ./tmc-ca.crt)
+yq e -i ".harbor.deploy.ca_crt = strenv(TMC_CA_CERT)" ./templates/values-template.yaml
+export HARBOR_SERVER_CRT=$(cat ./server-app.crt)
+yq e -i ".harbor.deploy.server_crt = strenv(HARBOR_SERVER_CRT)" ./templates/values-template.yaml
+export HARBOR_SERVER_KEY=$(cat ./server-app.key)
+yq e -i ".harbor.deploy.server_key = strenv(HARBOR_SERVER_KEY)" ./templates/values-template.yaml
+
 ```
 
 For airgapped environments, run the ```00-prep.sh``` script.
@@ -50,6 +58,11 @@ If your jumpbox does not have internet connection, you need to manually transfer
 Importing required all CLIs
 ```
 $ ./00-prep.sh import-cli
+```
+
+Deploy Harbor
+```
+$ ./00-prep.sh deploy-harbor
 ```
 
 Importing required all packages.

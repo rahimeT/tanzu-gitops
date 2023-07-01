@@ -5,6 +5,36 @@ harbor:
   fqdn: harbor.tmc.h2o-4-12022.h2o.vmware.com  #! enter the Harbor FQDN. No "http"/"https" needed.
   user: admin                                  #! enter the Harbor username
   pass: VMware1!                               #! enter the Harbor password
+  deploy:
+    enabled: true                             #! true/false . enable this for automatic harbor deployment in VM.
+    datastore_name:                            #! datastore name for content library and harbor
+    port_group_name: management-pg             #! name of the portgroup/network where harbor will run
+    ip: 10.220.68.27                           #! ip address for harbor
+    netmask: 255.255.255.224                   #! netmask for harbor
+    gateway: 10.220.68.30                      #! gateway for harbor
+    dns: 10.220.136.2                          #! dns server for harbor
+    dns_domain: h2o-4-12022.h2o.vmware.com     #! search domain for harbor
+    ca_crt: |-                                 #! Paste tmc-ca.crt / Or, paste Root CA cert of Harbor FQDN
+      -----BEGIN CERTIFICATE-----
+      MIIFrTCCA5WgAwIBAgIJAKWUQptOQgoxMA0GCSqGSIb3DQEBCwUAMIGEMQswCQYD
+      VQQGEwJUUjERMA8GA1UECAwISXN0YW5idWwxETAPBgNVBAcMCElzdGFuYnVsMRcw
+      ...
+      /2A0B00jNxmc6u7hZ6tVvZhaYMuVzFdTlcLMCuO9hC8DoqX/SP/o3MFkN/cswA0c
+      A68ATA67uSZlkBcUVFMT8mNzIahK82WwHP0/cG+bAMypwidUOzJ+WvHaix4AtcIZ
+      aNWuv2Wcc5ebQWexaw0frvY=
+      -----END CERTIFICATE-----
+    server_crt: |-                             #! Paste server-app.crt / Or, paste the cert of Harbor FQDN
+      -----BEGIN CERTIFICATE-----
+      MIIGkzCCBHugAwIBAgIJAKAAXoMbOhe4MA0GCSqGSIb3DQEBDQUAMIGEMQswCQYD
+      ...
+      At4Ns5/A4w==
+      -----END CERTIFICATE-----
+    server_key: |-                             #! Paste server-app.key / Or, paste the key of Harbor FQDN
+      -----BEGIN PRIVATE KEY-----
+      MIIJRAIBADANBgkqhkiG9w0BAQEFAASCCS4wggkqAgEAAoICAQDS5LsQ41uNtcrw
+      ...
+      gDULG8v/nx9ThDmGox1FesAQ3s9pNrG/
+      -----END PRIVATE KEY-----
 std_repo: v2.2.0_update.2                      #! enter the tanzu package version. You do not need to change that with current release.
 tmc_repo: 1.0.0                                #! enter the tmc package version.
 loadbalancer_ip: 10.220.67.102                 #! define and enter an empty loadbalancer ip address from the loadbalancer subnet.

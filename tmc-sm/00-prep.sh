@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -ne 1 ]; then
-    echo "Usage: $0 gen-cert|prep|import-cli|import-packages|post-install"
+    echo "Usage: $0 gen-cert|prep|deploy-harbor|import-cli|import-packages|post-install"
     exit 1
 fi
 
@@ -41,6 +41,7 @@ if [ "$1" = "prep" ]; then
     echo prep
     mkdir -p airgapped-files/images/inspection
     mkdir -p airgapped-files/tools
+    mkdir -p airgapped-files/ova
     wget -P airgapped-files/ "$TMC_SM_DL_URL"
     templates/carvel.sh download
     wget --content-disposition -P airgapped-files/ "https://dl.min.io/client/mc/release/linux-amd64/mc" && chmod +x airgapped-files/mc
@@ -59,6 +60,7 @@ if [ "$1" = "prep" ]; then
     imgpkg copy -b projects.registry.vmware.com/tanzu_meta_pocs/tools/gitea:1.15.3_2 --to-tar=airgapped-files/images/gitea-bundle.tar --include-non-distributable-layers --concurrency 30
     imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/extensions/kibana:7.2.1 --to-tar=airgapped-files/images/kibana.tar --concurrency 30
     imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/tools/minio:latest --to-tar=airgapped-files/images/minio.tar --concurrency 30
+    wget --content-disposition -P airgapped-files/ova "https://via.vmw.com/tanzu-poc-harbor-int" && mv airgapped-files/ova/photon-4-harbor-v2.6.3+vmware.1-9c5c48c408fac6cef43c4752780c4b048e42d562.ova airgapped-files/ova/photon-4-harbor-v2.6.3.ova
     #export k8s_versions=(v1.23.8 v1.23.15 v1.24.9)
     #wget -P airgapped-files/ "https://github.com/vmware-tanzu/sonobuoy/releases/download/v0.56.16/sonobuoy_0.56.16_linux_amd64.tar.gz"
     #tar -xvf airgapped-files/sonobuoy*.tar.gz
@@ -82,6 +84,9 @@ elif [ "$1" = "import-cli" ]; then
     echo import-cli
     templates/carvel.sh install
     cp airgapped-files/mc /usr/local/bin/mc
+elif [ "$1" = "deploy-harbor" ]; then
+    echo deploy-harbor
+    templates/harbor/harbor-deploy.sh
 elif [ "$1" = "import-packages" ]; then
     echo import-packages
     if [ -f tmc-ca.crt ] ; then
