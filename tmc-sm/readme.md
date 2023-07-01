@@ -4,11 +4,15 @@ Pre requirement before start:
  - Harbor with proper CA Cert chain.
     - ```00-prep.sh``` script will validate the Harbor's Certificates.
     - If Certs cannot be trusted in chain, it will intentionally throw error and stop.
+    - You can deploy harbor via this repo. See instructions below.
  - If you're using your own certificates, 
     - make sure that updating ```templates/values-template.yaml``` file with:
         - ```tmc_ca``` section for Root CA Cert and their Intermediate Cert that will hold Certs for TMC domain. Example: CA Cert for *.tmc.corp.com
         - ```tmc_key``` section for Root CA Cert's un-encrypted Key for wildcard certs. Example: CA Key for *.tmc.corp.com
         - ```other_ca``` section for all other Root CA Cert and their Intermediate Cert. Example: CA Cert for *.tap.corp.com
+        - ```ca_crt``` section for Harbor's Root CA Cert (it can be same as tmc_ca). Example: CA Cert for *.tmc.corp.com
+        - ```server_crt``` section for Harbor's Cert. (it can be server-app.crt) Example: Cert for harbor.tmc.corp.com or *.tmc.corp.com
+        - ```server_key``` section for Harbor's Cert Key. (it can be server-app.key) Example: Cert Key for harbor.tmc.corp.com or *.tmc.corp.com
  - Have DNS A records to be added for *.tmc.corp.com and tmc.corp.com with pre-selected LB IP address.
 
 ![Alt text](image.png)
