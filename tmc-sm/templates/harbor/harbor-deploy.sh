@@ -25,8 +25,8 @@ export HARBOR_CA_CERT=$(./templates/harbor/newline.sh <(echo "$CA_CERT_"))
 export SERVER_CERT=$(./templates/harbor/newline.sh <(echo "$SERVER_CERT_"))
 export SERVER_KEY=$(./templates/harbor/newline.sh <(echo "$SERVER_KEY_"))
 
-govc library.create -ds=$DATASTORE local
-govc library.import -k=true -m=true -n photon-4-harbor-v2.6.3.ova local airgapped-files/ova/photon-4-harbor-v2.6.3.ova
+govc library.create -ds=$DATASTORE local-harbor
+govc library.import -k=true -m=true -n photon-4-harbor-v2.6.3.ova local-harbor airgapped-files/ova/photon-4-harbor-v2.6.3.ova
 
 cat > ./templates/harbor/harbor.json <<-EOF
 {
@@ -110,5 +110,5 @@ cat > ./templates/harbor/harbor.json <<-EOF
 }
 EOF
 
-govc library.deploy -options ./templates/harbor/harbor.json local/photon-4-harbor-v2.6.3.ova harbor
-govc vm.power -on harbor
+govc library.deploy -options ./templates/harbor/harbor.json local-harbor/photon-4-harbor-v2.6.3.ova tanzu-harbor
+govc vm.power -on tanzu-harbor

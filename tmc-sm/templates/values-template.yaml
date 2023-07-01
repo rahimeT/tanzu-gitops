@@ -6,8 +6,8 @@ harbor:
   user: admin                                  #! enter the Harbor username
   pass: VMware1!                               #! enter the Harbor password
   deploy:
-    enabled: true                             #! true/false . enable this for automatic harbor deployment in VM.
-    datastore_name:                            #! datastore name for content library and harbor
+    enabled: true                              #! true/false . enable this for automatic harbor deployment in VM.
+    datastore_name: vsanDatastore              #! datastore name for content library and harbor
     port_group_name: management-pg             #! name of the portgroup/network where harbor will run
     ip: 10.220.68.27                           #! ip address for harbor
     netmask: 255.255.255.224                   #! netmask for harbor
