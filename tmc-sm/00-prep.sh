@@ -60,6 +60,7 @@ if [ "$1" = "prep" ]; then
     imgpkg copy -b projects.registry.vmware.com/tanzu_meta_pocs/tools/gitea:1.15.3_2 --to-tar=airgapped-files/images/gitea-bundle.tar --include-non-distributable-layers --concurrency 30
     imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/extensions/kibana:7.2.1 --to-tar=airgapped-files/images/kibana.tar --concurrency 30
     imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/tools/minio:latest --to-tar=airgapped-files/images/minio.tar --concurrency 30
+    imgpkg copy -i projects.registry.vmware.com/tanzu_meta_pocs/tools/dex:v2.35.3 --to-tar=airgapped-files/images/dex.tar --concurrency 30
     wget --content-disposition -P airgapped-files/ova "https://via.vmw.com/tanzu-poc-harbor-int" && mv airgapped-files/ova/photon-4-harbor-v2.6.3+vmware.1-9c5c48c408fac6cef43c4752780c4b048e42d562.ova airgapped-files/ova/photon-4-harbor-v2.6.3.ova
     #export k8s_versions=(v1.23.8 v1.23.15 v1.24.9)
     #wget -P airgapped-files/ "https://github.com/vmware-tanzu/sonobuoy/releases/download/v0.56.16/sonobuoy_0.56.16_linux_amd64.tar.gz"
@@ -140,6 +141,7 @@ elif [ "$1" = "import-packages" ]; then
     imgpkg copy --tar airgapped-files/images/kibana.tar --to-repo $HARBOR_URL/apps/kibana --include-non-distributable-layers
     imgpkg copy --tar airgapped-files/images/gitea-bundle.tar --to-repo $HARBOR_URL/apps/gitea --include-non-distributable-layers
     imgpkg copy --tar airgapped-files/images/minio.tar --to-repo $HARBOR_URL/apps/minio --include-non-distributable-layers
+    imgpkg copy --tar airgapped-files/images/dex.tar --to-repo $HARBOR_URL/apps/dex --include-non-distributable-layers
     #for file in airgapped-files/images/inspection/*.tar; do
     #    if [ -f "$file" ]; then
     #        section="${file%%:*}"
