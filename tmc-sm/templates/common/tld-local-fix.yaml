@@ -55,30 +55,16 @@ apiVersion: v1
 data:
   inject: |
     #!/bin/bash
-    
+
     #! Logging function that will redirect to stderr with timestamp:
     logerr() { echo "$(date) ERROR: $@" 1>&2; }
     #! Logging function that will redirect to stdout with timestamp
     loginfo() { echo "$(date) INFO: $@" ;}
-    
+
     run_interval=${INTERVAL:=30}
     loginfo "testing /appdir/kubectl and chown cache "
     /appdir/kubectl get cluster
-    
-    function inject_search_domains() {
-      echo "checking if search domains exist"
-      touch /etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf
-      if cmp -s "/etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf.new" "/etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf"; then
-        echo "the search domains already exist and have not changed"
-      else
-        echo "updating the search domains"
-        mv /etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf.new /etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf
-        chmod -R 755 /etc/systemd/network/10-gosc-eth0.network.d
-        systemctl restart systemd-networkd
-        echo "domains updated!"
-      fi
-    }
-    
+
     function run() {
       clusters=$(/appdir/kubectl get cluster --output=name -n $NAMESPACE)
       for row in $clusters; do
@@ -99,19 +85,14 @@ data:
             loginfo "cluster is not in a ready state, will retry"
             exit 0
           fi
+          cat <<'EOF1' >/tmp/tld-run.sh
+    #!/bin/bash
+    for f in /etc/systemd/network/*.network; do if grep -F '[Network]' "${f}" && ! grep -E ^Domains=DOMAINS "${f}"; then sudo sed -i "/^\[Network\]/a Domains=DOMAINS" "${f}"; fi; done; sudo systemctl restart systemd-networkd
+    EOF1
+          old=DOMAINS && sed -i -e "s~$old~$DOMAINS~g" /tmp/tld-run.sh
           loginfo "attempting ssh to ${VMIP}"
-          /appdir/ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /tmp/sshkey.pem vmware-system-user@${VMIP} <<EOF
-          sudo -i
-    
-          if [[ -z "${DOMAINS}" ]]; then
-            echo "No domains provided, skipping..."
-          else
-            $(typeset -f inject_search_domains)
-            mkdir -p /etc/systemd/network/10-gosc-eth0.network.d
-            echo -e "[Network]\nDomains=${DOMAINS}" > /etc/systemd/network/10-gosc-eth0.network.d/00-domains.conf.new
-            inject_search_domains
-          fi
-    EOF
+          cat "/tmp/tld-run.sh" | /appdir/ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /tmp/sshkey.pem "vmware-system-user@${VMIP}" "cat > /tmp/tld-run.sh && chmod +x /tmp/tld-run.sh && /tmp/tld-run.sh"
+
           if [ $? -eq 0 ]; then
             loginfo "script ran successfully!"
           else
@@ -121,7 +102,7 @@ data:
         done
       done
     }
-    
+
     set +e
     run
 
@@ -129,7 +110,6 @@ kind: ConfigMap
 metadata:
   name: inject-config
   namespace: default
-
 ---
 apiVersion: batch/v1
 kind: CronJob
