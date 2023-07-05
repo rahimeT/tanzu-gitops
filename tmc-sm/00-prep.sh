@@ -113,7 +113,7 @@ elif [ "$1" = "import-packages" ]; then
     export HARBOR_URL=$(yq eval '.harbor.fqdn' ./templates/values-template.yaml)
     export HARBOR_USER=$(yq eval '.harbor.user' ./templates/values-template.yaml)
     export HARBOR_PASS=$(yq eval '.harbor.pass' ./templates/values-template.yaml)
-    export HARBOR_CERT=$(echo | openssl s_client -connect $HARBOR_URL:443 2>&1 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p')
+    export HARBOR_CERT=$(echo | openssl s_client -connect $HARBOR_URL:443 2>&1 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p') && [[ -z "$HARBOR_CERT" ]] && { echo "HARBOR_CERT is empty"; exit 1; }
     openssl verify -CAfile <(echo "$ALL_CA_CERT") <(echo "$HARBOR_CERT")
     export harbor_cert_check=$?
     if [ $harbor_cert_check -eq 0 ]; then
