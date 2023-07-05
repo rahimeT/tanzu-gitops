@@ -99,6 +99,8 @@ elif [ "$1" = "import-packages" ]; then
             export ALL_CA_CERT=$(echo -e "$TMC_CA_CERT""\n""$OTHER_CA_CERT")
             echo "$ALL_CA_CERT" > ./all-ca.crt
             echo "$ALL_CA_CERT" > /etc/ssl/certs/all-ca.crt
+        else
+            export ALL_CA_CERT=$(cat ./all-ca.crt)
         fi
     else
         echo "no tmc-ca.crt fall back to values-template.yaml"
