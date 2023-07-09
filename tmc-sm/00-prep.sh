@@ -92,6 +92,18 @@ elif [ "$1" = "import-packages" ]; then
     echo import-packages
     if [ -f tmc-ca.crt ] ; then
         export TMC_CA_CERT=$(cat ./tmc-ca.crt)
+        export TMC_CA_CERT_VAL=$(yq eval '.trustedCAs.tmc_ca' ./templates/values-template.yaml)
+        if [[ ! -z "$TMC_CA_CERT_VAL" ]];then
+            diff <(echo "$TMC_CA_CERT") <(echo "$TMC_CA_CERT_VAL")
+            export ca_cert_check=$?
+            if [ $ca_cert_check -eq 0 ]; then
+                echo "tmc-ca.crt and tmca_ca value in values-template.yaml matches. Continue."
+            else
+                echo ""
+                echo "tmc-ca.crt and tmc_ca value in values-template.yaml does not match. Check both files. Did you create certificates two times ?"
+                exit 1
+            fi
+        fi
         cp tmc-ca.crt /etc/ssl/certs/
         echo "required files exist, continuing."
         if [ ! -f all-ca.crt ] ; then
