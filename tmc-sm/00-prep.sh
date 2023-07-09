@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -ne 1 ]; then
-    echo "Usage: $0 gen-cert|prep|deploy-harbor|import-cli|import-packages|post-install"
+    echo "Usage: $0 gen-cert|prep|deploy-harbor|import-cli|import-packages|post-install|login"
     exit 1
 fi
 
@@ -179,4 +179,12 @@ elif [ "$1" = "post-install" ]; then
     echo "on vSphere 8, run below command on supervisor level before creating workload cluster "
     echo " "
     echo "ytt -f templates/values-template.yaml -f templates/vsphere-8/cluster-config.yaml | kubectl apply -f -"
+elif [ "$1" = "login" ]; then
+    export wcp_ip=$(yq eval '.wcp.ip' ./templates/values-template.yaml)
+    export wcp_user=$(yq eval '.wcp.user' ./templates/values-template.yaml)
+    export wcp_pass=$(yq eval '.wcp.password' ./templates/values-template.yaml)
+    export namespace=$(yq eval '.shared_cluster.namespace' ./templates/values-template.yaml)
+    export KUBECTL_VSPHERE_PASSWORD=$wcp_pass
+    kubectl vsphere login --server=$wcp_ip --vsphere-username $wcp_user --insecure-skip-tls-verify
+    kubectl vsphere login --server=$wcp_ip --tanzu-kubernetes-cluster-name shared --tanzu-kubernetes-cluster-namespace $namespace --vsphere-username $wcp_user --insecure-skip-tls-verify 2>/dev/null
 fi
