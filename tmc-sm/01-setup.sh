@@ -20,6 +20,32 @@ else
 fi
 echo "#################################################################################Checking Certificate files#"
 if [ -f tmc-ca.crt ] && [ -f tmc-ca-no-pass.key ]; then
+    export TMC_CA_CERT=$(cat ./tmc-ca.crt)
+    export TMC_CA_CERT_VAL=$(yq eval '.trustedCAs.tmc_ca' ./templates/values-template.yaml)
+    if [[ ! -z "$TMC_CA_CERT_VAL" ]];then
+        diff <(echo "$TMC_CA_CERT") <(echo "$TMC_CA_CERT_VAL")
+        export ca_cert_check=$?
+        if [ $ca_cert_check -eq 0 ]; then
+            echo "tmc-ca.crt and tmca_ca value in values-template.yaml matches. Continue."
+        else
+            echo ""
+            echo "tmc-ca.crt and tmc_ca value in values-template.yaml does not match. Check both files. Did you create certificates two times ?"
+            exit 1
+        fi
+    fi
+    export TMC_CA_KEY=$(cat ./tmc-ca-no-pass.key)
+    export TMC_CA_KEY_VAL=$(yq eval '.trustedCAs.tmc_key' ./templates/values-template.yaml)
+    if [[ ! -z "$TMC_CA_KEY_VAL" ]];then
+        diff <(echo "$TMC_CA_KEY") <(echo "$TMC_CA_KEY_VAL")
+        export ca_key_check=$?
+        if [ $ca_key_check -eq 0 ]; then
+            echo "tmc-ca-no-pass.key and tmca_key value in values-template.yaml matches. Continue."
+        else
+            echo ""
+            echo "tmc-ca-no-pass.key and tmca_key value in values-template.yaml does not match. Check both files. Did you create certificates two times ?"
+            exit 1
+        fi
+    fi
     echo "required files exist, continuing."
 else
     export TMC_CA_CERT=$(yq eval '.trustedCAs.tmc_ca' ./templates/values-template.yaml)
