@@ -116,6 +116,11 @@ if [ "$1" = "vsphere-7" ]; then
     echo "##############################################################Patching TkgServiceConfiguration with CA Cert#"
     export ALL_CA_CERT_B64=$(cat ./all-ca.crt|base64 -w0)
     kubectl patch TkgServiceConfiguration tkg-service-configuration --type merge -p '{"spec":{"trust":{"additionalTrustedCAs":[{"name":"root-ca-tmc","data":"'$(echo -n "$ALL_CA_CERT_B64")'"}]}}}'
+    echo "################################################################################Checking vSphere Namespaces#"
+    if [[ $(kubectl get ns $namespace -o=jsonpath='{.status.phase}') != "Active" ]]; then
+        echo "$namespace has not created on vSphere or is not ready. Please check $namespace namespace on vSphere in Workload Management."
+        exit 1
+    fi
     echo "####################################################################################Creating Shared Cluster#"
     ytt -f templates/values-template.yaml -f templates/vsphere-7/shared-cluster.yaml | kubectl apply -f -
     while [[ $(kubectl get tkc shared -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $namespace) != "True" ]]; do
@@ -141,6 +146,11 @@ elif [ "$1" = "vsphere-8" ]; then
     export KUBECTL_VSPHERE_PASSWORD=$wcp_pass
     kubectl vsphere login --server=$wcp_ip --vsphere-username $wcp_user --insecure-skip-tls-verify
     kubectx $wcp_ip
+    echo "################################################################################Checking vSphere Namespaces#"
+    if [[ $(kubectl get ns $namespace -o=jsonpath='{.status.phase}') != "Active" ]]; then
+        echo "$namespace has not created on vSphere or is not ready. Please check $namespace namespace on vSphere in Workload Management."
+        exit 1
+    fi
     echo "####################################################################################Creating Shared Cluster#"
     ytt -f templates/values-template.yaml -f templates/vsphere-8/shared-cluster.yaml | kubectl apply -f -
     while [[ $(kubectl get cluster shared -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $namespace) != "True" ]]; do
