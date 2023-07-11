@@ -66,6 +66,8 @@ else
 fi
 echo "###################################################################################Checking vCenter version#"
 export GOVC_URL=$(yq eval '.vcenter.fqdn' ./templates/values-template.yaml)
+export GOVC_USERNAME=$(yq eval '.wcp.user' ./templates/values-template.yaml)
+export GOVC_PASSWORD=$(yq eval '.wcp.password' ./templates/values-template.yaml)
 export GOVC_INSECURE=1
 
 export vCenter_version=$(govc about|grep Version|awk '{ print $2 }')
@@ -85,6 +87,22 @@ else
     echo "wrong vcenter build/version. Exiting"
     exit 1
 fi
+
+echo "##################################################################################Checking proxy on vCenter#"
+export session_id=$(curl -s -k -X POST https://$GOVC_URL/rest/com/vmware/cis/session -u $GOVC_USERNAME:$GOVC_PASSWORD|jq '.value'| tr -d '"')
+export httpproxystate=$(curl -s -k -X GET -H "vmware-api-session-id: ${session_id}" https://{$GOVC_URL}/api/appliance/networking/proxy|jq '.http.enabled')
+export httpsproxystate=$(curl -s -k -X GET -H "vmware-api-session-id: ${session_id}" https://{$GOVC_URL}/api/appliance/networking/proxy|jq '.https.enabled')
+if [ "$httpproxystate" = true ] || [ "$httpsproxystate" = true ]; then
+    echo ""
+    echo "Proxy is enabled on vCenter."
+    echo "Please make sure that Proxy Server's IP:Port is reachable from Management and Workload Subnet."
+    echo "Source: Management Subnet - Destination: Proxy IP - Port: Proxy Port"
+    echo "Source: Workload Subnet - Destination: Proxy IP - Port: Proxy Port"
+    echo ""
+    echo "Or remove the proxy configuration from vCenter and retry again."
+    exit 1
+fi
+
 echo "#######################################################################################Setting-up variables#"
 export wcp_ip=$(yq eval '.wcp.ip' ./templates/values-template.yaml)
 export wcp_user=$(yq eval '.wcp.user' ./templates/values-template.yaml)
