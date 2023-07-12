@@ -74,7 +74,7 @@ export vCenter_version=$(govc about|grep Version|awk '{ print $2 }')
 export vCenter_build=$(govc about|grep Build|awk '{ print $2 }')
 
 if [[ "$vCenter_version" == "7.0.3" ]]; then
-    if [[ $vCenter_build -le "21477706" ]]; then
+    if [[ $vCenter_build -le "21290409" ]]; then
         echo "vCenter version: " "$vCenter_version "/ Build" $vCenter_build, upgrade vCenter. Exiting"
         exit 1
     fi
