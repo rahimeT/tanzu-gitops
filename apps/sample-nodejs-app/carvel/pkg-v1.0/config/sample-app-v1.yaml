@@ -1,0 +1,112 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: #@ "{}".format(data.values.app.service_account)
+  namespace: #@ "{}".format(data.values.namespace)
+secrets:
+- name: gorkem-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-nodejs-app-deployment-v1
+  namespace: #@ "{}".format(data.values.namespace)
+spec:
+  selector:
+    matchLabels:
+      app: test-nodejs-app
+      version: v1
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: nodejs-data
+      labels:
+        app: test-nodejs-app
+        version: v1
+    spec:
+      serviceAccountName: #@ "{}".format(data.values.app.service_account)
+      containers:
+      - name: test-app
+        image: projects.registry.vmware.com/tanzu_meta_pocs/app/sample-app:v0.2.8
+        env:
+        - name: var1
+          value: #@ "{}".format(data.values.app.hello_message)
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: MY_POD_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        - name: SECRET_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: gorkem-secret
+              key: username
+        - name: SECRET_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: gorkem-secret
+              key: password
+        volumeMounts:
+        - mountPath: /appdir
+          name: nodejs-data
+        ports:
+        - containerPort: 3000
+      volumes:
+      - name: nodejs-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-nodejs-app-v1
+  namespace: #@ "{}".format(data.values.namespace)
+  labels:
+    app: test-nodejs-app
+    version: v1
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: test-nodejs-app
+    version: v1
+  type: #@ "{}".format(data.values.app.service_type)
+---
+#@ if(hasattr(data.values.app, "ingress_domain")):
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: sample-app-nodejs
+  namespace: #@ "{}".format(data.values.namespace)
+spec:
+  #@ if(data.values.app.ingress_class_name != ""):
+  ingressClassName: #@ "{}".format(data.values.app.ingress_class_name)
+  #@ end
+  routes:
+  - conditions:
+    - prefix: /
+    enableWebsockets: true
+    services:
+    - name: test-nodejs-app-v1
+      port: 80
+  virtualhost:
+    fqdn: #@ "sample-app.{}".format(data.values.app.ingress_domain)
+#@ end

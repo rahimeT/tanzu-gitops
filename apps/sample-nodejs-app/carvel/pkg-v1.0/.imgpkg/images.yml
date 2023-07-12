@@ -1,0 +1,11 @@
+---
+apiVersion: imgpkg.carvel.dev/v1alpha1
+images:
+- annotations:
+    kbld.carvel.dev/id: projects.registry.vmware.com/tanzu_meta_pocs/app/sample-app:v0.2.8
+    kbld.carvel.dev/origins: |
+      - resolved:
+          tag: v0.2.8
+          url: projects.registry.vmware.com/tanzu_meta_pocs/app/sample-app:v0.2.8
+  image: projects.registry.vmware.com/tanzu_meta_pocs/app/sample-app@sha256:24e89a5ad91b22fa741b548fe0b8876f0150371c657be2d19a101068f990c740
+kind: ImagesLock

@@ -1,0 +1,65 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: postgres
+  name: postgres-svc
+  namespace: #@ "{}".format(data.values.namespace)
+spec:
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    app: postgres
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: postgres
+  name: postgres
+  namespace: #@ "{}".format(data.values.namespace)
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/postgres:latest
+        ports:
+          - containerPort: 5432
+        name: postgres
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: pg_username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: pg_password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: pg_dbname
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/sample-app/"
+        volumeMounts:
+        - name: "postgres-data-dir"
+          mountPath: "/var/lib/postgresql/data"
+      volumes:
+      - name: "postgres-data-dir"
+        emptyDir: {}

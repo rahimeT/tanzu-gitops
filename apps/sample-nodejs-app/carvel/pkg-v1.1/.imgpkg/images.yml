@@ -1,0 +1,60 @@
+---
+apiVersion: imgpkg.carvel.dev/v1alpha1
+images:
+- annotations:
+    kbld.carvel.dev/id: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/bitnami-shell:10-debian-10-r138
+    kbld.carvel.dev/origins: |
+      - resolved:
+          tag: 10-debian-10-r138
+          url: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/bitnami-shell:10-debian-10-r138
+  image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/bitnami-shell@sha256:425570b82ac31c5c95f95fca6a7ac4564a249c3c41cde752547a81f04a8999d9
+- annotations:
+    kbld.carvel.dev/id: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/elasticsearch:7.2.1
+    kbld.carvel.dev/origins: |
+      - resolved:
+          tag: 7.2.1
+          url: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/elasticsearch:7.2.1
+  image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/elasticsearch@sha256:08fb13e585646b6990466c6a1789836a83928373b8033faf24a0253f2790dde7
+- annotations:
+    kbld.carvel.dev/id: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mongo:latest
+    kbld.carvel.dev/origins: |
+      - resolved:
+          tag: latest
+          url: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mongo:latest
+  image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mongo@sha256:695e5eb141aa8516bd4857ee987d65401a424d0e5f8e0244ab89f6da981ddf65
+- annotations:
+    kbld.carvel.dev/id: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mysql:5.7
+    kbld.carvel.dev/origins: |
+      - resolved:
+          tag: "5.7"
+          url: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mysql:5.7
+  image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mysql@sha256:8dae5a91219c1789ba43690412f6319ae96f51d8787ce81f820907bff6e6c786
+- annotations:
+    kbld.carvel.dev/id: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/postgres:latest
+    kbld.carvel.dev/origins: |
+      - resolved:
+          tag: latest
+          url: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/postgres:latest
+  image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/postgres@sha256:1629bc36c63077ef0ef8b6ea7ff1d601a5211019f15f6b3fd03084788dfaae55
+- annotations:
+    kbld.carvel.dev/id: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/rabbitmq:3.8
+    kbld.carvel.dev/origins: |
+      - resolved:
+          tag: "3.8"
+          url: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/rabbitmq:3.8
+  image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/rabbitmq@sha256:8768dd9f81d27da926bbd19e5f4bf7a59b98c57f1d501c90bbed71e7d2c9fa6f
+- annotations:
+    kbld.carvel.dev/id: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/redis:latest
+    kbld.carvel.dev/origins: |
+      - resolved:
+          tag: latest
+          url: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/redis:latest
+  image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/redis@sha256:3158710be29203a78b8729e1cc69b2312dc3e6ced668a24b196e929f5396046f
+- annotations:
+    kbld.carvel.dev/id: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/sample-app:v0.3.27
+    kbld.carvel.dev/origins: |
+      - resolved:
+          tag: v0.3.27
+          url: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/sample-app:v0.3.27
+  image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/sample-app@sha256:a861d8322fc4f961fd98e01e211d396f436449cab885386879f1457430b888e2
+kind: ImagesLock

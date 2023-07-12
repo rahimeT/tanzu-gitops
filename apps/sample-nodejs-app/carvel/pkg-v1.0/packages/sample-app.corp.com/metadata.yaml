@@ -1,0 +1,10 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: sample-app.corp.com
+spec:
+  displayName: "Sample App"
+  longDescription: "Sample app consisting of a k8s deployments and services"
+  shortDescription: "Sample app for demoing"
+  categories:
+  - demo

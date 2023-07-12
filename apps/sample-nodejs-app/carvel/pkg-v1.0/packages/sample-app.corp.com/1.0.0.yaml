@@ -1,0 +1,28 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: sample-app.corp.com.1.0.0
+spec:
+  refName: sample-app.corp.com
+  version: 1.0.0
+  releaseNotes: |
+    Initial release of the sample app package
+  valuesSchema:
+    openAPIv3:
+      nullable: true
+      default: null
+  template:
+    spec:
+      fetch:
+      - imgpkgBundle:
+          image: projects.registry.vmware.com/tanzu_meta_pocs/packages/sample-app:1.0.0
+      template:
+      - ytt:
+          paths:
+          - config/
+      - kbld:
+          paths:
+          - .imgpkg/images.yml
+          - '-'
+      deploy:
+      - kapp: {}

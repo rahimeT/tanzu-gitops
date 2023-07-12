@@ -1,0 +1,50 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-svc
+  namespace: #@ "{}".format(data.values.namespace)
+  labels:
+    name: redis
+spec:
+  ports:
+    - port: 6379
+      targetPort: redis
+      name: redis
+  selector:
+    name: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: redis
+  name: redis
+  namespace: #@ "{}".format(data.values.namespace)
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis
+  template:
+    metadata:
+      labels:
+        name: redis
+    spec:
+      containers:
+      - name: redis
+        image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/redis:latest
+        imagePullPolicy: Always
+        args: ["--requirepass", "$(REDIS_PASS)"]
+        ports:
+        - containerPort: 6379
+          name: redis
+        env:
+        - name: MASTER
+          value: "true"
+        - name: REDIS_PASS
+          valueFrom:
+            secretKeyRef:
+              name: redis-creds
+              key: redis_password

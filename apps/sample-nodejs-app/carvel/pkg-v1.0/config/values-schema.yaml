@@ -1,0 +1,12 @@
+#@data/values-schema
+---
+#@schema/nullable
+namespace: my-apps
+app:
+  hello_message: Gorkem
+  ingress_domain: "app.corp.com"
+  ingress_class_name: ""
+  service_type: LoadBalancer
+  service_account: custom-service-account-name
+  user: username-from-secret
+  passw: password-from-secret

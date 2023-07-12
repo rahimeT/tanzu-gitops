@@ -1,0 +1,81 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-configmap
+  namespace: #@ "{}".format(data.values.namespace)
+data:
+  my.cnf: |
+    [mysqld]
+    skip-host-cache
+    datadir=/var/lib/mysql
+    socket=/var/run/mysqld/mysqld.sock
+    secure-file-priv=/var/lib/mysql-files
+    user=mysql
+    symbolic-links=0
+    pid-file=/var/run/mysqld/mysqld.pid
+    bind-address=0.0.0.0
+    max_allowed_packet=256M
+
+    [client]
+    socket=/var/run/mysqld/mysqld.sock
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mysql
+  name: mysql-svc
+  namespace: #@ "{}".format(data.values.namespace)
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    app: mysql
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mysql
+  name: mysql
+  namespace: #@ "{}".format(data.values.namespace)
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image: projects.registry.vmware.com/tanzu_meta_pocs/sample-app/mysql:5.7
+        args: [--ignore-db-dir=lost+found]
+        ports:
+          - containerPort: 3306
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-creds
+              key: mysql_password
+        volumeMounts:
+        - name: "mysql-data-dir"
+          mountPath: "/var/lib/mysql"
+        - name: mysql-configmap
+          mountPath: /etc/my.cnf
+          subPath: my.cnf
+      volumes:
+      - name: "mysql-data-dir"
+        emptyDir: {}
+      - name: mysql-configmap
+        configMap:
+          name: mysql-configmap

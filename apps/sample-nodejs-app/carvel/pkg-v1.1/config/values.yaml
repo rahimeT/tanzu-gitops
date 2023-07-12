@@ -1,0 +1,11 @@
+#@data/values
+---
+namespace: my-apps
+app:
+  hello_message: Gorkem
+  ingress_domain: "app.corp.com"
+  ingress_class_name: "" #! ingress class name, if needs.
+  service_type: LoadBalancer #! ClusterIP
+  service_account: custom-service-account-name
+  user: username-from-secret
+  passw: password-from-secret
