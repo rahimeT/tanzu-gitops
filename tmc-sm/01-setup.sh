@@ -133,15 +133,15 @@ if [ "$1" = "vsphere-7" ]; then
     kubectx $wcp_ip
     echo "##############################################################Patching TkgServiceConfiguration with CA Cert#"
     export ALL_CA_CERT_B64=$(cat ./all-ca.crt|base64 -w0)
-    kubectl patch TkgServiceConfiguration tkg-service-configuration --type merge -p '{"spec":{"trust":{"additionalTrustedCAs":[{"name":"root-ca-tmc","data":"'$(echo -n "$ALL_CA_CERT_B64")'"}]}}}'
+    kubectl --context=$wcp_ip patch TkgServiceConfiguration tkg-service-configuration --type merge -p '{"spec":{"trust":{"additionalTrustedCAs":[{"name":"root-ca-tmc","data":"'$(echo -n "$ALL_CA_CERT_B64")'"}]}}}'
     echo "################################################################################Checking vSphere Namespaces#"
-    if [[ $(kubectl get ns $namespace -o=jsonpath='{.status.phase}') != "Active" ]]; then
+    if [[ $(kubectl --context=$wcp_ip get ns $namespace -o=jsonpath='{.status.phase}') != "Active" ]]; then
         echo "$namespace has not created on vSphere or is not ready. Please check $namespace namespace on vSphere in Workload Management."
         exit 1
     fi
     echo "####################################################################################Creating Shared Cluster#"
     ytt -f templates/values-template.yaml -f templates/vsphere-7/shared-cluster.yaml | kubectl apply -f -
-    while [[ $(kubectl get tkc shared -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $namespace) != "True" ]]; do
+    while [[ $(kubectl --context=$wcp_ip get tkc shared -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $namespace) != "True" ]]; do
         echo "Waiting for cluster to be ready"
         sleep 30
     done
@@ -150,13 +150,13 @@ if [ "$1" = "vsphere-7" ]; then
     echo "#################################################################Changing kubectl context to shared cluster#"
     kubectx $tmc_cluster
     echo "###############################################################################################creating psp#"
-    kubectl create clusterrolebinding default-tkg-admin-privileged-binding --clusterrole=psp:vmware-system-privileged --group=system:authenticated
+    kubectl --context=$tmc_cluster create clusterrolebinding default-tkg-admin-privileged-binding --clusterrole=psp:vmware-system-privileged --group=system:authenticated
     echo "##################################################################################Deploying kapp-controller#"
-    ytt -f templates/common/kapp-controller.yaml -f templates/values-template.yaml | kubectl apply -f -
-    while [[ $(kubectl get deployment kapp-controller -n kapp-controller -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
+    ytt -f templates/common/kapp-controller.yaml -f templates/values-template.yaml | kubectl --context=$tmc_cluster apply -f -
+    while [[ $(kubectl --context=$tmc_cluster get deployment kapp-controller -n kapp-controller -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
         echo "Waiting for kapp-controller to be ready"
         sleep 10
-        kubectl get pods -n kapp-controller | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n kapp-controller 2>/dev/null
+        kubectl --context=$tmc_cluster get pods -n kapp-controller | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl --context=$tmc_cluster delete pod -n kapp-controller 2>/dev/null
     done
 elif [ "$1" = "vsphere-8" ]; then
     echo "####################################################################################Logging into Supervisor#"
@@ -165,85 +165,85 @@ elif [ "$1" = "vsphere-8" ]; then
     kubectl vsphere login --server=$wcp_ip --vsphere-username $wcp_user --insecure-skip-tls-verify
     kubectx $wcp_ip
     echo "################################################################################Checking vSphere Namespaces#"
-    if [[ $(kubectl get ns $namespace -o=jsonpath='{.status.phase}') != "Active" ]]; then
+    if [[ $(kubectl --context=$wcp_ip get ns $namespace -o=jsonpath='{.status.phase}') != "Active" ]]; then
         echo "$namespace has not created on vSphere or is not ready. Please check $namespace namespace on vSphere in Workload Management."
         exit 1
     fi
     echo "####################################################################################Creating Shared Cluster#"
     ytt -f templates/values-template.yaml -f templates/vsphere-8/shared-cluster.yaml | kubectl apply -f -
-    while [[ $(kubectl get cluster shared -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $namespace) != "True" ]]; do
+    while [[ $(kubectl --context=$wcp_ip get cluster shared -o=jsonpath='{.status.conditions[?(@.type=="Ready")].status}' -n $namespace) != "True" ]]; do
         echo "Waiting for cluster to be ready"
         sleep 30
     done
     echo "################################################################################Logging into shared cluster#"
     kubectl vsphere login --server=$wcp_ip --tanzu-kubernetes-cluster-name shared --tanzu-kubernetes-cluster-namespace $namespace --vsphere-username $wcp_user --insecure-skip-tls-verify
     kubectx $tmc_cluster
-    export node_names=$(kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+    export node_names=$(kubectl --context=$tmc_cluster get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
     while [[ -z "$node_names" ]]; do
-        node_names=$(kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+        node_names=$(kubectl --context=$tmc_cluster get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
         if [[ -z "$node_names" ]]; then
             echo "Waiting for cluster to be ready"
             sleep 30
         fi
     done
     echo "###############################################################################################creating psp#"
-    kubectl create clusterrolebinding default-tkg-admin-privileged-binding --clusterrole=psp:vmware-system-privileged --group=system:authenticated
+    kubectl --context=$tmc_cluster create clusterrolebinding default-tkg-admin-privileged-binding --clusterrole=psp:vmware-system-privileged --group=system:authenticated
 fi
 
 kubectx $tmc_cluster
 echo "######################################################################Deploying Tanzu Standard Package Repo#"
-ytt -f templates/common/std-repo.yaml -f templates/values-template.yaml | kubectl apply -f -
-while [[ $(kubectl get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
-    echo "Waiting for std-repo to be ready: " $(kubectl get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.conditions[0].type}')
+ytt -f templates/common/std-repo.yaml -f templates/values-template.yaml | kubectl --context=$tmc_cluster apply -f -
+while [[ $(kubectl --context=$tmc_cluster get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
+    echo "Waiting for std-repo to be ready: " $(kubectl --context=$tmc_cluster get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.conditions[0].type}')
     sleep 10
-    if [[ $(kubectl get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileFailed")].status}') == "True" ]]; then
-        kubectl get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.usefulErrorMessage}'
-        ytt -f templates/common/std-repo.yaml -f templates/values-template.yaml | kubectl delete -f -
+    if [[ $(kubectl --context=$tmc_cluster get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileFailed")].status}') == "True" ]]; then
+        kubectl --context=$tmc_cluster get pkgr tanzu-std-repo -n packages -o=jsonpath='{.status.usefulErrorMessage}'
+        ytt -f templates/common/std-repo.yaml -f templates/values-template.yaml | kubectl --context=$tmc_cluster delete -f -
         sleep 5
-        ytt -f templates/common/std-repo.yaml -f templates/values-template.yaml | kubectl apply -f -
+        ytt -f templates/common/std-repo.yaml -f templates/values-template.yaml | kubectl --context=$tmc_cluster apply -f -
     fi
 done
 echo "#############################################################################Deploying Cert-Manager Package#"
 ytt -f templates/common/cert-manager.yaml -f templates/values-template.yaml | kubectl apply -f -
-while [[ $(kubectl get pkgi cert-manager -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
+while [[ $(kubectl --context=$tmc_cluster get pkgi cert-manager -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
     echo "Waiting for cert-manager to be ready: " $(kubectl get pkgi cert-manager -n packages -o=jsonpath='{.status.conditions[0].type}')
     sleep 10
-    kubectl get pods -n cert-manager | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n cert-manager 2>/dev/null
+    kubectl --context=$tmc_cluster get pods -n cert-manager | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl --context=$tmc_cluster delete pod -n cert-manager 2>/dev/null
 done
 echo "#####################################################################Creating ClusterIssuer on Cert-Manager#"
-kubectl create secret tls local-ca --key tmc-ca-no-pass.key --cert tmc-ca.crt -n cert-manager
-kubectl apply -f templates/common/local-issuer.yaml
+kubectl --context=$tmc_cluster create secret tls local-ca --key tmc-ca-no-pass.key --cert tmc-ca.crt -n cert-manager
+kubectl --context=$tmc_cluster apply -f templates/common/local-issuer.yaml
 ytt -f templates/values-template.yaml -f templates/common/tmc-values-template.yaml > values.yaml
 echo "##############################################################################Deploying TMC-SM Package Repo#"
-ytt -f templates/values-template.yaml -f templates/common/tmc-repo.yaml | kubectl apply -f -
-while [[ $(kubectl get pkgr tanzu-mission-control-packages -n tmc-local -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
-    echo "Waiting for tmc-repo to be ready: " $(kubectl get pkgr tanzu-mission-control-packages -n tmc-local -o=jsonpath='{.status.conditions[0].type}')
+ytt -f templates/values-template.yaml -f templates/common/tmc-repo.yaml | kubectl --context=$tmc_cluster apply -f -
+while [[ $(kubectl --context=$tmc_cluster get pkgr tanzu-mission-control-packages -n tmc-local -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
+    echo "Waiting for tmc-repo to be ready: " $(kubectl --context=$tmc_cluster get pkgr tanzu-mission-control-packages -n tmc-local -o=jsonpath='{.status.conditions[0].type}')
     sleep 10
 done
 
 export valuesContent=$(cat values.yaml)
 echo "###################################################################################Deploying TMC-SM Package#"
-ytt -f templates/values-template.yaml --data-value valuesContent="$valuesContent" -f templates/common/tmc-install.yaml | kubectl apply -f -
+ytt -f templates/values-template.yaml --data-value valuesContent="$valuesContent" -f templates/common/tmc-install.yaml | kubectl --context=$tmc_cluster apply -f -
 while [[ $(kubectl get pkgi tanzu-mission-control -n tmc-local -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
-    echo "Waiting for tanzu-mission-control to be ready: " $(kubectl get pkgi tanzu-mission-control -n tmc-local -o=jsonpath='{.status.conditions[0].type}')
+    echo "Waiting for tanzu-mission-control to be ready: " $(kubectl --context=$tmc_cluster get pkgi tanzu-mission-control -n tmc-local -o=jsonpath='{.status.conditions[0].type}')
     sleep 10
 done
 if [ "$ldap_auth" = "true" ]; then
     echo "#########################################################################################Deploying OpenLDAP#"
-    ytt -f templates/values-template.yaml -f templates/common/openldap.yaml | kubectl apply -f -
-    kubectl apply -f templates/common/ldap-overlay.yaml
-    while [[ $(kubectl get deployment openldap -n openldap -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
+    ytt -f templates/values-template.yaml -f templates/common/openldap.yaml | kubectl --context=$tmc_cluster apply -f -
+    kubectl --context=$tmc_cluster apply -f templates/common/ldap-overlay.yaml
+    while [[ $(kubectl --context=$tmc_cluster get deployment openldap -n openldap -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
         echo "Waiting for openldap to be ready"
-        export openldapCaCert=$(kubectl get secret ldap -n openldap -o json | jq -r '.data."ca.crt"')
+        export openldapCaCert=$(kubectl --context=$tmc_cluster get secret ldap -n openldap -o json | jq -r '.data."ca.crt"')
         sleep 10
     done
     sleep 30
-    export openldapCaCert=$(kubectl get secret ldap -n openldap -o json | jq -r '.data."ca.crt"')
+    export openldapCaCert=$(kubectl --context=$tmc_cluster get secret ldap -n openldap -o json | jq -r '.data."ca.crt"')
     echo "######################################################################################Applying LDAP Overlay#"
-    ytt -f  templates/common/ldap-auth.yaml --data-value ldapCa=$openldapCaCert | kubectl apply -f -
-    kubectl annotate packageinstalls tanzu-mission-control -n tmc-local ext.packaging.carvel.dev/ytt-paths-from-secret-name.0=tmc-overlay-override
-    kubectl patch -n tmc-local --type merge pkgi tanzu-mission-control --patch '{"spec": {"paused": true}}'
-    kubectl patch -n tmc-local --type merge pkgi tanzu-mission-control --patch '{"spec": {"paused": false}}'
+    ytt -f  templates/common/ldap-auth.yaml --data-value ldapCa=$openldapCaCert | kubectl --context=$tmc_cluster apply -f -
+    kubectl --context=$tmc_cluster annotate packageinstalls tanzu-mission-control -n tmc-local ext.packaging.carvel.dev/ytt-paths-from-secret-name.0=tmc-overlay-override
+    kubectl --context=$tmc_cluster patch -n tmc-local --type merge pkgi tanzu-mission-control --patch '{"spec": {"paused": true}}'
+    kubectl --context=$tmc_cluster patch -n tmc-local --type merge pkgi tanzu-mission-control --patch '{"spec": {"paused": false}}'
 fi
 
 kubectx $wcp_ip
@@ -255,7 +255,7 @@ yq e -i ".spec.allowedHostNames = [env(tmcURL)]" ./templates/common/agentconfig.
 yq e -i ".metadata.namespace = strenv(tmcNS)" ./templates/common/agentconfig.yaml
 yq e -i ".metadata.namespace = strenv(tmcNS)" ./templates/common/agentinstall.yaml
 echo "#######################################################################################Applying AgentConfig#"
-kubectl apply -f ./templates/common/agentconfig.yaml
+kubectl --context=$wcp_ip apply -f ./templates/common/agentconfig.yaml
 
 kubectx $tmc_cluster
 echo "##################################################################################Finished Deploying TMC-SM#"
@@ -266,31 +266,31 @@ echo "-------------------"
 if [[ "$vCenter_version" == "8.0.1" ]]; then
     echo "Run below command on supervisor level before creating each new workload cluster "
     echo " "
-    echo "ytt -f templates/values-template.yaml -f templates/vsphere-8/cluster-config.yaml | kubectl apply -f -"
+    echo "kubectx $wcp_ip && ytt -f templates/values-template.yaml -f templates/vsphere-8/cluster-config.yaml | kubectl apply -f -"
     echo " "
 fi
 
 echo "##########################################################################################Deploy EFK#"
-ytt -f templates/values-template.yaml -f templates/demo/efk.yaml | kubectl apply -f -
+ytt -f templates/values-template.yaml -f templates/demo/efk.yaml | kubectl --context=$tmc_cluster apply -f -
 echo "##########################################################################################Deploy Sample App#"
-ytt -f templates/values-template.yaml -f templates/demo/sample-app.yaml | kubectl apply -f -
+ytt -f templates/values-template.yaml -f templates/demo/sample-app.yaml | kubectl --context=$tmc_cluster apply -f -
 echo "###############################################################################################Deploy Minio#"
-ytt -f templates/values-template.yaml -f templates/demo/minio.yaml | kubectl apply -f -
-while [[ $(kubectl get deployment minio-deployment -n minio -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
+ytt -f templates/values-template.yaml -f templates/demo/minio.yaml | kubectl --context=$tmc_cluster apply -f -
+while [[ $(kubectl --context=$tmc_cluster get deployment minio-deployment -n minio -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do
     echo "Waiting for minio to be ready"
     sleep 10
-    kubectl get pods -n minio | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n minio 2>/dev/null
+    kubectl --context=$tmc_cluster get pods -n minio | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl --context=$tmc_cluster delete pod -n minio 2>/dev/null
 done
 mc alias set minio https://minio.$tmc_dns  minio minio123 --insecure
 mc mb minio/velero --insecure
 mc anonymous set download minio/velero --insecure
 echo "################################################################################################Deploy Gitea#"
-ytt -f templates/values-template.yaml -f templates/demo/git.yaml | kubectl apply -f -
+ytt -f templates/values-template.yaml -f templates/demo/git.yaml | kubectl --context=$tmc_cluster apply -f -
 export gitea=git.$(yq eval '.tld_domain' ./templates/values-template.yaml)
-while [[ $(kubectl get pkgi gitea -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
+while [[ $(kubectl --context=$tmc_cluster get pkgi gitea -n packages -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
     echo "Waiting for gitea to be ready"
     sleep 10
-    kubectl get pods -n gitea | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl delete pod -n gitea 2>/dev/null
+    kubectl --context=$tmc_cluster get pods -n gitea | grep -E 'ImagePullBackOff|ErrImagePull' | awk '{ print $1 }' | xargs kubectl --context=$tmc_cluster delete pod -n gitea 2>/dev/null
 done
 curl https://$gitea -k|grep html
 export gitea_check=$?
@@ -324,6 +324,6 @@ echo "-------------------"
 if [[ "$vCenter_version" == "8.0.1" ]]; then
     echo "Run below command on supervisor level before creating each new workload cluster "
     echo " "
-    echo "ytt -f templates/values-template.yaml -f templates/vsphere-8/cluster-config.yaml | kubectl apply -f -"
+    echo "kubectx $wcp_ip && ytt -f templates/values-template.yaml -f templates/vsphere-8/cluster-config.yaml | kubectl apply -f -"
     echo " "
 fi
