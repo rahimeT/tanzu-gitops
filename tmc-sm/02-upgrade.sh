@@ -56,6 +56,7 @@ echo "##########################################################################
 export wcp_ip=$(yq eval '.wcp.ip' ./templates/values-template.yaml)
 export wcp_user=$(yq eval '.wcp.user' ./templates/values-template.yaml)
 export wcp_pass=$(yq eval '.wcp.password' ./templates/values-template.yaml)
+export KUBECTL_VSPHERE_PASSWORD=$wcp_pass
 export namespace=$(yq eval '.shared_cluster.namespace' ./templates/values-template.yaml)
 export tmc_cluster='shared'
 export tmc_dns=$(yq eval '.tld_domain' ./templates/values-template.yaml)
