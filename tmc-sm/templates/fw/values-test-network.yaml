@@ -1,0 +1,27 @@
+#@data/values
+---
+vcenter:
+  fqdn: vc01.h2o-4-12022.h2o.vmware.com
+  user: administrator@vsphere.local
+  password: 'VMware1!'
+ESXis: ["esxi01.h2o-4-12022.h2o.vmware.com"]
+test_vms:
+  ntp: time1.oc.vmware.com
+  dns: 10.220.136.2
+  datastore_name: vsanDatastore
+  datacenter_name: vc01
+  vm_1:
+    port_group_name: management-network
+    ip: 10.220.31.90
+    netmask: 255.255.255.224
+    gateway: 10.220.31.94
+  vm_2:
+    port_group_name: workload-network
+    ip: 10.220.31.110
+    netmask: 255.255.255.224
+    gateway: 10.220.31.126
+  vm_3:
+    port_group_name: vip-network
+    ip: 10.220.67.103
+    netmask: 255.255.255.224
+    gateway: 10.220.67.126
