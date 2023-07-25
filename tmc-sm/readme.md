@@ -159,5 +159,6 @@ If DNS entries need to be manually added, follow below table:
 |prometheus.tmc.corp.com|LB IP|
 |grafana.tmc.corp.com|LB IP|
 |kibana.tmc.corp.com|LB IP|
+|octant.tmc.corp.com|LB IP|
 
 `LB IP` is the `loadbalancer_ip` value in `templates/values-template.yaml` 

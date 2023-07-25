@@ -274,6 +274,10 @@ echo "##########################################################################
 ytt -f templates/values-template.yaml -f templates/demo/efk.yaml | kubectl --context=$tmc_cluster apply -f -
 echo "##########################################################################################Deploy Sample App#"
 ytt -f templates/values-template.yaml -f templates/demo/sample-app.yaml | kubectl --context=$tmc_cluster apply -f -
+echo "#################################################################################################Deploy Dex#"
+ytt -f templates/values-template.yaml -f templates/common/dex.yaml | kubectl --context=$tmc_cluster apply -f -
+echo "##############################################################################################Deploy Octant#"
+ytt -f templates/values-template.yaml -f templates/demo/octant.yaml | kubectl --context=$tmc_cluster apply -f -
 echo "###############################################################################################Deploy Minio#"
 ytt -f templates/values-template.yaml -f templates/demo/minio.yaml | kubectl --context=$tmc_cluster apply -f -
 while [[ $(kubectl --context=$tmc_cluster get deployment minio-deployment -n minio -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do

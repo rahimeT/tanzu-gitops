@@ -1,0 +1,47 @@
+#@ load("@ytt:data", "data")
+---
+#! oidc:
+#!     issuerType: "pinniped"
+#!     issuerURL: "https://dex.tmc.h2o-4-12022.h2o.vmware.com"
+#!     clientID: "tmc-auth"
+#!     clientSecret: "secretvalue"
+---
+#! kubectl annotate packageinstalls tanzu-mission-control -n tmc-local ext.packaging.carvel.dev/ytt-paths-from-secret-name.2=tmc-overlay-override-dex
+#! kubectl patch -n tmc-local --type merge pkgi tanzu-mission-control --patch '{"spec": {"paused": true}}'
+#! kubectl patch -n tmc-local --type merge pkgi tanzu-mission-control --patch '{"spec": {"paused": false}}'
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: overlay-secret-dex
+  namespace: tmc-local
+stringData:
+  patch.yaml: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:overlay", "overlay")
+    ---
+    #@overlay/match by=overlay.subset({"kind":"OIDCIdentityProvider", "metadata": {"name": "pinniped-upstream"}})
+    ---
+    #@overlay/match-child-defaults missing_ok=True
+    spec:
+      authorizationConfig:
+        additionalScopes:
+          - groups
+      claims:
+        username: email
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tmc-overlay-override-dex
+  namespace: tmc-local
+stringData:
+  patch-oidc.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    #@overlay/match by=overlay.subset({"kind":"PackageInstall", "metadata": {"name": "tmc-local-stack"}})
+    ---
+    metadata:
+      annotations:
+        #@overlay/match missing_ok=True
+        ext.packaging.carvel.dev/ytt-paths-from-secret-name.2: overlay-secret-dex

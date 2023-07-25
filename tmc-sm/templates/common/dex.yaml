@@ -63,6 +63,7 @@ spec:
 ---
 #@ issuer="https://dex.{}".format(data.values.tld_domain)
 #@ redirectURi="https://pinniped-supervisor.{}/provider/pinniped/callback".format(data.values.tld_domain)
+#@ redirectURiOctant="https://octant.{}/oauth2/callback".format(data.values.tld_domain)
 apiVersion: v1
 kind: Secret
 metadata:
@@ -78,6 +79,11 @@ stringData:
       redirectURIs:
       - (@= redirectURi @)
       name: 'tmc-auth'
+      secret: secretvalue
+    - id: admin-octant
+      redirectURIs:
+      - (@= redirectURiOctant @)
+      name: 'admin-octant'
       secret: secretvalue
     oauth2:
       skipApprovalScreen: true
@@ -282,38 +288,3 @@ spec:
       - name: certs
         secret:
           secretName: dex-tls
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: overlay-secret-dex
-  namespace: tmc-local
-stringData:
-  patch.yaml: |
-    #@ load("@ytt:data", "data")
-    #@ load("@ytt:overlay", "overlay")
-    ---
-    #@overlay/match by=overlay.subset({"kind":"OIDCIdentityProvider", "metadata": {"name": "pinniped-upstream"}})
-    ---
-    #@overlay/match-child-defaults missing_ok=True
-    spec:
-      authorizationConfig:
-        additionalScopes:
-          - groups
-      claims:
-        username: email
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: tmc-overlay-override-dex
-  namespace: tmc-local
-stringData:
-  patch-oidc.yaml: |
-    #@ load("@ytt:overlay", "overlay")
-    #@overlay/match by=overlay.subset({"kind":"PackageInstall", "metadata": {"name": "tmc-local-stack"}})
-    ---
-    metadata:
-      annotations:
-        #@overlay/match missing_ok=True
-        ext.packaging.carvel.dev/ytt-paths-from-secret-name.2: overlay-secret-dex
