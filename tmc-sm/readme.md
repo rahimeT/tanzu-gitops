@@ -1,4 +1,4 @@
-# TMC Self-Managed Opinionated Install Guide (WIP)
+# TMC Self-Managed Opinionated Install Guide
 
 Pre requirement before start: 
  - Harbor with proper CA Cert chain.
