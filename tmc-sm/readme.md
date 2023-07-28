@@ -86,6 +86,10 @@ If you have TKGs on vSphere 8:
 $ ./01-setup.sh vsphere-8
 ```
 
+If you want to upgrade, place the TMC-SM ```bundle-1.x.x.tar``` file into ```airgapped-files/``` folder, update `templates/values-template.yaml` file with new version and run below command.
+```
+$ ./02-upgrade.sh
+```
 
 ## For troubleshooting:
 
