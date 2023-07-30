@@ -3,11 +3,11 @@
 Copy existing bundle to another container registry.
 ```
 mkdir -p airgapped-files/images/
-imgpkg copy -b projects.registry.vmware.com/tanzu_meta_pocs/packages/sample-app:1.1.0 --to-tar airgapped-files/images/sample-app-v1.1.tar --include-non-distributable-layers --concurrency 30
+imgpkg copy -b projects.registry.vmware.com/tanzu_meta_pocs/packages/sample-app:2.1.0 --to-tar airgapped-files/images/sample-app-v2.1.tar --include-non-distributable-layers --concurrency 30
 export IMGPKG_REGISTRY_HOSTNAME_0=harbor.corp.com
 export IMGPKG_REGISTRY_USERNAME_0='admin'
 export IMGPKG_REGISTRY_PASSWORD_0='VMware1!'
-imgpkg copy --tar airgapped-files/images/sample-app-v1.1.tar --to-repo $IMGPKG_REGISTRY_HOSTNAME_0/apps/packages/sample-app --include-non-distributable-layers
+imgpkg copy --tar airgapped-files/images/sample-app-v2.1.tar --to-repo $IMGPKG_REGISTRY_HOSTNAME_0/apps/packages/sample-app --include-non-distributable-layers
 ```
 
 # Deploy package
@@ -63,15 +63,31 @@ Create Package Repository for the package.
 ```
 cat <<EOF | kubectl apply -f -
 ---
-apiVersion: packaging.carvel.dev/v1alpha1
-kind: PackageRepository
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
 metadata:
-  name: sample-package-repository-v1.1.0
+  name: sample-app.corp.com.2.1.0
   namespace: packages
 spec:
-  fetch:
-    imgpkgBundle:
-      image: ${IMGPKG_REGISTRY_HOSTNAME_0}/apps/packages/sample-app:1.1.0
+  refName: sample-app.corp.com
+  version: 2.1.0
+  releaseNotes: |
+    Second release of the sample app package
+  template:
+    spec:
+      fetch:
+      - imgpkgBundle:
+          image: ${IMGPKG_REGISTRY_HOSTNAME_0}/apps/packages/sample-app:2.1.0
+      template:
+      - ytt:
+          paths:
+          - config/
+      - kbld:
+          paths:
+          - .imgpkg/images.yml
+          - '-'
+      deploy:
+      - kapp: {}
 EOF
 ```
 
@@ -92,7 +108,7 @@ spec:
   packageRef:
     refName: sample-app.corp.com
     versionSelection:
-      constraints: 1.1.0
+      constraints: 2.1.0
   values:
   - secretRef:
       name: pkg-demo-values
@@ -145,7 +161,7 @@ push app bundle to container registry.
 export IMGPKG_REGISTRY_HOSTNAME_0=harbor.corp.com
 export IMGPKG_REGISTRY_USERNAME_0='admin'
 export IMGPKG_REGISTRY_PASSWORD_0='VMware1!'
-imgpkg push -b $IMGPKG_REGISTRY_HOSTNAME_0/apps/packages/sample-app:1.1.0 -f .
+imgpkg push -b $IMGPKG_REGISTRY_HOSTNAME_0/apps/packages/sample-app:2.1.0 -f .
 ```
 create package.yaml
 ```
@@ -185,5 +201,5 @@ EOF
 ```
 ytt -f config/values.yaml --data-values-schema-inspect -o openapi-v3 > /tmp/schema-openapi.yaml
 
-ytt -f /tmp/package-template.yaml --data-value-file openapi=/tmp/schema-openapi.yaml -v version="1.1.0" --data-value harbor_fqdn="$IMGPKG_REGISTRY_HOSTNAME_0" > packages/sample-app.corp.com/1.1.0.yaml
+ytt -f /tmp/package-template.yaml --data-value-file openapi=/tmp/schema-openapi.yaml -v version="2.1.0" --data-value harbor_fqdn="$IMGPKG_REGISTRY_HOSTNAME_0" > packages/sample-app.corp.com/2.1.0.yaml
 ```
