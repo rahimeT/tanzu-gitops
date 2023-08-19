@@ -725,6 +725,21 @@ spec:
     app: test-nodejs-app
   type: ClusterIP
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sample-app-tls
+  namespace: my-apps
+spec:
+  commonName: #@ "sample-app.{}".format(data.values.tld_domain)
+  dnsNames:
+  - #@ "sample-app.{}".format(data.values.tld_domain)
+  duration: 2160h0m0s
+  issuerRef:
+    kind: ClusterIssuer
+    name: local-issuer
+  secretName: sample-app-tls
+---
 apiVersion: projectcontour.io/v1
 kind: HTTPProxy
 metadata:
@@ -741,3 +756,5 @@ spec:
       port: 80
   virtualhost:
     fqdn: #@ "sample-app.{}".format(data.values.tld_domain)
+    tls:
+      secretName: sample-app-tls
