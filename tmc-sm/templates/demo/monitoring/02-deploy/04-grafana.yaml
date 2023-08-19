@@ -1,0 +1,202 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: monitoring
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port:   '3000'
+spec:
+  selector: 
+    app: grafana
+  type: ClusterIP  
+  ports:
+    - port: 80
+      targetPort: 3000
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: monitoring
+data:
+  prometheus.yaml: |-
+    {
+        "apiVersion": 1,
+        "datasources": [
+            {
+               "access":"proxy",
+                "editable": true,
+                "name": "Prometheus",
+                "orgId": 1,
+                "type": "prometheus",
+                "url": "http://prometheus-service.monitoring.svc",
+                "version": 1
+            },
+            {
+               "access":"proxy",
+                "editable": true,
+                "name": "TMC-Prometheus",
+                "orgId": 1,
+                "type": "prometheus",
+                "url": "http://prometheus-server-tmc-local-monitoring-tmc-local.tmc-local.svc:9090",
+                "version": 1
+            }
+        ]
+    }
+---
+apiVersion: v1
+data:
+  dashboards.yaml: |-
+    {
+        "apiVersion": 1,
+        "providers": [
+            {
+                "folder": "Kubernetes",
+                "folderUid": "",
+                "name": "0",
+                "options": {
+                    "path": "/grafana-dashboard-definitions/0"
+                },
+                "orgId": 1,
+                "type": "file"
+            },
+            {
+                "folder": "TMC-SM",
+                "folderUid": "",
+                "name": "1",
+                "options": {
+                    "path": "/grafana-dashboard-definitions/1"
+                },
+                "orgId": 1,
+                "type": "file"
+            }
+        ]
+    }
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      name: grafana
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: #@ "{}/apps/grafana:latest".format(data.values.harbor.fqdn)
+        ports:
+        - name: grafana
+          containerPort: 3000
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+          requests: 
+            memory: 500M
+            cpu: "500m"
+        volumeMounts:
+          - mountPath: /var/lib/grafana
+            name: grafana-storage
+          - mountPath: /etc/grafana/provisioning/datasources
+            name: grafana-datasources
+            readOnly: false
+          - mountPath: /etc/grafana/provisioning/dashboards
+            name: grafana-dashboards
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/0/dashboard-node-exporter
+            name: dashboard-node-exporter
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/0/dashboard-k8s-networking
+            name: dashboard-k8s-networking
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/0/dashboard-k8s-cluster-metrics
+            name: dashboard-k8s-cluster-metrics
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/0/dashboard-k8s-deployments
+            name: dashboard-k8s-deployments
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/0/dashboard-k8s-networking-namespace-pods
+            name: dashboard-k8s-networking-namespace-pods
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/0/dashboard-k8s-pvc
+            name: dashboard-k8s-pvc
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/0/dashboard-kube-state-metrics-v2
+            name: dashboard-kube-state-metrics-v2
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/0/dashboard-prometheus-2-metrics
+            name: dashboard-prometheus-2-metrics
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/1/dashboard-envoy
+            name: dashboard-envoy
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/1/dashboard-go-grpc
+            name: dashboard-go-grpc
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/1/dashboard-kafka
+            name: dashboard-kafka
+            readOnly: false
+          - mountPath: /grafana-dashboard-definitions/1/dashboard-postgres
+            name: dashboard-postgres
+            readOnly: false
+      volumes:
+        - name: grafana-storage
+          emptyDir: {}
+        - name: grafana-datasources
+          configMap:
+            defaultMode: 420
+            name: grafana-datasources
+        - name: grafana-dashboards
+          configMap:
+            name: grafana-dashboards
+        - name: dashboard-node-exporter
+          configMap:
+            name: dashboard-node-exporter
+        - name: dashboard-k8s-networking
+          configMap:
+            name: dashboard-k8s-networking
+        - name: dashboard-k8s-cluster-metrics
+          configMap:
+            name: dashboard-k8s-cluster-metrics
+        - name: dashboard-k8s-deployments
+          configMap:
+            name: dashboard-k8s-deployments
+        - name: dashboard-k8s-networking-namespace-pods
+          configMap:
+            name: dashboard-k8s-networking-namespace-pods
+        - name: dashboard-k8s-pvc
+          configMap:
+            name: dashboard-k8s-pvc
+        - name: dashboard-kube-state-metrics-v2
+          configMap:
+            name: dashboard-kube-state-metrics-v2
+        - name: dashboard-prometheus-2-metrics
+          configMap:
+            name: dashboard-prometheus-2-metrics
+        - name: dashboard-envoy
+          configMap:
+            name: dashboard-envoy
+        - name: dashboard-go-grpc
+          configMap:
+            name: dashboard-go-grpc
+        - name: dashboard-kafka
+          configMap:
+            name: dashboard-kafka
+        - name: dashboard-postgres
+          configMap:
+            name: dashboard-postgres

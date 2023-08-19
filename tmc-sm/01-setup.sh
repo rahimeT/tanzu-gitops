@@ -278,6 +278,11 @@ echo "##########################################################################
 ytt -f templates/values-template.yaml -f templates/common/dex.yaml | kubectl --context=$tmc_cluster apply -f -
 echo "##############################################################################################Deploy Octant#"
 ytt -f templates/values-template.yaml -f templates/demo/octant.yaml | kubectl --context=$tmc_cluster apply -f -
+echo "##############################################################################################Deploy Monitoring#"
+kubectl --context=$tmc_cluster apply -f templates/demo/monitoring/00-namespace.yaml
+kubectl --context=$tmc_cluster apply -f templates/demo/monitoring/01-dashboards/ --server-side
+kubectl --context=$tmc_cluster apply -f templates/demo/monitoring/01-dashboards/tmc/ --server-side
+ytt -f templates/values-template.yaml -f templates/demo/monitoring/02-deploy/ | kubectl --context=$tmc_cluster apply -f -
 echo "###############################################################################################Deploy Minio#"
 ytt -f templates/values-template.yaml -f templates/demo/minio.yaml | kubectl --context=$tmc_cluster apply -f -
 while [[ $(kubectl --context=$tmc_cluster get deployment minio-deployment -n minio -o=jsonpath='{.status.conditions[?(@.type=="Available")].status}') != "True" ]]; do

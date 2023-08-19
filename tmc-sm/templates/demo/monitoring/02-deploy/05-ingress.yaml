@@ -1,0 +1,91 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prometheus-sm-cert
+  namespace: tmc-local
+spec:
+  commonName: #@ "prometheus-sm.{}".format(data.values.tld_domain)
+  dnsNames:
+  - #@ "prometheus-sm.{}".format(data.values.tld_domain)
+  issuerRef:
+    kind: ClusterIssuer
+    name: local-issuer
+  secretName: prometheus-sm-tls
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: prometheus-sm
+  namespace: tmc-local
+spec:
+  ingressClassName: tmc-local
+  virtualhost:
+    fqdn: #@ "prometheus-sm.{}".format(data.values.tld_domain)
+    tls:
+      secretName: prometheus-sm-tls
+  tcpproxy:
+    services:
+    - name: prometheus-server-tmc-local-monitoring-tmc-local
+      port: 9090
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prometheus-cert
+  namespace: monitoring
+spec:
+  commonName: #@ "prometheus.{}".format(data.values.tld_domain)
+  dnsNames:
+  - #@ "prometheus.{}".format(data.values.tld_domain)
+  issuerRef:
+    kind: ClusterIssuer
+    name: local-issuer
+  secretName: prometheus-tls
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  ingressClassName: tmc-local
+  virtualhost:
+    fqdn: #@ "prometheus.{}".format(data.values.tld_domain)
+    tls:
+      secretName: prometheus-tls
+  tcpproxy:
+    services:
+    - name: prometheus-service
+      port: 80
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-cert
+  namespace: monitoring
+spec:
+  commonName: #@ "grafana.{}".format(data.values.tld_domain)
+  dnsNames:
+  - #@ "grafana.{}".format(data.values.tld_domain)
+  issuerRef:
+    kind: ClusterIssuer
+    name: local-issuer
+  secretName: grafana-tls
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  ingressClassName: tmc-local
+  virtualhost:
+    fqdn: #@ "grafana.{}".format(data.values.tld_domain)
+    tls:
+      secretName: grafana-tls
+  tcpproxy:
+    services:
+    - name: grafana
+      port: 80
