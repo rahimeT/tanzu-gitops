@@ -80,6 +80,40 @@ metadata:
   name: grafana-dashboards
   namespace: monitoring
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grana-ldap-config
+  namespace: monitoring
+data:
+  ldap.toml: |-
+    [[servers]]
+    host = "openldap.openldap.svc.cluster.local"
+    port = 389
+    use_ssl = false
+    start_tls = false
+    ssl_skip_verify = true
+    bind_dn = "cn=admin,dc=pinniped,dc=dev"
+    bind_password = 'password'
+    search_filter = "(cn=%s)"
+    search_base_dns = ["dc=pinniped,dc=dev"]
+
+    group_search_filter = "(objectClass=groupOfUniqueNames)"
+    group_search_filter_user_attribute = "cn"
+    group_search_base_dns = ["ou=Group,dc=pinniped,dc=dev"]
+
+    [[servers.group_mappings]]
+    group_dn = "cn=tmc:admin,ou=Group,dc=pinniped,dc=dev"
+    org_role = "Admin"
+    grafana_admin = true
+
+    [servers.attributes]
+    name = "givenName"
+    surname = "sn"
+    username = "cn"
+    member_of = "memberOf"
+    email =  "email"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -99,6 +133,11 @@ spec:
       containers:
       - name: grafana
         image: #@ "{}/apps/grafana:latest".format(data.values.harbor.fqdn)
+        env:
+          - name: GF_AUTH_LDAP_ENABLED
+            value: true
+          - name: GF_AUTH_LDAP_CONFIG_FILE
+            value: /etc/grafana/ldap/ldap.toml
         ports:
         - name: grafana
           containerPort: 3000
@@ -112,6 +151,9 @@ spec:
         volumeMounts:
           - mountPath: /var/lib/grafana
             name: grafana-storage
+          - mountPath: /etc/grafana/ldap
+            name: grafana-ldap-config
+            readOnly: false
           - mountPath: /etc/grafana/provisioning/datasources
             name: grafana-datasources
             readOnly: false
@@ -161,6 +203,9 @@ spec:
           configMap:
             defaultMode: 420
             name: grafana-datasources
+        - name: grafana-ldap-config
+          configMap:
+            name: grafana-ldap-config
         - name: grafana-dashboards
           configMap:
             name: grafana-dashboards
