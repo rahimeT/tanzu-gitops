@@ -130,6 +130,8 @@ echo "##########################################################################
 ytt -f templates/values-template.yaml -f templates/common/tmc-values-template.yaml > values.yaml
 export valuesContent=$(cat values.yaml)
 ytt -f templates/values-template.yaml --data-value valuesContent="$valuesContent" -f templates/common/tmc-install.yaml | kubectl --context=$tmc_cluster apply -f -
+echo "Applied upgrade YAMLs. Sleep 10 seconds to check status."
+sleep 10
 while [[ $(kubectl --context=$tmc_cluster get pkgi tanzu-mission-control -n tmc-local -o=jsonpath='{.status.conditions[?(@.type=="ReconcileSucceeded")].status}') != "True" ]]; do
     echo "Waiting for tanzu-mission-control to be ready: " $(kubectl --context=$tmc_cluster get pkgi tanzu-mission-control -n tmc-local -o=jsonpath='{.status.conditions[0].type}')
     sleep 10
