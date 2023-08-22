@@ -73,7 +73,7 @@ if [ ! -f airgapped-files/bundle-$tmc_repo.tar ] ; then
     echo "TMC-SM v$tmc_repo bundle file is not present. Please copy bundle-$tmc_repo.tar to airgapped-files/ folder. Exiting"
     exit 1
 fi
-mv agent-images/ old-tmc/ && mv dependencies/ old-tmc/
+mv agent-images/ old-tmc/ && mv dependencies/ old-tmc/ && mv packages/ old-tmc/
 tar -xvf airgapped-files/bundle-$tmc_repo.tar
 ./tmc-sm push-images harbor --project $HARBOR_URL/tmc --username $HARBOR_USER --password $HARBOR_PASS --concurrency 10
 
