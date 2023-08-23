@@ -50,11 +50,6 @@ shared_cluster:
   namespace: platform                          #! the tmc cluster that is going to be provisioned, will be in this vSphere namespace
   k8s_version: v1.23.8---vmware.3-tkg.1        #! the tmc cluster that is going to be provisioned, will use this k8s version
   storage: tanzu                               #! the tmc cluster that is going to be provisioned, will use this storage
-workload_cluster:
-  name: dev                                    #! Only for vSphere 8. the name of workload cluster that is going to be provisioned
-  namespace: dev                               #! Only for vSphere 8. the namespace of workload cluster that is going to be provisioned
-  k8s_version: v1.23.8---vmware.3-tkg.1        #! Only for vSphere 8. the k8s version of workload cluster that is going to be provisioned
-  storage: tanzu                               #! Only for vSphere 8. the storage of workload cluster that is going to be provisioned
 wcp:
   ip: 10.220.65.100                            #! supervisor ip
   user: administrator@vsphere.local            #! username

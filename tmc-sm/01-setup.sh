@@ -267,13 +267,6 @@ echo "-------------------"
 echo Open TMC-SM via this URL: https://$tmc_dns
 echo "-------------------"
 
-if [[ "$vCenter_version" == "8.0.1" ]]; then
-    echo "Run below command on supervisor level before creating each new workload cluster "
-    echo " "
-    echo "kubectx $wcp_ip && ytt -f templates/values-template.yaml -f templates/vsphere-8/cluster-config.yaml | kubectl apply -f -"
-    echo " "
-fi
-
 echo "##########################################################################################Deploy EFK#"
 ytt -f templates/values-template.yaml -f templates/demo/efk.yaml | kubectl --context=$tmc_cluster apply -f -
 echo "##########################################################################################Deploy Sample App#"
@@ -334,9 +327,3 @@ echo "##########################################################################
 echo "-------------------"
 echo Open TMC-SM via this URL: https://$tmc_dns
 echo "-------------------"
-if [[ "$vCenter_version" == "8.0.1" ]]; then
-    echo "Run below command on supervisor level before creating each new workload cluster "
-    echo " "
-    echo "kubectx $wcp_ip && ytt -f templates/values-template.yaml -f templates/vsphere-8/cluster-config.yaml | kubectl apply -f -"
-    echo " "
-fi
