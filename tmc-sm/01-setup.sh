@@ -79,6 +79,10 @@ if [[ "$vCenter_version" == "7.0.3" ]]; then
         exit 1
     fi
 elif [[ "$vCenter_version" == "8.0.1" ]]; then
+    if [[ $vCenter_build -le "22088981" ]]; then
+        echo "vCenter version: " "$vCenter_version "/ Build" $vCenter_build, this version is not supported by TMC-SM, use vCenter 8u1b or below. Exiting"
+        exit 1
+    fi
     if [[ $vCenter_build -le "21457384" ]]; then
         echo "vCenter version: " "$vCenter_version "/ Build" $vCenter_build, upgrade vCenter. Exiting"
         exit 1
