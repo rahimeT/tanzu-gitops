@@ -83,7 +83,7 @@ metadata:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grana-ldap-config
+  name: grafana-ldap-config
   namespace: monitoring
 data:
   ldap.toml: |-
@@ -135,7 +135,7 @@ spec:
         image: #@ "{}/apps/grafana:latest".format(data.values.harbor.fqdn)
         env:
           - name: GF_AUTH_LDAP_ENABLED
-            value: true
+            value: "true"
           - name: GF_AUTH_LDAP_CONFIG_FILE
             value: /etc/grafana/ldap/ldap.toml
         ports:
